@@ -1,5 +1,735 @@
-GWU CS Operating Systems
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        
+            <link rel="icon" href="assets/sibin.integral.favicon.ico">
+        
+
+        
+            <link rel="stylesheet" href="assets/suCSS.css" />
+        
+
+        <title>Operating Systems</title>
+        <style>
+            table {
+                border-collapse: collapse;
+            }
+
+            th, td {
+                border: 1px solid lightgrey;
+                padding: 0.5em 1em 0.5em 1em;
+            }
+
+        #toc_container {
+            background: #f9f9f9 none repeat scroll 0 0;
+            border: 1px solid #aaa;
+            display: table;
+            font-size: 95%;
+            margin-bottom: 1em;
+            padding: 20px;
+            width: auto;
+        }
+
+        .toc_title {
+            font-weight: 700;
+            text-align: left;
+        }
+
+        #toc_container li, #toc_container ul, #toc_container ul li{
+            list-style: outside none none !important;
+        }
+
+        </style>
+    </head>
 
 
-    GWU CS Operating Systems
-    Welcome to the official repository hub for the GWU CS OS course.
+    <body>
+        <h1>Operating Systems</h1>
+
+	<!-- All the front matter for the website -->
+	<h3 class="no-space"> Instructor: <a href="https://sibin.github.io/sibin">Prof. Sibin Mohan</a></h3>
+<p style="font-size: 19px;" class="no-space">The George Washington University</p>
+
+<table style="font-size: 19px; font-weight: bold;">
+    <tr>
+        <td>CSCI 3411</td>
+        <td>Fall 2026</td>
+    </tr>
+    <tr>
+        <td>TR 12:45PM - 02:00PM ET</td>
+        <td>Jason Monroe Hall (MON) 111</td>
+    </tr>
+</table>
+	<p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">
+    This course covers the fundamental concepts of operating systems, focusing on resource management and abstraction. 
+    <br>
+    <br>
+    In completing this course, students will,
+    <ul style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">
+        <li>understand key concepts involving system resource management, organization and abstraction</li>
+        <li>understand how an OS manages and interfaces with hardware</li>
+        <li>understand fundamental trade-offs integral to system design</li>
+        <li>experience both development and experimentation in a real OS</li>
+    </ul>
+    <br>
+    <br>
+    <br>
+    <b>Note: the workload for this class is heavy and programming intensive.</b>
+    <br>
+</p>
+
+<br>
+
+<img src="./img/os_topics_iceberg.png" alt="Operating Systems" width="700">
+
+<p class="no-space">
+    We will cover topics related to:
+</p>
+    <ul>
+        <li>OS structure</li>
+        <li>processes and thread management</li>
+        <li>communication with peripherals (I/O)</li>
+        <li>synchronization</li>
+        <li>deadlocks</li>
+        <li>memory management</li>
+        <li>Virtual Machines</li>
+        <li>cloud infrastructures</li>
+        <li>abstractions for cloud computation</li>
+    </ul>
+
+    <p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">
+    <b>Credit:</b> a lot of the material is this course is designed by: <a href="https://faculty.cs.gwu.edu/gparmer/">Prof. Gabe Parmer</a>.
+    </p>
+
+<h3>Target Audience</h3>
+    <p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">
+    Undergraduate students in CS mostly (perhaps ECE) who have taken the following <b>prerequisites:</b>
+    </p>
+    <ul style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">
+        <li>computer architecture I</li>
+        <li>software engineering</li>
+        <li>systems programming (good to know, not necessarily required)</li>
+        <li>assignments will be in <b>C</b> and require <b>kernel programming</b>.</li>
+    </ul>
+    
+    <p  style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">
+    <b>Note:</b> 
+    Though we do not assume that you have kernel experience, if you aren’t somewhat comfortable with C, you will have a very difficult time. Thus, a familiarity with C or a willingness to quickly learn and practice it is required. If you are not comfortable with C, at least go through Essential C and the exercises in the Course Material Section.
+    </p>
+	<hr>
+
+<div id="toc_container">
+    <p class="toc_title">Table of Contents</p>
+    <ul class="toc_list">
+        <li>1. <a href="#lectures">Schedule and Lectures</a></li>
+        <li>2. <a href="#staff">Course Staff and Course Details</a></li>
+        <li>3. <a href="#grading">Grading Rubric and Criteria</a></li>
+        <li>4. <a href="#outcomes">Learning Outcomes and Course Structure</a></li>
+        <li>4. <a href="#submissions">Assignment Submissions Class Technologies</a></li>
+        <li>4. <a href="#policies">Policies</a></li>
+        <ul>
+            <li>4.1 <a href="#responsibilities">Expectations and Responsibilites (Students and Faculty)</a></li>
+            <li>4.2 <a href="#late-submissions">Late Submission Policies (for MPs)</a></li>
+            <li>4.3 <a href="#academic-integrity">Academic Integrity Issues</a></li>
+            <li>4.4 <a href="#misc-policy">Misc policies, including accommodations</a></li>
+        </ul>
+    </ul>
+</div>
+    <h3>Course Textbook/Resources</h3>
+
+<ul>
+    <li style="margin-bottom: 1em;"><b>required reading:</b> you <i>must</i> read through the material at the repo for <a href="https://github.com/gwu-cs-os/resources">class resources</a>; this includes some intuition as to how to develop C, how to think about debugging and testing and how to think about generating good code.</li>
+    <li style="margin-bottom: 1em;"><b>strongly encouraged (but optional) textbook:</b><br> <i>"Operating Systems Concepts", newest edition, by Silberschatz, Galvin and Gagne</i> <br>(useful to help you understand the concepts that might not be clear from the lectures)</li>
+    <li style="margin-bottom: 1em;"><b>xv6 documentation</b>
+        <ol>
+            <li>xv6 <a href="https://pdos.csail.mit.edu/6.828/2016/xv6.html">main website</a></li>
+            <li>xv6 <a href="https://faculty.cs.gwu.edu/gparmer/courses/f16_3411/xv6-book-rev8.pdf">book</a> <br> the book is paired with the printed code (generated with <code>make print</code>)</li>
+            <li>fork the xv6 source on <a href="https://github.com/gparmer/gwu-xv6">github</a> <br> (same code that is the foundation of most of the homeworks) <br> test that you can run it using <code>make</code> and <code>make qemu</code></li>
+        </ol>
+    </li>
+    <li><b>a list of C references</b>:
+        <ol>
+            <li>good short refresher/introduction is Nick Parlante’s <a href="https://www2.seas.gwu.edu/~gparmer/courses/essentialC.pdf">essential C</a>, <a href="https://www2.seas.gwu.edu/~gparmer/courses/mem-ptrs.pdf">memory and pointers</a>, <a href="https://www2.seas.gwu.edu/~gparmer/courses/ll.pdf">linked lists</a> and <a href="https://www2.seas.gwu.edu/~gparmer/courses/ll-probs.pdf">linked list pointers</a>, all referenced from <a href="https://cslibrary.stanford.edu/">here</a> <br> The Linked List problem sets are especially useful.</li>
+            <li>if you're having trouble understanding what a specific C declaration is, then use the <code>cdecl</code> command or check the <a href="https://cdecl.org/">cdecl webpage</a></li>
+            <li>if you're familiar with C but want to learn how to write it in a better style, check out the <a href="https://github.com/gparmer/Composite/blob/master/doc/style_guide/composite_coding_style.pdf?raw=true">Composite style guide</a>.</li>
+        </ol>
+    </li>
+</ul>
+
+    <hr>
+
+    <h3 id="lectures">Schedule and Lectures</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="text-align:center">Chapter</th>
+                    <th style="text-align:left">Topic</th>
+                    <th colspan="4">Links</th>
+                </tr>
+            </thead>
+            <tbody>
+            
+            </tbody>
+        </table>
+
+        <br>    
+        <br>    
+
+    <h3 id="lectures">Homework Assignments</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th style="text-align:center">MP #</th>
+                    <th style="text-align:left">MP Title</th>
+                    <th colspan="3">Links</th>
+                </tr>
+            </thead>
+            <tbody>
+            
+            
+            </tbody>
+        </table>
+
+        <br>    
+        <br>    
+ 
+    <h3 id="lectures">Labs</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th style="text-align:center">Lab </th>
+                    <th style="text-align:left">Lab Topic</th>
+                    <th colspan="3">Links</th>
+                </tr>
+            </thead>
+            <tbody>
+            
+            
+            </tbody>
+        </table> 
+
+        <p>
+		[Slides last built at <i>2026-08-24 20:34:39</i>.]<br />
+	    <!--The PDF link generates a single-page document (including speaker notes) suitable for <a href="https://revealjs.com/pdf-export/" target="_blank">saving as a PDF for printing</a>.-->
+
+        </p>
+
+	<hr>
+
+<h3 id="staff">Course Staff</h3>
+
+<table>
+    <thead>
+    <tr style="color: rgb(176, 36, 62);">
+        <th style="text-align: left;">Position</th>
+        <th style="text-align: left;">Name</th>
+        <th style="text-align: left;">Email</th>
+    </tr>
+    </thead>
+    <tr>
+        <td>Instructor</td>
+        <td><b>Prof. Sibin Mohan</b></td>
+        <td><a href="mailto:sibin.mohan@gwu.edu">sibin.mohan@gwu.edu</a></td>
+    </tr>
+    <tr>
+        <td>Grad TA</td>
+        <td><b>Yuan Gao</b></td>
+        <td><a href="mailto:ygao1@gwmail.gwu.edu">ygao1@gwmail.gwu.edu</a></td>
+    </tr>
+    <tr>
+        <td>Grad TA</td>
+        <td><b>Faris Jiwad</b></td>
+        <td><a href="mailto:fjiwad@gwmail.gwu.edu">fjiwad@gwmail.gwu.edu</a></td>
+    </tr>
+    <tr>
+        <td>UTA</td>
+        <td><b>Anand Bhat</b></td>
+        <td><a href="mailto:anand.bhat@gwmail.gwu.edu">anand.bhat@gwmail.gwu.edu</a></td>
+    </tr>
+    <tr>
+        <td>LA</td>
+        <td><b>Calum Wilson</b></td>
+        <td><a href="calum.wilson@gwmail.gwu.edu">calum.wilson@gwmail.gwu.edu</a></td>
+    </tr>
+</table>
+
+<h3>Course Details</h3>
+<table>
+    <thead>
+    <tr style="color: rgb(176, 36, 62);">
+        <th style="text-align: left;">Detail</th>
+        <th style="text-align: left;">Information</th>
+    </tr>
+    </thead>
+    <tr>
+        <td><u>Time:</u></td>
+        <td>TUE/THUR 12:45 -- 2:00 PM ET</td>
+    </tr>
+    <tr>
+        <td><u>Location:</u></td>
+        <td>Jason Monroe Hall (MON) 111</td>
+    </tr>
+    <tr>
+        <td><u>Lab Sections:</u></td>
+        <td>TBA</td>
+    </tr>
+    <tr>
+        <td><u>Lab Sections Location:</u></td>
+        <td>SEH 4040</td>
+    </tr>
+    <tr>
+        <td><u>Prof. Mohan office Hours:</u></td>
+        <td>TBA *</td>
+    </tr>
+    <tr>
+        <td><u>TA Office Hours:</u></td>
+        <td>Look at the class calendar</td>
+    </tr>
+    <tr>
+        <td><u>Location:</u></td>
+        <td>Outside SEH 4000</td>
+    </tr>
+    <tr>
+        <td><u>Contact:</u></td>
+        <td>please message on <b>Discord</b></td>
+    </tr>
+</table>
+
+<p>[* Please message ahead of time and set up alternate slot in case of conflicts for office hours.]
+<br>
+<br>
+<b>Note:</b> Make sure that you're <a href="https://www2.seas.gwu.edu/~gparmer/resources/2021-09-20-Office-Hours-HOWTO.html">properly preparing and presenting yourself</a> at office hours!</p>
+
+
+<h3>Communication</h3>
+<p>We will use <b>Discord</b> for all course related communications.</p>
+
+	<hr>
+
+<h3 id="grading">Grading Rubric and Criteria</h3>
+
+<table style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">
+    <thead>
+        <tr style="color: rgb(176, 36, 62);">
+            <th style="text-align:left">Component</th>
+            <th style="text-align:left">% Grade</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Homeworks</td>
+            <td style="text-align:center"> 65 %</td>
+        </tr>
+
+        <tr>
+            <td>Tests</td>
+            <td style="text-align:center"> 30 %</td>
+        </tr>
+
+        <tr>
+            <td>In-Class Participation</td>
+            <td style="text-align:center"> 10 %</td>
+    </tbody>
+</table>
+
+<p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;"><b>Important Notes about Grading:</b></p>
+    <ul style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">
+        <li>we will likely use <b>automated grading scripts</b>. If your code does not pass these scripts, then you will be penalized accordingly</li>
+        <li>homeworks include programming assignments, written responses and a long final programming project; each of these components can involve <b>individual interviews</b> about your code and design</li>
+        <li>there will be a <b>midterm</b>, but hopefully not a final</li>
+        <li>if students show up late consistently, there will also be <b>unannounced quizzes</b> during class; only if students don't demonstrate understanding of the material in class on quizzes during the second half of the class, we will have a final</li>
+        </li>
+    </ul>
+
+    <br>
+
+<p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;"><b>Note:</b> ONLY talk about your final grade with Prof. Sibin Mohan. None of the other instructional staff have access to grades or the ability to modify them.</p>
+
+ <h4>Testing your implementation:</h4>
+
+  <p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">When you are required to test your code, please note that our test cases will test <em>every</em> edge case in the implementation. If you do not write code to test the edge-cases of the specifications, then you <em>will</em> lose credit. This is the largest reason why students get lower grades than they believe they deserve. If you believe that an error was made in grading, then please explicitly address why you believe your test cases are sufficient to test all cases. See the discussion about testing and debugging below.</p>
+
+  <h4>Style and Code Craftsmanship:</h4>
+
+  <p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">Any homework graded by demo (i.e. the project) must adhere to style guidelines, and you must <em>curate</em> your code. It must be simple, readable, and clean. See <a href="../posts/2016-03-07-code-craftsmanship.html">this post</a> For some thoughts on how to make your code more readable, see the <a href="https://github.com/gparmer/composite/blob/ppos/doc/style_guide/composite_coding_style.pdf">Composite Style Guide</a>.</p>
+
+
+<h4>In Class Participation</h4>
+<p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">I encourage you to ask questions and ask often. Participate in discussions as well. Take notes since that helps with the learning.
+    <br>
+    <br>
+
+Participation grade includes,</p>
+    <ol style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;"> 
+        <li>lecture form questions and feedback (which will be selected randomly for grading)</li>
+        <li>engagement in class</li>
+                <li>lab attendance and participation</li>
+    </ol>
+
+<p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">
+In short, participation will be graded not only on attendance, but also on interactivity and involvement during class and on discord.
+<br>
+<br>
+<!--p>Part of keeping a course “fresh” and successful is trying new things, and keeping the things that work. Please keep in mind that I might not have fully ironed out the kinks in each of these, so your feedback is valuable. Given this, the experiments I’m running this year include:</p-->
+<strong>I’ll call on random students to answer questions.</strong> Instead of bureaucratically tracking participation, I’ll ask questions in lecture to a random student! This is stressful, and I apologize for that. However, I want to normalize that it is OK if you don’t know the answer. Given this, any student asked a question can either</p>
+<ol type="1">
+    <li>answer if you have a good idea – even if you’re a little shaky with it,</li>
+    <li>give it a guess which might be wrong, but will be a great point for me to explain the concept more,</li>
+    <li>ask a question if your understanding is incomplete and you know what you don’t know,</li>
+    <li>or call in a favor of another specific student.</li>
+</ol>
+<p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">In the last case, I’ll end up calling on you again sooner. It is absolutely fine, to not know an answer, or to give it a wild guess. Most of life we’re wrong about most things, but we aim, in the end to get a few things right.</p>
+
+<h4>Homework Grade Modifications</h4>
+
+<p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">The following modifies apply to your grade on <em>all</em> homeworks (but not the project).</p>
+<ul>
+    <li><b>+15 points</b>: If the last commit of your repo is 4 days early (i.e. submitted on a Friday when the deadline is a Tuesday). We really want to encourage you to do your work early! These points only apply to the initial submission, not resubmissions. We’ll always grade the most recent submission before the deadline, so if you do any submission after the 4-days-early deadline, then you will not get the extra credit.</li>
+    <li><b>-50 points</b>: not removing debugging/logging/informational prints from your code (in industry, you <b>cannot</b> commit code with printouts).</li>
+    <li><b>-50 points</b>: not following the naming requirements, or not structuring code into specific files as required in the specification. If you rename functions, and that causes your code to not compile <b>with our test code</b>, see the next bullet.</li>
+    <li><b>0 points</b> (i.e., no credit): code does not compile as submitted. You must ensure it compiles with <b>no warnings</b> (using the <code>xv6</code> warning flags, or <code>-Wall -Wextra -Werror</code> if not in <code>xv6</code>) as we will make compilations fail (with <code>-Werror</code>) if there are warnings. Forgetting to <code>git add</code> files is not an excuse. “A small change makes it compile” is not an excuse. You should always do a fresh <code>git clone</code> of your submitted repo, to make sure that it compiles and your tests work. Make sure it works in the VM using the version of the compiler we use (i.e. Ubuntu). If you don’t test in this specific environment, <b>your code will likely fail compilation</b>.</li>
+    <li><b>Drop lowest grade</b>: we will drop your lowest homework grade. This allows for sickness and emergencies. Please do not plan to “use” this unless you have done well on all homeworks, and you only have the last homework remaining. This rule does <b>not</b> apply to the final project.</li>
+</ul>
+<p>Your grade can be minimum <b>0%</b>, but your maximum grade can be higher than <b>100%</b> (if there is extra credit). There is one exception:</p>
+<ul>
+    <li><b>0 points, and 0 points on the highest point value homework</b>: If you do not do your <b>own work</b> on a homework, or if you share your work with students you aren’t allowed. You cannot get credit for work you didn’t do, or where you enabled others to not do their own work, so you will get a zero on the assignment. Instead of seeking out shortcuts, please come and talk to me if you’re feeling desperate. Talk to me <b>before</b> you do anything rash that sets you up for failure. You <b>cannot</b> resubmit this work (see “Late Policy” below). You cannot drop this homework grade.</li>
+</ul>
+<p>I cannot emphasize this point enough: <strong>The <em>only</em> way people have failed this class is by not trying or by not doing their own work</strong>.
+</p>
+	<hr>
+
+<h3 id="outcomes">Learning Outcomes and Course Structure</h3>
+  <p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;"><strong>Objectives:</strong> in completing this class, students will,</p>
+  <ul>
+    <li>understand key concepts involving system resource management, organization, and abstraction</li>
+    <li>understand how an OS manages and interfaces with hardware</li>
+    <li>understand fundamental trade-offs integral to system design</li>
+    <li>experience both development and experimentation in a real OS</li>
+  </ul>
+
+  <p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;"><strong>Structure:</strong> this class is broken into two main activities: lectures and lab.</p>
+  <ul>
+    <li>Lectures will discuss the main concepts in systems with reference to implementation details where beneficial. A series of homeworks (all in C) will test student’s ability to apply the courses concepts in a set of projects. The midterm and final exams test student’s understanding of the lecture’s concepts.</li>
+    <li>Labs will help you jump into the xv6 kernel and learn how to write and understand code in key subsystems. You will have programming assignments related to lab lectures throughout the semester. In the second half of the class, you will have a large group project involving kernel programming.</li>
+  </ul>
+
+  <h4>Direct Instruction and Independent Learning</h4>
+  <p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">Each semester, you’re expected to spend <em>at least</em>:</p>
+  <ul>
+    <li>70 hours in class, and in lab for direct instruction, and</li>
+    <li>150 hours out of class watching lectures, and working on your project and class assignments.</li>
+  </ul>
+	<hr>
+
+<h3 id="submissions">Assignment Submissions and Class Technologies</h3>
+
+  <p class="no-space">All of your homeworks for this class will be submitted via <code>github</code>. The <em>last</em> commit that you make to the repo will be graded, and the lateness penalties of that commit (see “<strong>Late Policy</strong>” below) will apply. Please do <em>not</em> make <code>push</code>es to your repo after the version you want graded. Please also note that it is <em>necessary</em> to issue a <code>git push</code> up to the <code>github</code> repo for submission. Local commits to your own repo do <em>not</em> update <code>github</code>, thus cannot be counted as submission.</p>
+
+  <p class="no-space">All assignments are submitted on github by doing a push of your commits before the deadline. There are a huge number of errors that one can make, so I highly suggest that you do the following procedure. When you submit an assignment, I suggest that you follow this procedure:</p>
+  <ol type="1">
+    <li><code>git status</code> to make sure that you have <code>git add</code>ed all of the intended files.</li>
+    <li><code>git diff</code> and <code>git diff --stat</code> to make sure that you’re committing what you think you are. Of note, check to see if you’re committing any <code>printf</code>s that are intended for debugging, not for program output.</li>
+    <li><code>git commit</code> and <code>git push</code> to upload your code to <code>github</code>.</li>
+    <li>Go to the associated webpage for the repository, and make sure that the most recent commit is present in your repository.</li>
+    <li>Use <code>git clone ...</code> to get a <em>fresh</em> version of the repository, build it, and run your tests. Students who omit this step <em>get bad grades</em> for very <em>avoidable reasons</em>. Always make sure that your submission matches what you <em>think you’re submitting</em>.</li>
+  </ol>
+
+  <h4>Git Usage on Group Projects</h4>
+  <p class="no-space">We want to be able to use your <code>git</code> commit logs and diffs, along with partner feedback to assess work done in groups. We don’t expect the work to be exactly equal between team members, but we do expect each group member to pull their own weight. Thus, we expect you to follow some simple rules when using <code>git</code>:</p>
+  <ol type="1">
+    <li><em>Don’t rebase.</em> Don’t rebase your commits to clean up your commit history. I wanted to see your entire commit history, thus avoid squashing commits. If you don’t know what this is, then you likely don’t need to worry.</li>
+    <li><em>Commit with your GWU email.</em> <a href="https://docs.github.com/en/enterprise/2.13/user/articles/setting-your-commit-email-address-in-git">Set</a> your git email address to your GWU email address. Failure to do this will mean that we see you doing <em>no</em> commits!</li>
+    <li><em>When pair programming, swap who’s driving, and commit often.</em> If you program together in your group, that’s fine. However, you need to swap back and forth regularly. Set a timer.</li>
+    <li><em>Notate commits that don’t compile.</em> If you make a commit when the code doesn’t compile, include <code>DOES NOT COMPILE</code> in the commit message body. Many commits made when pair programming will use this.</li>
+  </ol>
+
+  <p class="no-space">Your commit logs will <em>not</em> feed directly into your grade. However, they will play a role in how we determine groups and they might lead to meetings to discuss your contributions.</p>
+
+  <h4>Class Technologies</h4>
+  <p class="no-space">How you comport yourself online in the class just adhere to our <a href="../resources/2020-08-01-Online-Conduct.html">online social contract</a>. For the class we’ll use the following technologies for the specified purposes:</p>
+  <ul>
+    <li><b>Github:</b> assignments are retrieved from github classroom using a link provided in the <code>class-information</code> document. They are submitted via <code>push</code>es to github. See the details on submission and on how to use github below.</li>
+    <li><b>Discord:</b> find the link in the <code>class-information</code> document. Office hours, informal discussion, and other online help will use various rooms associated with the OS Discord. The discussion on Discord is, by default, <em>synchronous</em> and <em>transient</em>. Synchronous means that you might get an immediate response (if anyone is online), and can have a discussion. Transient means that the conversation will be lost to the brutality of the scroll-bar. This means that no-one in the class (including the instructional staff) are expected to see Discord discussion, in general.
+      <p>Note: we <em>cannot</em> guarantee super-fast responses. In general, we will guarantee that we will reply in a batch, once per day. Additionally, we reserve the right to not answer homework questions the day before it is due – procrastination is not encouraged.</p>
+    </li>
+    <li><b>Google Drive:</b> some of the class-private information will be placed into the class’ google drive. This includes slides, the <code>questions-and-answers</code> document and the <code>class-information</code> document which includes all links for the class.</li>
+  </ul>
+
+  <p class="no-space">Please see the discussion about Academic Integrity below. A rule of thumb is that you should <em>not</em> post code on any discussion medium with reach beyond your group. We do <em>not</em> use blackboard.</p>
+	<hr>
+
+<h3 id="policies">Policies</h3>
+	
+<h4 id="responsibilities">Expectations and Responsibilities</h4>
+
+<p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">
+    <b>Student Responsibilities:</b> Students must,
+</p>
+    <ul>
+        <li> Conduct your online behavior in accordance with the class' <a href="https://sibin.github.io/teaching/csci2410-gwu-systems_programming/fall_2024/professional_contract.html">Professional and Social Contract</a></li>
+        <li>Attend all classes and labs unless you are sick or there is an emergency in which cases you must contact the professor via email before class</li>
+        <li>Interact, ask questions, and generally participate in class discussions</li>
+        <li>Do group exercises assigned during lectures and/or labs</li>
+        <li> Be <i>respectful</i> when working in a group, and make sure that everyone's ideas are heard and taken seriously</li>
+        <li>Complete all work in accordance with the academic honesty rules for the university and for the class</li>
+        <li>Work to digest and process all provided material including Blackboard and Discord discussions (you <b>cannot</b> ignore Discord or Blackboard)</li>
+        <li>Contact the Professor if you are worried about completing any responsibilities</li>
+    </ul>
+    
+<p class="no-space">
+    We will work with you to come up with a plan to be successful in the class.
+</p>
+
+<p>
+    We also need your feedback for parts of the class that aren't working for you. We do our best in running the class, but certainly make mistakes, or overlook different aspects.
+    Class evaluations are of limited use since they only are given at the end of the class.
+    Please provide feedback using the Google form.
+</p>
+
+<h4>Professor and Instructional Staff Responsibilities</h4>
+<p class="no-space">
+    You should depend on the instructional staff (including Sibin) for the class to:
+</p>
+    <ul>
+        <li>be clear about student's responsibilities in the class</li>
+        <li>convey the course's materials on this webpage, on Discord and Blackboard, in class, and in lab in a manner that is approachable and understandable to <i>every single</i> student</li>
+        <li> provide an environment in which everyone feels open to ask questions, and seek to remedy any misunderstandings or confusions</li>
+        <li>provide additional material on demand if anyone is curious about knowledge beyond the scope of the class</li>
+    </ul>
+<p>
+    These can be remembered as "we're here to make it clear what you should do, what you should know, and what to do if you don't feel like you know what you're supposed to do or know". 
+    <br>
+    <br>
+    If at any point, you have concerns about any of these, of if we're dropping the ball on any of them, please let us know and we'll do better.
+    <br>
+    <br>
+    There are trade-offs made in the class (for example, some homeworks may not be formally specified as I don't want them to be 50 pages each), but you always encouraged to ask questions and clarify.
+    <br>
+    <br>
+    Further, it is our intent that students from all diverse backgrounds and perspectives be well-served by this course, that students’ learning needs be addressed both in and out of class, and that the diversity that the students bring to this class be viewed as a resource, strength and benefit.
+    <br>
+    <br>
+    It is our intent to present materials and activities that are respectful of: gender identity, sexuality, disability, age, socioeconomic status, ethnicity, race, nationality, religion, and culture.
+    <br>
+    <br>
+    Your suggestions are encouraged and appreciated.
+    Please let us know ways to improve the effectiveness of the course for you personally, or for other students or student groups.
+</p>
+
+
+<h4 id="late-submissions">Late Policy</h4>
+
+<p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">The only acceptable excuses for late submissions are medical, family, and related issues. For assignments that are assigned for a large span of time (e.g. two weeks), a single two day disturbance (for example) should <b>not</b> inhibit your ability to complete the assignment. Generally <b>unacceptable</b> excuses include:</p>
+
+<ul>
+    <li>your computer failing (we’re using github for a reason),</li>
+    <li>lots of midterms or activity in other classes,</li>
+    <li>forgetting to <code>git add</code> necessary files, or forgetting to <code>git push</code> (proper <code>git</code>
+    usage is a <em>requirement</em> for the class), and</li>
+    <li>you worked very hard and put a lot of time and effort in, but still aren’t quite “there” yet.</li>
+</ul>
+
+    <p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">You get <b>0</b> credit for late work that is not explicitly excused by Gabe. However, once the grades are released, you can <b>resubmit</b> your code within <b>seven days</b>, rounded up to the closest midnight. For example, if the grades are released at 2:30pm on the 8th, resubmissions are due at midnight on the 15th (i.e. 8 + 7 = 15). You will get <b>0</b> additional credit for re-submissions after this date.</p>
+
+    <p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">We will grade the last commit before the resubmission deadline, and you will receive 50% of the credit on top of the original grade, rounded up to the nearest percent. For example, if you got a <b>43%</b> on the initial deadline, and resubmit and get a <b>68%</b>, your final grade (<b>g</b>) will be <b>g</b> = 43 + ⌈(68 - 43) / 2⌉ = 56.</p>
+
+    <p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">We calculate homework <b>i</b>’s grade as <b>g<sub>i</sub></b>, and the extra credit as <b>e<sub>i</sub></b>:</p>
+  <ul>
+    <li><b>g<sub>i</sub></b> = <b>o<sub>i</sub></b> + max(0, ⌈(<b>r<sub>i</sub></b> - <b>o<sub>i</sub></b>) / 2⌉)</li>
+    <li><b>e<sub>i</sub></b> = <b>e<sub>early</sub></b> + <b>e<sup>o</sup><sub>i</sub></b> + max(0, ⌈(<b>e<sup>r</sup><sub>i</sub></b> - <b>e<sup>o</sup><sub>i</sub></b>) / 2⌉)</li>
+  </ul>
+
+    <p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">where <b>o<sub>i</sub></b> is the original submission’s grade (and includes the negative modifiers above), <b>r<sub>i</sub></b> is the regrade (which includes any applicable negative modifiers, and always includes the “cheating” penalty), <b>e<sub>early</sub></b> is any early submission points on the normal deadline, <b>e<sup>r</sup><sub>i</sub></b> is the resubmission’s extra credit, and <b>e<sup>o</sup><sub>i</sub></b> is the original submissions grade.</p>
+
+    <p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">where <b>o<sub>i</sub></b> is the original submission’s grade (and includes the negative modifiers above), <b>r<sub>i</sub></b> is the regrade (which includes any applicable negative modifiers, and always includes the “cheating” penalty), <b>e<sub>early</sub></b> is any early submission points on the normal deadline, <b>e<sup>r</sup><sub>i</sub></b> is the resubmission’s extra credit, and <b>e<sup>o</sup><sub>i</sub></b> is the original submissions grade.</p>
+
+    <p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">Do <b>not</b> come to rely on the resubmission process. Homeworks are due every week or every other week, so it is very harmful to get behind on them, or to add <b>more</b> work to your schedule. Thus, our late policy is quite strict to discourage procrastination.</p>
+
+    <p style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">Please note that in terms of <b>academic honesty</b>, you <b>cannot</b> share your code with your peers even <b>after</b> it is due.</p>
+
+<h4 id="academic-integrity">Collaboration, the Honor Code and Cheating</h4>
+
+<p class="no-space"><b>Individual Work with Collaboration.</b> You are encouraged to work together. You may discuss the homeworks with other people to understand the problem and reach a solution. However, each student/group must <b>write down the solution independently</b>, without referring to written notes or code from others. <b>You’ll each have your own github classroom repo, and will submit your own work.</b> Hence, you must understand the solution well enough to discuss it yourself. In addition, each student/group must <b>explicitly mention</b> the names of the people with whom they collaborated. 
+</p>
+<br>
+
+<p class="no-space"><b>Buddy System.</b> However, you’re allowed to pair up with another student in the class --- your <b>buddy</b>. You can collaborate as you see fit. Unlike the normal academic honesty rules of the class, you’re allowed to share code. For any commits that share code with your <em>buddy</em>, you <b>must</b> acknowledge as such in the corresponding commits.
+</p>
+
+<p class="no-space">If your buddy stops contributing, procrastinates or otherwise indicates (through action) that they don’t want to reasonably collaborate, you are responsible for your own code and submission. You must not wait for your buddy, and make progress on your own to meet the deadline. Further, no student <em>has</em> to collaborate with their buddy, but you <em>do</em> have to be clear with your communication –-- you cannot “go dark” and have to use clear communication about your intentions for the collaboration.</p>
+
+<p class="no-space">
+If I suspect <b>cheating++</b>, I might have the student(s) come and answer questions in my office. If my suspicions are confirmed, I will consider a range of possibilities (depending on the seriousness of the offence) that includes any/all of the following:
+</p>
+    <ol>
+        <li>a <b>0</b> on that homework/section,</li>
+        <li>an <b>F</b> for the entire course and</li>
+        <li>report the student to for an academic integrity violation.</li>
+    </ol>
+
+<p class="no-space">
+(<b>++</b> we will use a number of methods to detect cheating that includes, automated software, eyeballing the code, talking to the student, etc.)
+</p>
+
+<p class="no-space">The purpose of problem sets in this class is to help you think about the material, not just give us the right answers. You are encouraged to use online resources for learning more about the material covered in class; however, you should not look for or use found solutions to questions in the problem sets. Specifically, you must not look at any code that has been created to solve the assignment, including solutions found on the internet to questions in the problem sets, code created by a student in a previous class or code created by a current classmate. (Though frankly, I seriously doubt you'll find anything, I regularly change the assignments).</p>
+
+<h4>Group Work</h4>
+
+  <p class="no-space">Working in groups can be challenging. The core strategies to avoid conflict and acrimony all must focus on planning and clear communication. You must follow <a href="../resources/2021-11-14-Working-With-Peers.html">this guidance</a> in your group work. This includes:</p>
+  <ul>
+    <li>strong communication,</li>
+    <li>mutual respect,</li>
+    <li>detailed planning,</li>
+    <li>clear work allocation, and</li>
+    <li>constant progress.</li>
+  </ul>
+
+  <p class="no-space">It must be cognizant of</p>
+  <ul>
+    <li>raising warnings with the professor early,</li>
+    <li>enabling flexible work styles, while also adhering to the plan, and</li>
+    <li>avoiding type-casting of members.</li>
+  </ul>
+
+  <p class="no-space">Read the above guidance carefully.</p>
+
+
+<h4>ChatGPT, Github CoPilot and Other Code Generation Tools</h4>
+
+<p class="no-space">The use of ChatGPT, GitHub CoPilot and any/all other code generation tools (that currently exist or will be developed
+in the future) is <b>expressly forbidden</b>!
+<br>
+<br>
+If any student is found using such tools then it will be considered a <b>violation of academic integrity</b> and reported appropriately.</p>
+
+<h4>Class Academic Honesty Policy</h4>
+
+<p class="no-space">Just as you can do a google search for code online, it is trivial for us to do the same. We have caught numerous people cheating in the past in this way. If you feel pressured about an assignment, please come see me instead of cheating.</p>
+
+  <p class="no-space">You are not allowed to collaborate on the homeworks and the lab assignments (except the buddy system mentioned above). The group projects require collaboration within each group, but no collaboration between teams is permitted. Please refer to the academic integrity policy linked from the course web page. This policy will be strictly enforced. If you’re having significant trouble with an assignment, please contact me. <b>If you have not signed the academic integrity statement for homework 0, you will not receive a passing grade for the class.</b></p>
+
+  <p class="no-space"><strong>Summary:</strong> I want to be very clear:</p>
+  <ul>
+    <li>if you see the code of another student (who is not in your group), the homework penalty above will apply</li>
+    <li>if you <em>share</em> your code with any other student (not in your group), the homework penalty above will apply. This applies even when you are no longer taking the class</li>
+    <li>if you understand code using a program assistant, or use code given to you by a program, the homework penalty above will apply</li>
+    <li>if you look code online pertaining the assignment’s problem, the homework penalty above will apply.</li>
+  </ul>
+
+  <p class="no-space">In the past, the only way that people have failed this class is to either not try (not do homeworks), or to not do their own work (or share their work with others). There is almost <em>no reason</em> to do this. Come to me, and we can discuss where you’re at, and what you have to do to make it through this difficult class!</p>
+
+  <p class="no-space">Note that you’re very much <em>allowed</em> to do any of the following:</p>
+  <ul>
+    <li>Discuss the homework <em>specification</em> with peers.</li>
+    <li>Discuss general <code>xv6</code> or C design and/or details with peers.</li>
+    <li>Ask anything to instructional staff (though you might not receive a direct answer for all requests).</li>
+    <li>Discuss class material with your peers.</li>
+    <li>Discuss any details about a homework with members of your assigned team, or your buddy.</li>
+  </ul>
+
+  <p class="no-space"><strong>Justification:</strong> Not doing your own work hurts your <b>ability to compete for CS jobs</b>. Everyone came to college to learn. You learn by <b>doing</b> work to reinforce class ideas. Understanding ideas from class is nowhere near as effective at learning as <em>applying</em> those ideas in an implementation. Thus, you <em>need</em> to do your <em>own</em> implementation to be a competitive CS student in the real-world!</p>
+
+  <p class="no-space">Not doing your own work <b>hurts your peers</b>. Courses that are graded on a curve have the side-effect that if someone inflates their grade not by hard work, but by not doing your own work, your good grade (should the Professor not catch you) will hurt the grade of all of your colleagues that put the work in.</p>
+
+  <p class="no-space">Not doing your own work also hurts the <b>quality of the OS class</b> in the long term, thus hurts <em>all future generations of GW CS undergrads</em>. If you don’t do your own work, especially using previous year student’s work, to the point where the Professor believes that they must develop new assignments every year, then those assignments will not be as strong. They will not meet learning objectives in a course like this. All future CS students will be less prepared for competing for the best jobs.</p>
+
+
+<h4>Academic Integrity University Policy`</h4>
+
+<p class="no-space">
+Academic Integrity is an integral part of the educational process, and GW takes these matters very seriously. Violations of academic integrity occur when students fail to cite research sources properly, engage in unauthorized collaboration, falsify data, and in other ways outlined in the Code of Academic Integrity. Students accused of academic integrity violations should contact the Office of Academic Integrity to learn more about their rights and options in the process. Outcomes can range from failure of assignment to expulsion from the University, including a transcript notation. The Office of Academic Integrity maintains a permanent record of the violation.
+<br>
+<br>
+Familiarize yourself with the standards set forth in the <a href="studentconduct.gwu.edu/academic-integrity">GWU Code of Student Conduct</a> and specifically the University’s <a href="studentconduct.gwu.edu/guide-academic-integrity-online-learning-environments">“Guide of Academic Integrity in Online Learning Environments"</a>.  If there is any question about whether an act constitutes academic misconduct, it is your responsibility to seek clarification and approval from the instructor prior to acting. When in doubt, ask, or don't do it.
+</p>
+
+<p class="no-space">Contact information: 
+</p>
+<ul>
+    <li>rights@gwu.edu</li>
+    <li>202-994-6757</li>
+</ul>
+
+
+<h4 id="misc-policy">Absence Policy</h4>
+<p>If you miss a class, <i>for whatever reason</i>, you are still responsible for that class' material. Go through the lectures, consult the scribe notes, come to office hours (in that order), and talk to your fellow students, to learn the material. </p>
+
+<h4 id="grade-review">Grade Review Policy</h4>
+<p>You have one week after a grade is released to ask us questions about it and seek a correction. After the week has passed, the grade is finalized. When releasing a grade, we may also post comments where appropriate, explaining where you lost points, made mistakes, etc.
+<br>
+<br>
+In case you are seeking a correction to the grade, you need a specific reason. I cannot accommodate general requests that are a variation on "I think my grade was too low". Why do you think that? Based on our discussion, we might increase the grade, decrease it, or leave it as is.
+<br>
+<br>
+Of course, you can stop by anytime during the term to <i>ask questions about any part of the material</i>. The one-week deadline applies to grade-specific questions.
+</p>
+
+<h4>Use of Electronic Course Materials and Class Recordings</h4>
+<p>Students are encouraged to use electronic course materials, including recorded class sessions, for private personal use in connection with their academic program of study. Electronic course materials and recorded class sessions must not be shared and must not be used for non-course related purposes unless express permission has been granted by the instructor. Students who impermissibly share any electronic course materials are subject to discipline under the Student Code of Conduct. Please contact the instructor if you have questions regarding what constitutes permissible or impermissible use of electronic course materials and/or recorded class sessions. Please contact Disability Support Services if you have questions or need assistance in accessing electronic course materials.</p>
+
+<h4>Academic support</h4>
+<h5>Writing Center</h5>
+<p>GW’s Writing Center cultivates confident writers in the University community by facilitating collaborative, critical, and inclusive conversations at all stages of the writing process. Working alongside peer mentors, writers develop strategies to write independently in academic and public settings. 
+
+Appointments can be booked online at: <a href="gwu.mywconline">gwu.mywconline</a>.</p>
+
+<h5>Academic Commons</h5>
+<p>Academic Commons provides tutoring and other academic support resources to students in many courses. Students can schedule virtual one-on-one appointments or attend virtual drop-in sessions. Students may schedule an appointment, review the tutoring schedule, access other academic support resources, or obtain assistance at <a href="academiccommons.gwu.edu">academiccommons.gwu.ed</a>.</p>
+
+<h4>COVID-Related Topics</h4>
+<p>The university's <a href="https://coronavirus.gwu.edu">COVID-19 Safety and Success website</a> serves as the primary communication channel for the GWU regarding COVID-19 logistics and classroom guidelines.</p>
+
+<!--h5>Face Coverings</h5>
+<p>The university has a requirement to use a face covering when in indoor spaces in order to contribute to the health and safety of the GWU community during the ongoing COVID-19 pandemic. Accordingly, you are expected to use a face covering when attending class, including when you speak. I will do the same.
+</p>
+
+<p>Acceptable face coverings include:
+<ul>
+    <li>Cloth garments that cover the nose and mouth </li>
+    <li>Medical-grade disposable masks</li>
+</ul>
+</p>
+
+<p>If you don't have your own, face coverings are available at <a href="https://coronavirus.gwu.edu/face-mask-availability">various campus locations.</a></p>
+
+<p>Requests for exemption from wearing a face covering in indoor spaces require <b>prior</b> approval. Please follow this <a href="https://coronavirus.gwu.edu/top-faqs">link</a> for more information.
+</p-->
+
+<h4>Students with Disabiities [202-994-8250]</h4>
+<p>Accommodations for students with disabilities are determined and approved by <a href="https://disabilitysupport.gwu.edu">Disability Support Services</a>(DSS). If you, as a student, feel that you need accommodations but have not obtained approval please contact DSS immediately at <b>202-994-8250</b> or at <a href="https://disabilitysupport.gwu.edu">https://disabilitysupport.gwu.edu</a>. DSS notifies students and faculty members of approved academic accommodations and coordinates implementation of those accommodations. While not required, students and faculty members are encouraged to discuss details of the implementation of individual accommodations.
+</p>
+
+
+<h4>Ethical and Respectful Behavior</h4>
+<p>We expect all students to act in an respectful and ethical way, both with respect to the treatment of their peers in the classroom during discussion but also in the design and execution of their course projects. Actions should meet the expectations of ethical research and follow the norms and proper behavior of the George Washington University community. We strive for an inclusive classroom, which includes but is not limited to anti-racism, anti-sexism, accessibility, LGBTQ+ inclusivity. If you feel like you are unable to use inclusive language and behave in a non-discriminatory way, please drop the class.</p>
+
+<h4>University policy on observance of religious holidays</h4>
+<p>In accordance with University policy, students should notify faculty during the first week of the semester of their intention to be absent from class on their day(s) of religious observance. For details and policy, see <a href="provost.gwu.edu/policies-procedures-and-guidelines">“Religious Holidays”</a>. </p>
+
+
+<h4>Reach Out for Success/Wellness</h4>
+<p>University students encounter setbacks from time to time. If you encounter difficulties and need assistance, it's important to reach out. Consider discussing the situation with an instructor or academic advisor. Learn about resources that assist with wellness and academic success at <a href="https://students.gwu.edu/health-wellness">Health and Wellness Center</a>. 
+<br>
+<br>
+If you or someone you know are in immediate crisis, please contact one of the following resources immediately:
+ </p>
+<ul>
+    <li>Student Counseling : <b>202-994-5300</b></li>
+    <li>National Suicide Prevention Lifeline: <b>1-800-273-8255</b></li>
+</ul>
+
+
+ <h4>Safety and Security</h4>
+ <ul>
+ <li>In an emergency: <b>call GWPD 202-994-6111</b> or <b>911</b></li>
+ <li>For situation-specific actions: review the Emergency Response Handbook at: <a href="safety.gwu.edu/emergency-response-handbook">safety.gwu.edu/emergency-response-handbook</a>
+ <li>In an active violence situation: Get Out, Hide Out, or Take Out. See <a href="go.gwu.edu/shooterpret">go.gwu.edu/shooterpret</a>
+<li>Stay informed: <a href="safety.gwu.edu/stay-informed">safety.gwu.edu/stay-informed</a>
+</ul>
+
+    </body>
+</html>
