@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        
+            <link rel="icon" href="assets/sibin.integral.favicon.ico">
+        
+
+        <link rel="stylesheet" href="assets/reveal-js/dist/reveal.css" />
+
+        
+            <link rel="stylesheet" href="assets/custom.sibin.css" />
+        
+        
+            <link rel="stylesheet" href="assets/monokai.css" />
+        
+
+        
+            
+        
+            
+        
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section data-markdown
+                
+                    data-separator="^\s*---\s*$"
+                
+                    data-separator-vertical="^\s*-v-\s*$"
+                
+                    data-separator-notes="^Notes?:"
+                
+                    data-charset="utf-8"
+                
+                    data-auto-animate="True"
+                
+                >
+                    <textarea data-template>
+                        # introduction
+
+## **Operating Systems**
+### csci 3411
+### Prof. **Sibin Mohan**
+
+---
+
+let's look at **three** questions:
+
+---
+
+let's look at **three** questions:
+
+1. _what_ is an operating system?
+
+---
+
+let's look at **three** questions:
+
+1. _what_ is an operating system?
+2. _why_ should I care?
+
+---
+
+let's look at **three** questions:
+
+1. _what_ is an operating system?
+2. _why_ should I care?
+3. _what_ do I need  to know for this course?
+
+---
+
+### _what_ is an operating system?
+
+---
+
+### _what_ is an operating system?
+
+let's look at some examples...
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+||
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+|apache | |
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+|apache | **n** |
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+|apache | **n** |
+|safari/chrome| |
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+|apache | **n** |
+|safari/chrome| **n** |
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+|apache | **n** |
+|safari/chrome| **n** |
+|app store | |
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+|apache | **n** |
+|safari/chrome| **n** |
+|app store | **n** |
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+|apache | **n** |
+|safari/chrome| **n** |
+|app store | **n** |
+|emacs | |
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+|apache | **n** |
+|safari/chrome| **n** |
+|app store | **n** |
+|emacs | **n** |
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+|apache | **n** |
+|safari/chrome| **n** |
+|app store | **n** |
+|emacs | **n** |
+|excel ||
+||
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+|apache | **n** |
+|safari/chrome| **n** |
+|app store | **n** |
+|emacs | **n** |
+|excel | **n** |
+||
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+|apache | **n** |
+|safari/chrome| **n** |
+|app store | **n** |
+|**emacs** | ? |
+|**excel** | ?|
+||
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+<img src="./img/kombucha-girl.gif" height="775">
+
+---
+
+depending on who you ask...
+
+---
+
+depending on who you ask...
+
+**emacs** and **excel** may or may not be an OS!
+
+Note:
+- you can create and run pretty much anything on emacs and excel these days!
+
+---
+
+let's continue...
+
+---
+
+### _what_ is an operating system?
+
+---
+
+### _what_ is an operating system?
+
+let's look at some _more_ examples...
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+| windows | |
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+| windows | **y** |
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+| windows | **y** |
+| linux | |
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+| windows | **y** |
+| linux | **y** |
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+| windows | **y** |
+| linux | **y** |
+| iOS | |
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+| windows | **y** |
+| linux | **y** |
+| iOS |  **y** |
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+| windows | **y** |
+| linux | **y** |
+| iOS |  **y** |
+| android | |
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+| windows | **y** |
+| linux | **y** |
+| iOS |  **y** |
+| android | **y** |
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+| windows | **y** |
+| linux | **y** |
+| iOS |  **y** |
+| android | **y** |
+| xv6 | |
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+| windows | **y** |
+| linux | **y** |
+| iOS |  **y** |
+| android | **y** |
+| xv6 | **y** |
+||
+
+---
+
+so, what is the difference between these two lists?
+
+|||
+|----|----|
+| windows | apache |
+| linux | safari/chrome|
+| iOS | app store|
+| android | emacs |
+| xv6 | excel |
+||
+
+
+---
+
+### operating system
+
+---
+
+### operating system
+
+|functional | non-functional|
+|-----------|---------------|
+||
+
+---
+
+### operating system
+
+|functional | non-functional|
+|-----------|---------------|
+| **interface** to **hardware**||
+
+---
+
+### operating system
+
+|functional | non-functional|
+|-----------|---------------|
+| **interface** to **hardware**||
+| **manage** resources | |
+
+---
+
+### operating system
+
+|functional | non-functional|
+|-----------|---------------|
+| **interface** to **hardware**||
+| **manage** resources | |
+| **api** ||
+
+---
+
+### operating system
+
+|functional | non-functional|
+|-----------|---------------|
+| **interface** to **hardware**| **isolation** |
+| **manage** resources | |
+| **api** ||
+
+---
+
+### operating system
+
+|functional | non-functional|
+|-----------|---------------|
+| **interface** to **hardware**| **isolation** |
+| **manage** resources | **security** |
+| **api** ||
+
+---
+
+### operating system
+
+|functional | non-functional|
+|-----------|---------------|
+| **interface** to **hardware**| **isolation** |
+| **manage** resources | **security** |
+| **api** | data/user **policies** |
+||
+
+---
+
+let's look at an analogy...
+
+---
+
+consider a coffee machine in a coffee shop...
+
+|coffee machine|
+|:-------:|
+|<img src="./img/os_analogy_espresso.jpg" height="500">|
+||
+
+---
+
+consider a coffee machine in a coffee shop...
+
+|coffee machine|multiple customers|
+|:-------:|---------|
+| <img src="./img/os_analogy_espresso.jpg" height="375"> | you <br> customer 1 <br> customer 2 <br> ... <br> **all** want coffee!|
+||
+
+---
+
+consider a coffee machine in a coffee shop...
+
+|coffee machine|multiple customers|
+|:-------:|---------|
+| <img src="./img/os_analogy_espresso.jpg" height="375"> | you <br> customer 1 <br> customer 2 <br> ... <br> **all** want coffee!|
+||
+
+**clearly** coffee shop cannot allow all of you access to the machine!
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+## chaos!
+
+<img src="./img/chaos.gif" height="500">
+
+---
+
+what if we add an "**interface**"?
+
+|coffee machine|multiple customers|
+|:-------:|---------|
+| <img src="./img/os_analogy_espresso.jpg" height="375"> | you <br> customer 1 <br> customer 2 <br> ... <br> **all** want coffee!|
+||
+
+---
+
+what if we add an "**interface**"?
+
+|coffee machine|interface|multiple customers|
+|:------:|:---------:|-------------|
+| <img src="./img/os_analogy_espresso.jpg" height="375"> | <img src="./img/os_analogy_customers.jpg" height="375">|you <br> customer 1 <br> customer 2 <br> ... <br> **all** want coffee!|
+||
+
+---
+
+|coffee machine <br> ["hardware"]|interface|multiple customers|
+|:------:|:---------:|-------------|
+| <img src="./img/os_analogy_espresso.jpg" height="375"> | <img src="./img/os_analogy_customers.jpg" height="375">|you <br> customer 1 <br> customer 2 <br> ... <br> **all** want coffee!|
+||
+
+---
+
+|coffee machine <br> ["<font color="darkred">hardware</font>"]|interface|multiple customers|
+|:------:|:---------:|-------------|
+| <img src="./img/os_analogy_espresso.jpg" height="375"> | <img src="./img/os_analogy_customers.jpg" height="375">|you <br> customer 1 <br> customer 2 <br> ... <br> **all** want coffee!|
+||
+
+---
+
+|coffee machine <br> ["<font color="darkred">hardware</font>"]|interface|multiple customers <br> ["<font color="darkred">applications</font>"]|
+|:------:|:---------:|-------------|
+| <img src="./img/os_analogy_espresso.jpg" height="375"> | <img src="./img/os_analogy_customers.jpg" height="375">|you <br> customer 1 <br> customer 2 <br> ... <br> **all** want coffee!|
+||
+
+---
+
+|coffee machine <br> ["<font color="darkred">hardware</font>"]|interface<br> ["<font color="darkred">operating system</font>"]|multiple customers <br> ["<font color="darkred">applications</font>"]|
+|:------:|:---------:|-------------|
+| <img src="./img/os_analogy_espresso.jpg" height="375"> | <img src="./img/os_analogy_customers.jpg" height="375">|you <br> customer 1 <br> customer 2 <br> ... <br> **all** want coffee!|
+||
+
+---
+
+### operating system as an abstraction
+
+---
+
+### operating system as an abstraction
+
+<br>
+
+<center>
+<div class="multicolumn">
+<div>
+<img src="./img/dijkstra.png" height="495">
+</div>
+<code><font>"the effective exploitation of his powers of abstraction must be regarded as one of the most vital activities of a competent programmer" <br><br>- Edsger W. Dijkstra</font></code>
+</div>
+</center>
+
+---
+
+### operating system as an abstraction
+
+|||
+|-----|-------|
+|abstractions for resources||
+
+
+---
+
+### operating system as an abstraction
+
+|||
+|-----|-------|
+|abstractions for resources| **resources**?|
+
+---
+
+### operating system as an abstraction
+
+|||
+|-----|-------|
+|abstractions for resources| **resources**?|
+|environment for application execution||
+
+---
+
+### operating system as an abstraction
+
+|||
+|-----|-------|
+|abstractions for resources| **resources**?|
+|environment for application execution|**self-centered processes**|
+||
+
+---
+
+### os abstraction | system layers
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+### os abstraction | system layers
+
+<img src="./img/system_layers.png" height="750">
+
+---
+
+<img src="./img/xkcd.png" height="700">
+
+<sub>source: xkcd.com</sub>
+
+---
+
+### computers as distributed systems
+
+---
+<!-- .slide: data-background-color="white" -->
+
+### computers as distributed systems
+
+<img src="./img/pesis_hardware.jpg" height="700">
+
+---
+<!-- .slide: data-background-color="white" -->
+
+### computers as distributed systems
+
+<img src="./img/pesis_hardware.jpg" height="500">
+<img src="./img/distributed_systems.png" height="500">
+
+---
+<!-- .slide: data-background-color="white" -->
+
+### os as a **hardware manager**
+
+control a diverse set of hardware
+<br>
+<br>
+
+<div class="multicolumn">
+<div>
+<img src="./img/distributed_systems.png" height="400">
+</div>
+<div>
+<ul>
+  <li>processors
+  <li> memory
+  <li> disks/SSDs
+  <li> networking cards
+  <li> video cards
+<ul>
+</div>
+</div>
+
+---
+<!-- .slide: data-background-color="white" -->
+
+### os as a **hardware manager**
+
+control a diverse set of hardware
+<br>
+<br>
+
+<div class="multicolumn">
+<div>
+<img src="./img/distributed_systems.png" height="400">
+</div>
+<div>
+<ul>
+  <li>processors</li>
+  <li> memory</li>
+  <li> disks/SSDs</li>
+  <li> networking cards</li>
+  <li> video cards</li>
+<ul>
+</div>
+<div>
+<ul>
+<li>coordinates among user programs</li>
+<li>os as resource manager/multiplexer</li>
+</ul>
+<div>
+</div>
+
+---
+
+## operating systems
+
+<img src="./img/operating_systems.gif" height="550">
+
+---
+
+## fundamental OS concepts
+
+---
+
+## fundamental OS concepts
+
+- abstraction to handle complexity
+
+---
+
+## fundamental OS concepts
+
+- abstraction to handle complexity
+- resource management (CPU/RAM/devices)
+
+---
+
+## fundamental OS concepts
+
+- abstraction to handle complexity
+- resource management (CPU/RAM/devices)
+- concurrency and parallelism
+
+---
+
+## fundamental OS concepts
+
+- abstraction to handle complexity
+- resource management (CPU/RAM/devices)
+- concurrency and parallelism
+- protection/security
+
+---
+
+## fundamental OS concepts
+
+- abstraction to handle complexity
+- resource management (CPU/RAM/devices)
+- concurrency and parallelism
+- protection/security
+- performance
+
+---
+
+## fundamental OS concepts
+
+- abstraction to handle complexity
+- resource management (CPU/RAM/devices)
+- concurrency and parallelism
+- protection/security
+- performance
+  - kernel **doesn't** do useful work
+
+---
+
+## fundamental OS concepts
+
+- abstraction to handle complexity
+- resource management (CPU/RAM/devices)
+- concurrency and parallelism
+- protection/security
+- performance
+  - kernel **doesn't** do useful work
+  - **enables** it
+
+---
+
+<img src="./img/yogi_theory.jpeg" height="750">
+
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+|safari/chrome| **n** |
+| chatGPT | ? |
+||
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+|safari/chrome| ? |
+| chatGPT | ? |
+||
+
+---
+
+### _what_ is an operating system?
+
+|item| os (y/n)?|
+|-----|:----:|
+|safari/chrome| ? |
+| chatGPT | ? |
+||
+
+**technically** both can run entire VMs!
+                    </textarea>
+                </section>
+            </div>
+        </div>
+        <script src="assets/reveal-js/dist/reveal.js"></script>
+        <script src="assets/reveal-js/plugin/markdown/markdown.js"></script>
+        <script src="assets/reveal-js/plugin/highlight/highlight.js"></script>
+        <script src="assets/reveal-js/plugin/zoom/zoom.js"></script>
+        <script src="assets/reveal-js/plugin/notes/notes.js"></script>
+        <script src="assets/reveal-js/plugin/math/math.js"></script>
+
+        
+            
+                
+                    
+                        <script src="https://cdn.jsdelivr.net/npm/reveal.js-mermaid-plugin/plugin/mermaid/mermaid.min.js"></script>
+                    
+                
+            
+                
+                    
+                        <script src="https://cdn.jsdelivr.net/npm/reveal-plantuml/dist/reveal-plantuml.min.js"></script>
+                    
+                
+            
+        
+
+        <script>
+            Reveal.initialize({
+                
+                    
+                        history: true,
+                    
+                        slideNumber: "c/t",
+                    
+                        height: 1080,
+                    
+                        width: 1920,
+                    
+                        transition: "fade",
+                    
+                        backgroundTransition: "slide",
+                    
+                        RevealMermaid: {"htmlLabels": true, "useMaxWidth": true},
+                    
+                
+                plugins: [
+                    RevealMarkdown,
+                    RevealHighlight,
+                    RevealZoom,
+                    RevealNotes,
+                    RevealMath,
+
+                    
+                        
+                            
+                                RevealMermaid,
+                            
+                        
+                            
+                        
+                    
+                ],
+            });
+        </script>
+    </body>
+</html>
