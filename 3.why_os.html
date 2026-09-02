@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        
+            <link rel="icon" href="assets/sibin.integral.favicon.ico">
+        
+
+        <link rel="stylesheet" href="assets/reveal-js/dist/reveal.css" />
+
+        
+            <link rel="stylesheet" href="assets/custom.sibin.css" />
+        
+        
+            <link rel="stylesheet" href="assets/monokai.css" />
+        
+
+        
+            
+        
+            
+        
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section data-markdown
+                
+                    data-separator="^\s*---\s*$"
+                
+                    data-separator-vertical="^\s*-v-\s*$"
+                
+                    data-separator-notes="^Notes?:"
+                
+                    data-charset="utf-8"
+                
+                    data-auto-animate="True"
+                
+                >
+                    <textarea data-template>
+                        ##  _why_ **operating systems**
+### csci 3411
+### Prof. **Sibin Mohan**
+
+<br>
+
+_<font size="5"> acknowledgments: some content modified from Silberschatz et al. and West</font>_
+
+---
+
+let's go back to our original questions...
+
+---
+
+let's go back to our original questions...
+
+1. _what_ is an operating system?
+2. _why_ should I care?
+3. _what_ do I need  to know for this course?
+
+---
+
+we already talked about two of these
+
+1. <font color="purple">_what_ is an operating system?</font>
+2. _why_ should I care?
+3. <font color="purple">_what_ do I need  to know for this course?</font>
+
+---
+
+let's look at the remaining one...
+
+1. _what_ is an operating system?
+2. **<font color="darkred">_why_ should I care?**</font>
+3. _what_ do I need  to know for this course?
+
+---
+
+**<font color="darkred">_why_ should I care?**</font>
+
+---
+
+## undergraduate education
+
+<img src="./img/sysarch/undergrad_education_illustration.png" height="400">
+
+---
+
+## undergraduate education
+
+<img src="./img/sysarch/undergrad_education_illustration.png" height="250">
+
+- why are you here?
+- in college
+
+
+---
+
+## undergraduate education
+
+<img src="./img/sysarch/undergrad_education_illustration.png" height="250">
+
+- why are you here?
+- in college
+- in CS?
+
+---
+
+## undergraduate education
+
+<img src="./img/sysarch/undergrad_education_illustration.png" height="250">
+
+- why are you here?
+- in college
+- in CS?
+- in OS?
+
+---
+
+### this semester: perspective
+
+---
+
+### this semester: perspective
+
+- you have at least 2 years under your belt
+
+---
+
+### this semester: perspective
+
+- you have at least 2 years under your belt
+    - you have learnt the _basics_
+
+---
+
+### this semester: perspective
+
+- you have at least 2 years under your belt
+    - you have learnt the _basics_
+- undergraduate &rarr; a **unique, limited** opportunity
+
+---
+
+### this semester: perspective
+
+- you have at least 2 years under your belt
+    - you have learnt the _basics_
+- undergraduate &rarr; a **unique, limited** opportunity
+  - **<font color="darkred">learning for learning's sake</font>**
+
+---
+
+### this semester: perspective
+
+- you have at least 2 years under your belt
+    - you have learnt the _basics_
+- undergraduate &rarr; a **unique, limited** opportunity
+  - **<font color="darkred">learning for learning's sake</font>**
+  - **<font color="darkred">intellectual community</font>**
+
+---
+
+### decision time
+
+---
+
+### decision time
+
+  - are you here to get a **degree**?
+
+---
+
+### decision time
+
+  - are you here to get a degree?
+  - are you here to **improve as a human being**?
+
+---
+
+### thought experiment
+
+---
+
+### thought experiment
+
+if you kept on doing what you're doing, when done,
+
+---
+
+### thought experiment
+
+if you kept on doing what you're doing, when done,
+
+would you be **happy** with your undergraduate education?
+
+---
+
+### this semester
+
+  - **challenge** + **opportunity**
+
+---
+
+### this semester
+
+  - **challenge** + **opportunity**
+  - **<font color="darkred">take responsibility</font>** for your own education!
+
+---
+
+## perspective
+
+what is all of this for?
+
+
+---
+
+## perspective
+
+what is all of this for?
+
+| goal | notes |
+| --- | --- |
+| **$$$** ||
+
+---
+
+## perspective
+
+what is all of this for?
+
+| goal | notes |
+| --- | --- |
+| **$$$** | diminishing returns → then what?<br>means to an end → what is **your** end? |
+
+---
+
+## perspective
+
+what is all of this for?
+
+| goal | notes |
+| --- | --- |
+| **$$$** | diminishing returns → then what?<br>means to an end → what is **your** end? |
+| **prestige/competition** <br> (climb the ladder) | |
+
+---
+
+## perspective
+
+what is all of this for?
+
+| goal | notes |
+| --- | --- |
+| **$$$** | diminishing returns → then what?<br>means to an end → what is **your** end? |
+| **prestige/competition** <br> (climb the ladder) | personal goals be defined by **others**?<br>means to an end → what is your end? |
+
+---
+
+## perspective
+
+what is all of this for?
+
+| goal | notes |
+| --- | --- |
+| **$$$** | diminishing returns → then what?<br>means to an end → what is **your** end? |
+| **prestige/competition** <br> (climb the ladder) | personal goals be defined by **others**?<br>means to an end → what is your end? |
+| **achieve** X, Y, Z <br> by time A, B, C ||
+
+---
+
+## perspective
+
+what is all of this for?
+
+| goal | notes |
+| --- | --- |
+| **$$$** | diminishing returns → then what?<br>means to an end → what is **your** end? |
+| **prestige/competition** <br> (climb the ladder) | personal goals be defined by **others**?<br>means to an end → what is your end? |
+| **achieve** X, Y, Z <br> by time A, B, C | life throws curve balls, hard to be accurate<br>the world moves goal posts |
+
+---
+
+## perspective
+
+what is all of this for?
+
+| goal | notes |
+| --- | --- |
+| **$$$** | diminishing returns → then what?<br>means to an end → what is **your** end? |
+| **prestige/competition** <br> (climb the ladder) | personal goals be defined by **others**?<br>means to an end → what is your end? |
+| **achieve** X, Y, Z <br> by time A, B, C | life throws curve balls, hard to be accurate<br>the world moves goal posts |
+| focus on **passions** | |
+
+---
+
+## perspective
+
+what is all of this for?
+
+| goal | notes |
+| --- | --- |
+| **$$$** | diminishing returns → then what?<br>means to an end → what is **your** end? |
+| **prestige/competition** <br> (climb the ladder) | personal goals be defined by **others**?<br>means to an end → what is your end? |
+| **achieve** X, Y, Z <br> by time A, B, C | life throws curve balls, hard to be accurate<br>the world moves goal posts |
+| focus on **passions** | pressure to "have passion" is non-productive<br>being **good at something promotes passion** |
+||
+
+---
+
+## perspective &rarr; **happiness**
+
+---
+
+## perspective &rarr; **happiness**
+
+- being **<font color="darkred"> good at something</font>**
+
+---
+
+## perspective &rarr; **happiness**
+
+- being **<font color="darkred"> good at something</font>**
+  - goals are good
+  - a strong focus on **continual improvement** is better
+  - contributing to an environment
+
+---
+
+## perspective &rarr; **happiness**
+
+- being **<font color="darkred"> good at something</font>**
+  - goals are good
+  - a strong focus on **continual improvement** is better
+  - contributing to an environment
+- **relationships** with peers
+  - network, values, acceptance
+
+---
+
+## perspective &rarr; **happiness**
+
+- being **<font color="darkred"> good at something</font>**
+  - goals are good
+  - a strong focus on **continual improvement** is better
+  - contributing to an environment
+- **relationships** with peers
+  - network, values, acceptance
+- **moderate** judgment (self & others)
+    - judging yourself → for what mental benefit? 
+    - judging others → enough negativity in the world
+
+---
+
+## perspective &rarr; **OS in your life**
+
+how do you apply "OS concepts" in life?
+
+---
+
+## perspective &rarr; **OS in your life**
+
+how do you apply "OS concepts" in life?
+
+| | | 
+|-------|---------|
+| being **good at something** | |
+| **relationships** with peers |  |
+| **moderate** judgment (self & others) |  |
+||
+
+---
+
+## perspective &rarr; **OS in your life**
+
+how do you apply "OS concepts" in life?
+
+| | | 
+|-------|---------|
+| being **good at something** |  **repetition** and **practice** <br> learn to think about **abstractions** <br> **hard work** → accomplishment|
+| **relationships** with peers |  |
+| **moderate** judgment (self & others) |  |
+||
+
+---
+
+## perspective &rarr; **OS in your life**
+
+how do you apply "OS concepts" in life?
+
+| | | 
+|-------|---------|
+| being **good at something** |  **repetition** and **practice** <br> learn to think about **abstractions** <br> **hard work** → accomplishment|
+| **relationships** with peers |build your network <br> **2nd & 3rd job offers**  |
+| **moderate** judgment (self & others) |  |
+||
+
+---
+
+## perspective &rarr; **OS in your life**
+
+how do you apply "OS concepts" in life?
+
+| | | 
+|-------|---------|
+| being **good at something** |  **repetition** and **practice** <br> learn to think about **abstractions** <br> **hard work** → accomplishment|
+| **relationships** with peers |build your network <br> **2nd & 3rd job offers**  |
+| **moderate** judgment (self & others) | **not a competition** <br> your **own** path+accomplishments |
+||
+
+---
+
+## the process is the goal
+
+---
+
+## the process is the goal
+
+**note**: goal **<font color="darkred">is not</font>** completing assignments
+
+---
+
+### the goal &rarr; **practice** & **experience**
+
+---
+
+### the goal &rarr; **practice** & **experience**
+
+- **learning by doing** &rarr; the concepts aren't hard
+
+---
+
+### the goal &rarr; **practice** & **experience**
+
+- **learning by doing** &rarr; the concepts aren't hard
+- the **doing is the learning** &rarr; debug + investigate
+
+---
+
+### the goal &rarr; **practice** & **experience**
+
+- **learning by doing** &rarr; the concepts aren't hard
+- the **doing is the learning** &rarr; debug + investigate
+- like running &rarr; "_the suffering is the point_"
+
+---
+
+### goal vs. daily decisions
+
+  - healthy eating & "_never shop when hungry_"
+  - "_stick to the plan_" & "_never make race day decisions_"
+
+---
+
+<img src="./img/sysarch/jfk_moon.avif" height="750">
+
+
+---
+
+## your OS plan
+
+- give yourself **time**
+- always find ways to make **progress**
+
+---
+
+## your OS plan
+
+- give yourself **time**
+- always find ways to make **progress**
+- **understand** vs. **make it work**
+
+---
+
+## academic honesty
+
+---
+
+## academic honesty
+
+- what is academic dishonesty?
+- who does cheating **impact**?
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+### human economic value: traditional
+
+<img src="./img/human_value_traditional.png" height="700">
+
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+### human economic value: software
+
+<img src="./img/human_value_software.png" height="200">
+
+**we make something out of nothing!**
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+### human economic value: software
+
+<img src="./img/human_value_software.png" height="200">
+
+**we make something out of nothing!**
+
+- using our **intellectual capability**
+- **<font color="darkred">your education is in your hands</font>**
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+### unrealistic doom and gloom
+
+<img src="./img/human_value_ai.png" height="200">
+
+where is **labor** ;-(
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+## path forward
+
+<img src="./img/human_value_ai_2.png" height="400">
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+## path forward
+
+<img src="./img/human_value_ai_2.png" height="400">
+
+1. you have to be **value-added** to AI &rarr; take learning seriously!
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+## path forward
+
+<img src="./img/human_value_ai_2.png" height="400">
+
+
+1. you have to be **value-added** to AI &rarr; take learning seriously!
+2. demand for software seems **infinite** &rarr; step back from doom/gloom
+
+---
+
+## academic honesty
+
+---
+
+## academic honesty
+
+- code **should not** be shared outside of a group
+- code you write should **be your own**
+- **contact me** if you're worried or desperate
+
+---
+
+unable to complete an assignment
+→ stress, pressure, challenges
+
+deciding to cheat
+→ **deliberate choice**!
+
+---
+
+### ML-generated code
+
+---
+
+### ML-generated code
+
+- early studies on "vibe coding"
+
+---
+
+### ML-generated code
+
+- early studies on vibe coding
+  - makes you dumber
+  - makes you lazier
+  - **inhibits your learning**
+  - doesn't help you know **what you don't know**
+
+---
+
+### ML-generated code
+
+use these technologies on personal projects or in the future
+
+---
+
+### ML-generated code
+
+use these technologies on personal projects or in the future
+
+- decouple learning from productivity (LoC/min)
+- main goal &rarr; refine your craft!
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+<center>
+<div class="multicolumn">
+<div>
+<img src="./img/sysarch/LLM.jpg.webp" height="195">
+</div>
+<code>if an LLM is better than you, what value do you bring? </code>
+</div>
+</center>
+
+---
+
+many systems have multiple "levels"
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+## "high-level"
+
+|||
+|:----:|:----:|
+| cars <br> <img src="./img/computers_highlevel.jpg" height="300">| computers <br> <img src="./img/cars_highlevel.png" height="300">|
+||
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+## ...details...
+
+cars & computers
+
+<img src="./img/cars_details.jpg" height="250">
+<img src="./img/computer_internals.png" height="250">
+<img src="./img/computer_details.png" height="250">
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+## ..."low-level"
+
+cars & computers
+
+<img src="./img/cars_lowlevel.jpg" height="300">
+<img src="./img/computer_lowlevel.png" height="300">
+
+---
+
+## "high-level"
+
+programming &nbsp;&nbsp; the feels
+
+<img src="./img/programming_highlevel.png" height="300">
+<img src="./img/the_feels.jpg" height="300">
+
+---
+
+## ...details...
+
+high-level programming &nbsp;&nbsp; we got this
+
+<img src="./img/highlevel_programming.png" height="250">
+<img src="./img/we_got_this.jpg" height="250">
+
+---
+
+## ..."low-level"
+
+C programming &nbsp;&nbsp; &lt;deep sigh&gt;
+
+<img src="./img/c_programming.png" height="300">
+<img src="./img/deep_sigh.jpg" height="300">
+
+---
+
+## xv6 and kernel programming
+
+<img src="./img/xv6_kernel.gif" height="450">
+
+---
+
+## xv6 and kernel programming
+
+<div class="multicolumn">
+<div>
+<ul>
+  <li>demystify computers</li>
+  <li>work with <b>larger code bases</b></li>
+  <li><b>careful</b> in your coding</li>
+  <li>learn about <b>abstraction</b></li>
+</ul>
+</div>
+<div>
+<img src="./img/xv6_kernel.gif" height="325">
+</div>
+</div>
+                    </textarea>
+                </section>
+            </div>
+        </div>
+        <script src="assets/reveal-js/dist/reveal.js"></script>
+        <script src="assets/reveal-js/plugin/markdown/markdown.js"></script>
+        <script src="assets/reveal-js/plugin/highlight/highlight.js"></script>
+        <script src="assets/reveal-js/plugin/zoom/zoom.js"></script>
+        <script src="assets/reveal-js/plugin/notes/notes.js"></script>
+        <script src="assets/reveal-js/plugin/math/math.js"></script>
+
+        
+            
+                
+                    
+                        <script src="https://cdn.jsdelivr.net/npm/reveal.js-mermaid-plugin/plugin/mermaid/mermaid.min.js"></script>
+                    
+                
+            
+                
+                    
+                        <script src="https://cdn.jsdelivr.net/npm/reveal-plantuml/dist/reveal-plantuml.min.js"></script>
+                    
+                
+            
+        
+
+        <script>
+            Reveal.initialize({
+                
+                    
+                        history: true,
+                    
+                        slideNumber: "c/t",
+                    
+                        height: 1080,
+                    
+                        width: 1920,
+                    
+                        transition: "fade",
+                    
+                        backgroundTransition: "slide",
+                    
+                        RevealMermaid: {"htmlLabels": true, "useMaxWidth": true},
+                    
+                
+                plugins: [
+                    RevealMarkdown,
+                    RevealHighlight,
+                    RevealZoom,
+                    RevealNotes,
+                    RevealMath,
+
+                    
+                        
+                            
+                                RevealMermaid,
+                            
+                        
+                            
+                        
+                    
+                ],
+            });
+        </script>
+    </body>
+</html>
