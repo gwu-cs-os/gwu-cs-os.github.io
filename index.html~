@@ -342,7 +342,11 @@
         </table> 
 
         <p>
-		[Slides last built at <i>2026-09-08 19:02:49</i>.]<br />
+<<<<<<< HEAD
+		[Slides last built at <i>2026-09-08 18:57:07</i>.]<br />
+=======
+		[Slides last built at <i>2026-09-08 18:55:28</i>.]<br />
+>>>>>>> d463678 (updated system architecture slides)
 	    <!--The PDF link generates a single-page document (including speaker notes) suitable for <a href="https://revealjs.com/pdf-export/" target="_blank">saving as a PDF for printing</a>.-->
 
         </p>
