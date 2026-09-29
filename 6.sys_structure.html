@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        
+            <link rel="icon" href="assets/sibin.integral.favicon.ico">
+        
+
+        <link rel="stylesheet" href="assets/reveal-js/dist/reveal.css" />
+
+        
+            <link rel="stylesheet" href="assets/custom.sibin.css" />
+        
+        
+            <link rel="stylesheet" href="assets/monokai.css" />
+        
+
+        
+            
+        
+            
+        
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section data-markdown
+                
+                    data-separator="^\s*---\s*$"
+                
+                    data-separator-vertical="^\s*-v-\s*$"
+                
+                    data-separator-notes="^Notes?:"
+                
+                    data-charset="utf-8"
+                
+                    data-auto-animate="True"
+                
+                >
+                    <textarea data-template>
+                        ## system structure
+
+##  **operating systems**
+### csci 3411
+### Prof. **Sibin Mohan**
+
+<br>
+
+_<font size="5"> acknowledgments: some content modified from Silberschatz et al. and West</font>_
+
+---
+
+## system structure
+
+---
+
+## system structure
+
+how are the different parts of a system _separated_?
+
+---
+
+## system structure
+
+how are the different parts of a system _separated_?
+
+1. **why** separate them?
+
+---
+
+## system structure
+
+how are the different parts of a system _separated_?
+
+1. **why** separate them?
+2. how do they **communicate**?
+
+---
+
+### system structure | **the tools**
+
+how does a system use...
+
+---
+
+### system structure | **the tools**
+
+how does a system use...
+
+- **dual mode** &rarr; <scb>user / kernel</scb>
+
+---
+
+### system structure | **the tools**
+
+how does a system use...
+
+- **dual mode** &rarr; <scb>user / kernel</scb>
+- **virtual address spaces**
+
+---
+
+### system structure | **implications**
+
+what does the _structure_ affect?
+
+| property | |
+|----------|--|
+| | |
+
+---
+
+### system structure | **implications**
+
+what does the _structure_ affect?
+
+| property | |
+|----------|--|
+| **security / reliability** | how _isolated_ &amp; trustworthy? |
+
+---
+
+### system structure | **implications**
+
+what does the _structure_ affect?
+
+| property | |
+|----------|--|
+| **security / reliability** | how _isolated_ &amp; trustworthy? |
+| **programming / maintainability** | how easy to build &amp; change? |
+||
+
+---
+
+## MSDOS
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+### MSDOS | **no structure, no protection**
+
+<img src="./img/sys_structure/msdos_structure.png" height="460">
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+### MSDOS | **no structure, no protection**
+
+<img src="./img/sys_structure/msdos_structure.png" height="460">
+
+anything can touch anything &rarr; **<font color="darkred">no isolation at all</font>**
+
+---
+
+## monolithic structure
+
+---
+
+## monolithic structure
+
+apps trap into **one big kernel** &rarr; _everything else_ lives inside it
+
+<img src="./img/sys_structure/monolithic_1.png" height="620">
+
+---
+
+## monolithic structure
+
+the kernel is the **most trusted** code &rarr; it _must_ work
+
+<img src="./img/sys_structure/monolithic_1.png" height="620">
+
+---
+
+## monolithic structure
+
+includes <sc>Unix</sc> / <sc>Windows</sc> / <sc>macOS</sc>
+
+<img src="./img/sys_structure/monolithic_1.png" height="620">
+
+---
+
+### monolithic structure | **the catch**
+
+kernels have grown to **tens of millions** of lines of code...
+
+<img src="./img/sys_structure/loc_growth.png" height="600">
+
+Note:
+- Windows & Unix/Linux both ballooned over the years; figures are widely-cited estimates.
+
+---
+
+### monolithic structure | **the catch**
+
+~50 <scb>MLOC</scb> in the kernel &rarr; **all fully trusted**
+
+<img src="./img/sys_structure/monolithic_2.png" height="620">
+
+---
+
+### monolithic structure | **the catch**
+
+one bug &rarr; **<font color="darkred">the whole system crashes!</font>**
+
+<img src="./img/sys_structure/monolithic_2.png" height="620">
+
+Note:
+- when's the last time you got 50 million lines of code to work?
+
+---
+
+advantage of monolithic kernel &rarr; **very fast**!
+
+---
+
+move OS services **out** of the kernel
+
+---
+
+move OS services **out** of the kernel &rarr; into user-level _servers_
+
+---
+
+## microkernel structure
+
+<img src="./img/sys_structure/microkernel.png" height="620">
+
+---
+
+## microkernel structure
+
+
+<img src="./img/sys_structure/microkernel.png" height="620">
+
+servers talk to each other via **inter-process communication** <scb>(IPC)</scb>
+
+---
+
+### microkernel | **benefits**
+
+---
+
+### microkernel | **benefits**
+
+- easier to **add** functionality
+
+---
+
+### microkernel | **benefits**
+
+- easier to **add** functionality
+- more **reliable** &rarr; _less code_ runs in kernel mode
+
+---
+
+### microkernel | **benefits**
+
+- easier to **add** functionality
+- more **reliable** &rarr; _less code_ runs in kernel mode
+- more **secure**
+
+---
+
+### microkernel | **benefits**
+
+- easier to **add** functionality
+- more **reliable** &rarr; _less code_ runs in kernel mode
+- more **secure**
+
+<br>
+
+...so what are the **downsides**?  _why?_
+
+---
+
+### microkernel IPC
+
+---
+
+### microkernel IPC
+
+what _actually_ happens when application calls <scb>write()</scb>?
+
+---
+
+### microkernel IPC
+
+- application just calls <scb>write()</scb>
+- file system &rarr; **separate process**
+
+---
+
+### microkernel IPC
+
+- application just calls <scb>write()</scb>
+- file system &rarr; **separate process**
+
+<img src="./img/sys_structure/ipc_1.png" height="560">
+
+---
+
+### microkernel IPC
+
+**trap** into the microkernel &rarr; <scb>ecall</scb>
+
+<img src="./img/sys_structure/ipc_2.png" height="560">
+
+---
+
+### microkernel IPC
+
+- switch address space <br> <scb>app &rarr; kernel &rarr; FS</scb> 
+- "return" into the server (<scb>sret</scb>)
+
+<img src="./img/sys_structure/ipc_3.png" height="560">
+
+---
+
+### microkernel IPC
+
+the server replies &rarr; traps _back_ into the kernel (<scb>ecall</scb>)
+
+<img src="./img/sys_structure/ipc_4.png" height="560">
+
+---
+
+### microkernel IPC
+
+...and switch back into application (<scb>sret</scb>)
+
+<img src="./img/sys_structure/ipc_5.png" height="560">
+
+---
+
+### microkernel IPC | **costs**
+
+one IPC  = $2 \times \texttt{ecall} + 2 \times \texttt{sret} + 2 \times \texttt{process switch}$
+
+---
+
+### microkernel IPC | **costs**
+
+one IPC  = $2 \times \texttt{ecall} + 2 \times \texttt{sret} + 2 \times \text{process switch}$
+
+- <scb>2x</scb> system call
+- <scb>2x</scb> process switch
+- <scb>2x</scb> kernel code path for IPC
+
+---
+
+### microkernel IPC | **costs**
+
+one IPC  = $2 \times \texttt{ecall} + 2 \times \texttt{sret} + 2 \times \text{process switch}$
+
+- <scb>2x</scb> system call
+- <scb>2x</scb> process switch
+- <scb>2x</scb> kernel code path for IPC
+
+|||
+|----|-----|
+| linux <scb>syscall</scb> | $\approx$ <scb>300</scb> cycles |
+| microkernel <scb>ipc</scb> <br> (heavily optimized) | $\approx$ <scb>830</scb> cycles |
+||
+
+---
+
+### microkernel IPC | **costs**
+
+one IPC  = $2 \times \texttt{ecall} + 2 \times \texttt{sret} + 2 \times \text{process switch}$
+
+- <scb>2x</scb> system call
+- <scb>2x</scb> process switch
+- <scb>2x</scb> kernel code path for IPC
+
+|||
+|----|-----|
+| linux <scb>syscall</scb> | $\approx$ <scb>300</scb> cycles |
+| microkernel <scb>ipc</scb> <br> (heavily optimized) | $\approx$ <scb>830</scb> cycles |
+||
+
+<center><div class="center" data-id="box" style="height: 75px; width: 450px; background: orange;">
+<b>IPC is not free!</b>
+</div></center>
+
+Note:
+- this per-message cost is the classic downside of microkernels.
+
+---
+
+## virtual machines
+
+---
+
+## virtual machines
+
+do you know what these are?
+
+---
+
+## virtual machines
+
+do you know what these are?
+
+what is the **structure** of a VM?
+
+---
+
+### virtual machines | **the idea**
+
+---
+
+### virtual machines | **the idea**
+
+- a virtual machine **host** (the kernel)
+
+---
+
+### virtual machines | **the idea**
+
+- a virtual machine **host** (the kernel)
+- provides an **interface** <br> **identical** to bare hardware
+
+---
+
+### virtual machines | **the idea**
+
+- a virtual machine **host** (the kernel)
+- provides an interface <br> **identical** to bare hardware
+- other **guest kernels** &rarr; **user mode**
+
+---
+
+### virtual machines | **the idea**
+
+- a virtual machine **host** (the kernel)
+- provides an interface <br> **identical** to bare hardware
+- other **guest kernels** &rarr; **user mode**
+- API for a VM <br> &rarr; **<font color="darkred">copy of real machine!</font>**
+
+---
+
+recall this &rarr; one OS directly on hardware...
+
+<img src="./img/sys_structure/vmstruct_1.png" height="620">
+
+---
+
+|single os design | vm-based design|
+|-----------------|----------------|
+|one OS directly on hardware | multiple "guests" |
+|<img src="./img/sys_structure/vmstruct_1.png" height="420">|<img src="./img/sys_structure/vmstruct_2.png" height="420">|
+||
+
+---
+
+### virtual machines | **structure**
+
+**VMM** gives each guest &rarr; an interface that looks like bare hardware
+
+<img src="./img/sys_structure/vmstruct_2.png" height="620">
+
+---
+
+### virtual machines | **structure**
+
+- applications &rarr; guest kernel via <scb>syscall</scb>
+
+---
+
+### virtual machines | **structure**
+
+- applications &rarr; guest kernel via <scb>syscall</scb>
+- guest kernel &rarr; VMM via <scb>hypercall</scb>
+
+Note:
+- this is what your installation looks like.
+
+---
+
+### virtual machine | **implementation**
+
+---
+
+### virtual machine | **implementation**
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 55% 45%; gap: 20px; align-items: center;">
+<div>
+
+- normal <scb>syscall</scb> inside VM
+- guest kernel uses <scb>hypercalls</scb>
+
+</div>
+<div>
+<img src="./img/sys_structure/vmimpl_1.png" height="440">
+</div>
+</div>
+
+Note:
+- VM system call? interrupt for a VM? how do these work?
+
+---
+
+### virtual machine | **implementation**
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 55% 45%; gap: 20px; align-items: center;">
+<div>
+
+- normal <scb>syscall</scb> inside VM
+- guest kernel uses <scb>hypercalls</scb>
+- HW keeps **two** mode bits
+  - <scb>VM-user / VM-kernel</scb>
+  - <scb>user / kernel</scb>
+
+</div>
+<div>
+<img src="./img/sys_structure/vmimpl_2.png" height="440">
+</div>
+</div>
+
+---
+
+what about **interrupts**? who handles them?
+
+---
+
+### virtual machine | **interrupts**
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 55% 45%; gap: 20px; align-items: center;">
+<div>
+
+- interrupts arrive at &rarr; **real machine**
+- **not** the guest
+
+</div>
+<div>
+<img src="./img/sys_structure/vmimpl_3.png" height="440">
+</div>
+</div>
+
+---
+
+### virtual machine | **interrupts**
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 55% 45%; gap: 20px; align-items: center;">
+<div>
+
+- interrupts arrive at &rarr; **real machine**
+- **not** the guest
+- interrupt &rarr; **traps to VMM** 
+  - real <scb>mode-0</scb> kernel
+
+</div>
+<div>
+<img src="./img/sys_structure/vmimpl_4.png" height="440">
+</div>
+</div>
+
+---
+
+### virtual machine | **interrupts**
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 55% 45%; gap: 20px; align-items: center;">
+<div>
+
+- interrupts arrive at &rarr; **real machine**
+- **not** the guest
+- interrupt &rarr; **traps to VMM** 
+  - real <scb>mode-0</scb> kernel
+- VMM "**vectors**"(passes) interrupt
+  - **up** into the virtual machine
+
+</div>
+<div>
+<img src="./img/sys_structure/vmimpl_5.png" height="540">
+</div>
+</div>
+
+---
+
+### virtual machine | **interrupts**
+
+<img src="./img/sys_structure/vmimpl_5.png" height="640">
+
+---
+
+### virtual machines | **benefits**
+
+---
+
+### virtual machines | **benefits**
+
+**multiple** operating systems **share** same hardware
+
+---
+
+### virtual machines | **benefits**
+
+**multiple** operating systems **share** same hardware
+
+| feature | description |
+| --- | --- |
+| legacy support | run existing code + **isolation** |
+
+---
+
+### virtual machines | **benefits**
+
+**multiple** operating systems **share** same hardware
+
+| feature | description |
+| --- | --- |
+| legacy support | run existing code + **isolation** |
+| consolidation | **many low-use systems** onto fewer busy ones |
+
+---
+
+### virtual machines | **benefits**
+
+**multiple** operating systems **share** same hardware
+
+| feature | description |
+| --- | --- |
+| legacy support | run existing code + **isolation** |
+| consolidation | **many low-use systems** onto fewer busy ones |
+| good security | "tenants" don't **trust** each other <br> **protected** from each other |
+
+---
+
+### virtual machines | **benefits**
+
+**multiple** operating systems **share** same hardware
+
+| feature | description |
+| --- | --- |
+| legacy support | run existing code + **isolation** |
+| consolidation | **many low-use systems** onto fewer busy ones |
+| good security | "tenants" don't **trust** each other <br> **protected** from each other |
+| coordination | some file **sharing** <br> communicate via **networking** |
+||
+
+---
+
+### VMs vs. microkernels
+
+---
+
+### VMs vs. microkernels
+
+- is either a **generalization** of the other?
+
+---
+
+### VMs vs. microkernels
+
+- is either a **generalization** of the other?
+- why are **microkernels** better?
+
+---
+
+### VMs vs. microkernels
+
+- is either a **generalization** of the other?
+- why are **microkernels** better?
+- why are **VMs** better?
+
+---
+
+### VMs vs. microkernels
+
+- is either a **generalization** of the other?
+- why are **microkernels** better?
+- why are **VMs** better?
+- which is more commonly used?  **where?**  _why?_
+
+---
+
+## containers
+
+---
+
+## containers
+<br>
+
+- what are these?
+- what is their **structure**?
+
+---
+
+## containers
+
+- what are these?
+- what is their **structure**?
+
+<br>
+<br>
+
+examples: <sc>docker</sc>, <sc>kubernetes</sc>, <sc>podman</sc>
+---
+
+### containers
+
+- fundamental technique &rarr; **namespace separation**
+
+---
+
+### containers
+
+- fundamental technique &rarr; **namespace separation**
+
+<img src="./img/sys_structure/containers.png" height="600">
+
+---
+
+### containers
+
+- fundamental technique &rarr; **namespace separation**
+
+<img src="./img/sys_structure/containers.png" height="600">
+
+structure &rarr; **<font color="darkred">still monolithic!</font>**
+
+---
+
+### containers
+
+- same pids (<scb>10</scb>, <scb>11</scb>) in each 
+
+<br>
+
+<img src="./img/sys_structure/containers.png" height="600">
+
+---
+
+### containers
+
+- same pids (<scb>10</scb>, <scb>11</scb>) in each 
+- isolated by **namespace separation**
+
+<img src="./img/sys_structure/containers.png" height="600">
+
+
+---
+
+### container trade-offs
+
+---
+
+### container trade-offs
+
+- **reproducible** dev &amp; production environments
+
+---
+
+### container trade-offs
+
+- **reproducible** dev &amp; production environments
+  - don't install &rarr; _"an application"_
+  - install &rarr; _"an application **and all its dependencies**"_
+
+---
+
+### container trade-offs
+
+- **reproducible** dev &amp; production environments
+  - don't install &rarr; _"an application"_
+  - install &rarr; _"an application **and all its dependencies**"_
+- kernel bug &rarr; **full system compromise**
+  - similar to a monolithic kernel
+                    </textarea>
+                </section>
+            </div>
+        </div>
+        <script src="assets/reveal-js/dist/reveal.js"></script>
+        <script src="assets/reveal-js/plugin/markdown/markdown.js"></script>
+        <script src="assets/reveal-js/plugin/highlight/highlight.js"></script>
+        <script src="assets/reveal-js/plugin/zoom/zoom.js"></script>
+        <script src="assets/reveal-js/plugin/notes/notes.js"></script>
+        <script src="assets/reveal-js/plugin/math/math.js"></script>
+
+        
+            
+                
+                    
+                        <script src="https://cdn.jsdelivr.net/npm/reveal.js-mermaid-plugin/plugin/mermaid/mermaid.min.js"></script>
+                    
+                
+            
+                
+                    
+                        <script src="https://cdn.jsdelivr.net/npm/reveal-plantuml/dist/reveal-plantuml.min.js"></script>
+                    
+                
+            
+        
+
+        <script>
+            Reveal.initialize({
+                
+                    
+                        history: true,
+                    
+                        slideNumber: "c/t",
+                    
+                        height: 1080,
+                    
+                        width: 1920,
+                    
+                        transition: "fade",
+                    
+                        backgroundTransition: "slide",
+                    
+                        RevealMermaid: {"htmlLabels": true, "useMaxWidth": true},
+                    
+                
+                plugins: [
+                    RevealMarkdown,
+                    RevealHighlight,
+                    RevealZoom,
+                    RevealNotes,
+                    RevealMath,
+
+                    
+                        
+                            
+                                RevealMermaid,
+                            
+                        
+                            
+                        
+                    
+                ],
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        
+            <link rel="icon" href="assets/sibin.integral.favicon.ico">
+        
+
+        <link rel="stylesheet" href="assets/reveal-js/dist/reveal.css" />
+
+        
+            <link rel="stylesheet" href="assets/custom.sibin.css" />
+        
+        
+            <link rel="stylesheet" href="assets/monokai.css" />
+        
+
+        
+            
+        
+            
+        
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section data-markdown
+                
+                    data-separator="^\s*---\s*$"
+                
+                    data-separator-vertical="^\s*-v-\s*$"
+                
+                    data-separator-notes="^Notes?:"
+                
+                    data-charset="utf-8"
+                
+                    data-auto-animate="True"
+                
+                >
+                    <textarea data-template>
+                        ## execution abstraction | **processes**
+
+##  **operating systems**
+### csci 3411
+### Prof. **Sibin Mohan**
+
+<br>
+
+_<font size="5"> acknowledgments: some content modified from Silberschatz et al. and West</font>_
+
+---
+
+previously, in operating systems...
+
+---
+
+**system structure**
+
+- how is software _isolated_?
+- how does isolated software _communicate_?
+
+---
+
+### monolithic OSes 
+
+- _minimal, essential_ isolation
+- applications isolated from each other
+
+---
+
+### monolithic OSes 
+
+- _minimal, essential_ isolation
+- applications isolated from each other
+- core abstraction &rarr; **process**
+
+---
+
+### CPU / memory abstraction
+
+---
+
+### CPU / memory abstraction
+
+| **hardware** provides| |
+| --- | --- |
+| sequential execution | |
+| interrupts | |
+||
+
+
+---
+
+### CPU / memory abstraction
+
+| **hardware** provides| **OS** should abstract &amp; provide|
+| --- | --- |
+| sequential execution | multiple "_flows_" of sequential execution <br> (different apps) |
+| interrupts ||
+
+
+---
+
+### CPU / memory abstraction
+
+| **hardware** provides| **OS** should abstract &amp; provide|
+| --- | --- |
+| sequential execution | multiple "_flows_" of sequential execution <br> (different apps) |
+| interrupts | each app its own memory _"space"_ |
+|||
+
+
+---
+
+### CPU / memory abstraction
+
+| **hardware** provides| **OS** should abstract &amp; provide|
+| --- | --- |
+| sequential execution | multiple "_flows_" of sequential execution <br> (different apps) |
+| interrupts | each app its own memory _"space"_ |
+|  | **protection** between apps <br> &rarr; security &amp; fault isolation |
+||
+
+---
+
+## processes
+
+---
+
+a **program** is _passive_
+
+---
+
+a **program** is _passive_
+
+- a collection of code + data, kept in a file
+- what you see in <scb>ls</scb>
+
+---
+
+|a **program** is _passive_|a **process** is _active_|
+|:------------------------:|:-----------------------:|
+| <ul> <li>collection of code+data, in a file </li> <li>what you see in <scb>ls</scb></li> </ul>| <ul><li>a **loaded, running** program </li> <li>what you see in <scb>ps</scb></li></ul>|
+||
+
+---
+
+### a UNIX **process** includes...
+
+---
+
+### a UNIX **process** includes...
+
+1. registers <br> (instruction counter, stack pointer, ...)
+
+---
+
+### a UNIX **process** includes...
+
+1. registers <br> (instruction counter, stack pointer, ...)
+2. an execution **stack**
+
+---
+
+### a UNIX **process** includes...
+
+1. registers <br> (instruction counter, stack pointer, ...)
+2. an execution **stack**
+3. a **heap**
+
+---
+
+### a UNIX **process** includes...
+
+1. registers <br> (instruction counter, stack pointer, ...)
+2. an execution **stack**
+3. a **heap**
+4. **data** &amp; **text** (code) segments
+
+---
+
+### a UNIX **process** includes...
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 60% 40%; gap: 20px; align-items: center;">
+<div>
+
+1. registers <br> (instruction counter, stack pointer, ...)
+2. an execution **stack**
+3. a **heap**
+4. **data** &amp; **text** (code) segments
+</div>
+
+<div>
+<img src="./img/processes/process.png" height="500">
+</div>
+</div>
+
+---
+
+### program &rarr; process
+
+how does a passive program _become_ a running process?
+
+---
+
+### program &rarr; process
+
+how does a passive program _become_ a running process?
+
+<img src="./img/processes/compile_pipeline.png" height="640">
+
+---
+
+**loader** (OS) sets it running 
+- loads sections
+- sets <scb>IP</scb> to the start
+
+<img src="./img/processes/compile_pipeline.png" height="640">
+
+Note:
+- objdump shows the sections of a program; the loader maps them into memory.
+
+---
+
+## process in memory
+
+---
+
+### process in memory | **see it yourself**
+
+consider a program that prints the address of
+- a <sc>local</sc>, a <sc>malloc</sc>, a <sc>global</sc> and a <sc>function</sc>
+
+---
+
+### process in memory | **see it yourself**
+
+- a <sc>local</sc>, a <sc>malloc</sc>, a <sc>global</sc> and a <sc>function</sc>
+
+<img src="img/processes/addr_demo_1.png" height="700">
+
+---
+
+### process in memory | **see it yourself**
+
+each address lands in a _different region_ &rarr; stack high, text low
+
+<img src="./img/processes/addr_demo_2.png" height="700">
+
+Note:
+- &s on the stack; s (malloc) in the heap; global in data; main in text
+
+---
+
+### process in memory
+
+a process' memory &rarr; the **virtual address space** (VAS)
+
+<img src="./img/processes/proc_mem_1.png" height="600">
+
+---
+
+let's look at `code` example
+
+---
+
+```C [6|10|12-15|17|19]
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+int global_variable;
+
+int main() {
+
+  char *s = malloc(10);
+
+  printf("stk: %p\n", &s);
+  printf("malloc: %p\n", s);
+  printf("global: %p\n", &global_variable);
+  printf("fn: %p\n", main);
+
+  printf("pid: %d\n", getpid());
+
+  getc( stdin ) ;
+
+  return 0;
+}
+```
+
+
+---
+
+```C
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+int global_variable;
+
+int main() {
+
+  char *s = malloc(10);
+
+  printf("stk: %p\n", &s);
+  printf("malloc: %p\n", s);
+  printf("global: %p\n", &global_variable);
+  printf("fn: %p\n", main);
+
+  printf("pid: %d\n", getpid());
+
+  getc( stdin ) ;
+
+  return 0;
+}
+```
+
+---
+
+<img src="./img/processes/proc_mem_1.png" height="600">
+
+
+
+---
+
+### process in memory
+
+each process &rarr; has its own VAS
+
+<img src="./img/processes/proc_mem_2.png" height="700">
+
+---
+
+### process in memory
+
+each process &rarr; has its own VAS
+
+<img src="./img/processes/proc_mem_2.png" height="600">
+
+process believes &rarr; it has **entire** memory available
+
+---
+
+process believes &rarr; it has **entire** memory available
+
+- clearly not realistic
+- **OS abstraction**
+
+---
+
+process believes &rarr; it has **entire** memory available
+
+- clearly not realistic
+- **OS abstraction**
+- protection between processes
+- only **subset** of memory &rarr; allocated
+  - "as needed"
+
+---
+
+### process in memory
+
+there's a **hole** from <scb>0 &rarr; N</scb> of _inaccessible_ memory... **why?**
+
+<img src="./img/processes/proc_mem_2.png" height="600">
+
+---
+
+### process in memory
+
+there's a **hole** from <scb>0 &rarr; N</scb> of _inaccessible_ memory... **why?**
+
+<img src="./img/processes/proc_mem_2.png" height="600">
+
+unmapped low addresses &rarr; catch <scb>NULL</scb>-pointer dereferences
+
+---
+
+### process in memory
+
+there's a **hole** from <scb>0 &rarr; N</scb> of _inaccessible_ memory... **why?**
+
+<img src="./img/processes/proc_mem_2.png" height="600">
+
+unmapped low addresses &rarr; catch <scb>NULL</scb>-pointer dereferences
+
+question: why it is a **range** (<scb>0 &rarr; N</scb>) and not just <scb>0</scb>?
+
+---
+
+### process in memory
+
+also notice the "**free**" memory in the middle...
+
+<img src="./img/processes/proc_mem_2.png" height="600">
+
+---
+
+### process in memory
+
+also notice the "**free**" memory in the middle...
+
+<img src="./img/processes/proc_mem_2.png" height="600">
+
+**not** actual memory &rarr; access results in <scb>segfault</scb>
+
+memory for the heap/stack to "grow" into
+
+---
+
+where is the **kernel** is this VAS?
+
+---
+
+where is the **kernel** is this VAS?
+
+- separate address space?
+- how does **"dual-mode"** execution matter?
+- kernel "manages" the VAS?
+
+---
+
+### process in memory
+
+**kernel** &rarr; mapped into **<font color="darkred">every</font>** address space
+
+<img src="./img/processes/proc_mem_3.png" height="700">
+
+Note:
+- so a syscall can run without switching the address space -- same kernel memory.
+
+---
+
+## OS support for process memory
+
+---
+
+### OS support for process memory
+
+- OS uses **HW** &rarr; _virtual_ address space (VAS)
+
+---
+
+### OS support for process memory
+
+- OS uses **HW** &rarr; _virtual_ address space (VAS)
+- process believes &rarr; it has **entire** memory available
+  - **OS abstraction!**
+
+---
+
+### OS support for process memory
+
+- OS uses **HW** &rarr; _virtual_ address space (VAS)
+- process believes &rarr; it has **entire** memory available
+  - **OS abstraction!**
+- **protection** between processes
+
+---
+
+### OS support for process memory
+
+- OS uses **HW** &rarr; _virtual_ address space (VAS)
+- process believes &rarr; it has **entire** memory available
+  - **OS abstraction!**
+- **protection** between processes
+- only **subset** of memory &rarr; allocated
+  - "as needed"
+
+---
+
+## OS support for process memory | **a lie**
+
+---
+
+### OS support for process memory | **a lie**
+
+- every virtual address space &rarr; **lie**
+
+---
+
+### OS support for process memory | **a lie**
+
+- every virtual address space &rarr; **lie**
+- there **isn't that much physical** memory in system!
+
+---
+
+### OS support for process memory | **a lie**
+
+- every virtual address space &rarr; **lie**
+- there **isn't that much physical** memory in system!
+- OS maps _different_ real memory &rarr; each VAS
+
+---
+
+### OS support for process memory | **a lie**
+
+- every virtual address space &rarr; **lie**
+- there **isn't that much physical** memory in system!
+- OS maps _different_ real memory &rarr; each VAS
+  - different physical memory 
+  - VASes **cannot touch each other**
+  - **isolation** is the opposite of _sharing_
+
+---
+
+### OS support for process memory | **the kernel**
+
+---
+
+### OS support for process memory | **the kernel**
+
+- kernel must **manage** virtual address spaces
+
+---
+
+### OS support for process memory | **the kernel**
+
+- kernel must **manage** virtual address spaces
+
+<br>
+<br>
+
+<center><div class="center" data-id="box" style="height: 75px; width: 200px; background: orange;">
+<b>why?</b>
+</div></center>
+
+
+---
+
+what if a **process** managed its own VAS?
+
+---
+
+what if a **process** managed its own VAS?
+
+- it could map **kernel's** memory into itself &rarr; corrupt it!
+
+---
+
+what if a **process** managed its own VAS?
+
+- it could map **kernel's** memory into itself &rarr; corrupt it!
+- it could map **another process'** memory into itself!
+
+---
+
+what if a **process** managed its own VAS?
+
+- it could map **kernel's** memory into itself &rarr; corrupt it!
+- it could map **another process'** memory into itself!
+
+<br>
+<br>
+
+### the kernel **must** be the one in control
+
+---
+
+### OS support for process memory | **the kernel**
+
+- kernel **manages** virtual address spaces 
+
+---
+
+### OS support for process memory | **the kernel**
+
+- kernel **manages** virtual address spaces 
+  - create mappings: virtual &amp; &rarr; actual memory
+---
+
+### OS support for process memory | **the kernel**
+
+- kernel **manages** virtual address spaces 
+  - create mappings: virtual &amp; &rarr; actual memory
+  - switch between apps &harr;  switch between _VAS_
+
+---
+
+so... where does a <sc>syscall</sc> execute?
+
+Note:
+- blue pill: switching AS keeps the *same* kernel memory mapped.
+
+---
+
+### **where** is the kernel? 
+
+---
+
+### **where** is the kernel? | **EVERYWHERE**!
+
+**kernel** &rarr; mapped into **<font color="darkred">every</font>** address space
+
+<img src="./img/processes/proc_mem_3.png" height="700">
+
+---
+
+<img src="./img/processes/proc_mem_3.png" height="400">
+<img src="./img/processes/confused_yellow.gif" height="400">
+
+Note:
+- so a syscall can run without switching the address space -- same kernel memory.
+
+---
+
+### where is the kernel?  |  **two questions**
+
+---
+
+### where is the kernel?  |  **two questions**
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 60% 40%; gap: 20px; align-items: center;">
+<div>
+
+1. **no separate** address space for kernel?
+
+</div>
+
+<div>
+
+<img src="./img/processes/proc_mem_3.png" height="400">
+
+</div>
+</div>
+
+---
+
+### where is the kernel?  |  **two questions**
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 60% 40%; gap: 20px; align-items: center;">
+<div>
+
+1. **no separate** address space for kernel?
+2. if it's in **every** VAS <br> &rarr; how is kernel **protected**?
+
+</div>
+
+<div>
+
+<img src="./img/processes/proc_mem_3.png" height="400">
+
+</div>
+</div>
+
+---
+
+<img src="./img/processes/why-persian-room-cat-guardian.gif" height="700">
+
+---
+
+<sc>syscall</sc>/<sc>interrupt</sc>/<sc>exception</sc>
+
+---
+
+<sc>syscall</sc>/<sc>interrupt</sc>/<sc>exception</sc>
+
+<br>
+
+<center><div class="center" data-id="box" style="height: 75px; width: 850px; background: orange;">
+<b>does not switch address space!</b>
+</div></center>
+
+---
+
+<sc>syscall</sc>/<sc>interrupt</sc>/<sc>exception</sc>
+- flips the **mode bit** + jumps to **preset address**
+
+---
+
+<sc>syscall</sc>/<sc>interrupt</sc>/<sc>exception</sc>
+- flips the **mode bit** + jumps to **preset address**
+- kernel _must_ be mapped into **same** VAS to be **reachable**
+
+---
+
+### where is the kernel?  |  **how it's protected**
+
+---
+
+### where is the kernel?  |  **how it's protected**
+
+- kernel memory is _marked_ **kernel-mode**
+
+---
+
+### where is the kernel?  |  **how it's protected**
+
+- kernel memory is _marked_ **kernel-mode**
+- user mode simply **cannot** touch it 
+  - else a fault (<scb>GPF</scb>/<scb>segfault</scb>)
+- dual-mode protection, again!
+
+---
+
+### where is the kernel?  |  **the neat trick**
+
+---
+
+### where is the kernel?  |  **the neat trick**
+
+the kernel is mapped **identically** into _every_ VAS
+
+---
+
+### where is the kernel?  |  **the neat trick**
+
+the kernel is mapped **identically** into _every_ VAS
+
+- so switchoing address spaces...
+
+---
+
+### where is the kernel?  |  **the neat trick**
+
+the kernel is mapped **identically** into _every_ VAS
+
+- so switching address spaces...
+- ...keeps executing the _same_ kernel code, **uninterrupted**
+
+---
+
+## process introspection
+
+---
+
+### process introspection
+
+Linux lets us _look inside_
+
+---
+
+### process introspection
+
+Linux lets us _look inside_ &rarr; both the **program** and the **process**
+
+---
+
+### process introspection
+
+Linux lets us _look inside_ &rarr; both the **program** and the **process**
+
+|method|what you see|
+|-----|-----|
+| <scb>objdump</scb> | _sections_ of program (on disk) |
+
+---
+
+### process introspection
+
+Linux lets us _look inside_ &rarr; both the **program** and the **process**
+
+|method|what you see|
+|-----|-----|
+| <scb>objdump</scb> | **sections** of program (on disk) |
+| <scb>/proc/\<pid\>/maps</scb> | process **<font color="darkred">live</font> memory** |
+||
+
+---
+
+### introspection | **the program** (objdump)
+
+---
+
+### introspection | **the program** (objdump)
+
+## <scb>objdump -h</scb>
+
+---
+
+### introspection | **the program** (objdump)
+
+<scb>objdump -h</scb> &rarr; each section **loads** into address space
+
+---
+
+### introspection | **the program** (objdump)
+
+<scb>objdump -h</scb> &rarr; each section **loads** into address space
+
+<img src="./img/processes/objdump_sections.png" height="700">
+
+Note:
+- ELF section headers tell the loader where .text/.rodata/.data go.
+
+---
+
+### introspection | **the process** 
+
+---
+
+### introspection | **the process** 
+
+## <scb>/proc/\<pid\>/maps</scb>
+
+---
+
+### introspection | **the process** 
+
+<scb>/proc/\<pid\>/maps</scb> &rarr; mapped regions of **running** process
+
+---
+
+### introspection | **the process** 
+
+<scb>/proc/\<pid\>/maps</scb> &rarr; mapped regions of **running** process
+
+<img src="./img/processes/proc_maps_1.png" height="700">
+
+---
+
+### introspection | **the process** 
+
+**permission bits** &rarr; tell you what each region _is_
+
+---
+
+### introspection | **the process** 
+
+**permission bits** &rarr; tell you what each region _is_
+
+<img src="./img/processes/proc_maps_2.png" height="700">
+
+Note:
+- r-x = code, r-- = constants, rw- = data/heap/stack.
+
+---
+
+### <sc>/proc/[pid]/maps</sc> Permission Bits
+
+| position | character | access | description |
+| :---: | :---: | :--- | :--- |
+| **1** | <scb>r</scb> / <scb>-</scb> | **read** | <scb>r</scb> = readable, <scb>-</scb> = disabled |
+| **2** | <scb>w</scb> / <scb>-</scb> | **write** | <scb>w</scb> = writable, <scb>-</scb> = disabled |
+| **3** | <scb>x</scb> / <scb>-</scb> | **execute** | <scb>x</scb> = executable, <scb>-</scb> = disabled |
+
+---
+
+### <sc>/proc/[pid]/maps</sc> Permission Bits
+
+| position | character | access | description |
+| :---: | :---: | :--- | :--- |
+| **1** | <scb>r</scb> / <scb>-</scb> | **read** | <scb>r</scb> = readable, <scb>-</scb> = disabled |
+| **2** | <scb>w</scb> / <scb>-</scb> | **write** | <scb>w</scb> = writable, <scb>-</scb> = disabled |
+| **3** | <scb>x</scb> / <scb>-</scb> | **execute** | <scb>x</scb> = executable, <scb>-</scb> = disabled |
+| **4** | <scb>p</scb> / <scb>s</scb> | **sharing** | <scb>p</scb> = private*, <scb>s</scb> = shared |
+||
+
+<br>
+[* copy-on-write]
+
+---
+
+### common permission combinations
+
+| permissions | mode | usage / memory region |
+| :--- | :--- | :--- |
+| <scb>r-xp</scb> | read / execute <br> (private) | executable code segment <br> <scb>.text</scb> section of binaries/shared libraries |
+| <scb>rw-p</scb> | read / write <br> (private) | heap, stack, initialized/uninitialized globals <br> <scb>.data</scb>, <scb>.bss</scb>, <scb>malloc</scb> allocations |
+| <scb>r--p</scb> | read-only (private) | read-only constants <br> <scb>.rodata</scb>, dynamic linker tables |
+
+---
+
+### common permission combinations [contd.]
+
+| permissions | mode | usage / memory region |
+| :--- | :--- | :--- |
+| <scb>rw-s</scb> | read / write (shared) | shared memory <br> <scb>mmap</scb> with <scb>map_shared</scb>, posix shared memory, ipc |
+| <scb>---p</scb> | no access (private) | guard pages <br> _e.g.,_ stack guard pages, unreserved memory |
+||
+
+---
+
+## **GDB is just this**
+
+---
+
+## introspection | **GDB is just this**
+
+<scb>gdb</scb> is **implemented** on top of this introspection
+
+---
+
+## introspection | **GDB is just this**
+
+<scb>gdb</scb> is **implemented** on top of this introspection
+
+1. read the <scb>/proc</scb> files for context
+
+---
+
+## introspection | **GDB is just this**
+
+<scb>gdb</scb> is **implemented** on top of this introspection
+
+1. read the <scb>/proc</scb> files for context
+2. a few <sc>syscall</sc> tricks around <scb>ptrace</scb>
+
+---
+
+## introspection | **GDB is just this**
+
+<scb>gdb</scb> is **implemented** on top of this introspection
+
+1. read the <scb>/proc</scb> files for context
+2. a few <sc>syscall</sc> tricks around <scb>ptrace</scb>
+
+<br>
+<br>
+
+**no magic** &rarr; just files + a <sc>syscall</sc>
+
+---
+
+abstraction for execution in UNIX &rarr; **memory** + **flow of control**
+
+---
+
+abstraction for execution in UNIX &rarr; **memory** + **flow of control**
+
+...so how is process introspection **implemented**?
+
+---
+
+## process control block (PCB)
+
+---
+
+### process control block (PCB)
+
+a kernel, **per-process** data structure 
+
+## <scb>struct proc</scb>
+
+---
+
+## process control block (PCB)
+
+a kernel, **per-process** data structure &rarr; <scb>struct proc</scb>
+
+| holds |description |
+|-------|--|
+| **CPU registers** | including the instruction counter |
+
+---
+
+## process control block (PCB)
+
+a kernel, **per-process** data structure &rarr; <scb>struct proc</scb>
+
+| holds |description |
+|-------|--|
+| **CPU registers** | including the instruction counter |
+| **process state** | priority, awake/blocked |
+
+---
+
+## process control block (PCB)
+
+a kernel, **per-process** data structure &rarr; <scb>struct proc</scb>
+
+| holds |description |
+|-------|--|
+| **CPU registers** | including the instruction counter |
+| **process state** | priority, awake/blocked |
+| **memory info** | allocation, VAS mapping, stack location |
+
+---
+
+## process control block (PCB)
+
+a kernel, **per-process** data structure &rarr; <scb>struct proc</scb>
+
+| holds |description |
+|-------|--|
+| **CPU registers** | including the instruction counter |
+| **process state** | priority, awake/blocked |
+| **memory info** | allocation, VAS mapping, stack location |
+| **CPU accounting** | exec time at user/kernel level |
+
+---
+
+## process control block (PCB)
+
+a kernel, **per-process** data structure &rarr; <scb>struct proc</scb>
+
+| holds |description |
+|-------|--|
+| **CPU registers** | including the instruction counter |
+| **process state** | priority, awake/blocked |
+| **memory info** | allocation, VAS mapping, stack location |
+| **CPU accounting** | exec time at user/kernel level |
+| **file info** | open files |
+||
+
+---
+
+let's look at <scb>xv6</scb> example... <scb>proc.h</scb>
+
+---
+
+let's look at <scb>xv6</scb> example... <scb>proc.h</scb>
+
+```C
+// Per-process state
+struct proc {
+  struct spinlock lock;
+
+  // p->lock must be held when using these:
+  enum procstate state; // Process state
+  void *chan;           // If non-zero, sleeping on chan
+  int killed;           // If non-zero, have been killed
+  int xstate;           // Exit status to be returned to parent's wait
+  int pid;              // Process ID
+
+  // wait_lock must be held when using this:
+  struct proc *parent; // Parent process
+
+  // these are private to the process, so p->lock need not be held.
+  uint64 kstack;               // Virtual address of kernel stack
+  uint64 sz;                   // Size of process memory (bytes)
+  pagetable_t pagetable;       // User page table
+  struct trapframe *trapframe; // data page for trampoline.S
+  struct context context;      // swtch() here to run process
+  struct file *ofile[NOFILE];  // Open files
+  struct inode *cwd;           // Current directory
+  char name[16];               // Process name (debugging)
+};
+```
+---
+
+let's look at <scb>xv6</scb> example... <scb>proc.h</scb>
+
+```C[2|6|15-23|16|17|18|19|6]
+// Per-process state
+struct proc {
+  struct spinlock lock;
+
+  // p->lock must be held when using these:
+  enum procstate state; // Process state
+  void *chan;           // If non-zero, sleeping on chan
+  int killed;           // If non-zero, have been killed
+  int xstate;           // Exit status to be returned to parent's wait
+  int pid;              // Process ID
+
+  // wait_lock must be held when using this:
+  struct proc *parent; // Parent process
+
+  // these are private to the process, so p->lock need not be held.
+  uint64 kstack;               // Virtual address of kernel stack
+  uint64 sz;                   // Size of process memory (bytes)
+  pagetable_t pagetable;       // User page table
+  struct trapframe *trapframe; // data page for trampoline.S
+  struct context context;      // swtch() here to run process
+  struct file *ofile[NOFILE];  // Open files
+  struct inode *cwd;           // Current directory
+  char name[16];               // Process name (debugging)
+};
+```
+
+---
+
+let's look at <scb>xv6</scb> example... <scb>proc.h</scb>
+
+```C
+// Per-process state
+struct proc {
+  struct spinlock lock;
+
+  // p->lock must be held when using these:
+  enum procstate state; // Process state
+  void *chan;           // If non-zero, sleeping on chan
+  int killed;           // If non-zero, have been killed
+  int xstate;           // Exit status to be returned to parent's wait
+  int pid;              // Process ID
+
+  // wait_lock must be held when using this:
+  struct proc *parent; // Parent process
+
+  // these are private to the process, so p->lock need not be held.
+  uint64 kstack;               // Virtual address of kernel stack
+  uint64 sz;                   // Size of process memory (bytes)
+  pagetable_t pagetable;       // User page table
+  struct trapframe *trapframe; // data page for trampoline.S
+  struct context context;      // swtch() here to run process
+  struct file *ofile[NOFILE];  // Open files
+  struct inode *cwd;           // Current directory
+  char name[16];               // Process name (debugging)
+};
+```
+
+---
+
+## process states
+
+---
+
+### process states
+
+as a process executes &rarr; kernel changes its **state**
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+### process states
+
+as a process executes &rarr; kernel changes its **state**
+
+<img src="./img/processes/proc_states_from_odp.png" height="600">
+
+---
+
+but there exist **many** processes in the system...
+
+---
+
+but there exist **many** processes in the system...
+
+- if _one_ is <scb>running</scb>, what states are others in?
+
+---
+
+- if _one_ is <scb>running</scb>, what states are others in?
+- **why** would a process go from <scb>running</scb> &rarr; <scb>waiting</scb>?
+
+
+Note:
+- example: running -> waiting on an I/O request (e.g. read from disk).
+
+---
+
+### <scb>xv6</scb> states
+
+```C
+struct proc {
+  ...
+  // p->lock must be held when using these:
+  enum procstate state; // Process state
+  void *chan;           // If non-zero, sleeping on chan
+  int killed;           // If non-zero, have been killed
+  int xstate;           // Exit status to be returned to parent's wait
+...
+```
+
+
+---
+
+### <scb>xv6</scb> states
+
+```C[4]
+struct proc {
+  ...
+  // p->lock must be held when using these:
+  enum procstate state; // Process state
+  void *chan;           // If non-zero, sleeping on chan
+  int killed;           // If non-zero, have been killed
+  int xstate;           // Exit status to be returned to parent's wait
+...
+```
+
+---
+
+### <scb>xv6</scb> states
+
+```C[2,7]
+
+enum procstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+
+struct proc {
+  ...
+  // p->lock must be held when using these:
+  enum procstate state; // Process state
+  void *chan;           // If non-zero, sleeping on chan
+  int killed;           // If non-zero, have been killed
+  int xstate;           // Exit status to be returned to parent's wait
+...
+
+---
+
+### <scb>xv6</scb> states
+
+```C[2,7]
+
+enum procstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+
+struct proc {
+  ...
+  // p->lock must be held when using these:
+  enum procstate state; // Process state
+  void *chan;           // If non-zero, sleeping on chan
+  int killed;           // If non-zero, have been killed
+  int xstate;           // Exit status to be returned to parent's wait
+...
+```
+
+**note** the subtle differences in names...
+
+|linux|xv6|
+|-----|-----|
+| ready | runnable |
+| waiting | sleeping |
+|
+
+---
+
+## process queues
+
+---
+
+## process queues
+
+| queue | description |
+|---|---|
+| **job queue** | **all** processes in system |
+
+---
+
+## process queues
+
+| queue | description |
+|---|---|
+| **job queue** | **all** processes in system |
+| **runqueue** | processes in **ready** state <br> waiting to execute; scheduler picks next |
+
+---
+
+## process queues
+
+| queue | description |
+|---|---|
+| **job queue** | **all** processes in system |
+| **runqueue** | processes in **ready** state <br> waiting to execute; scheduler picks next |
+| **device queues** | processes waiting for **i/o completion** <br> typically one queue per device |
+||
+
+---
+
+## process queues
+
+| queue | description |
+|---|---|
+| **job queue** | **all** processes in system |
+| **runqueue** | processes in **ready** state <br> waiting to execute; scheduler picks next |
+| **device queues** | processes waiting for **i/o completion** <br> typically one queue per device |
+||
+
+processes **migrate** between queues
+
+---
+
+## process queues
+
+processes **migrate** between queues
+
+<img src="./img/processes/proc_queues.png" height="700">
+
+---
+
+## process scheduling
+
+---
+
+### process scheduling
+
+choose **which** process to run next, given...
+
+---
+
+### process scheduling
+
+choose **which** process to run next, given...
+
+- process **priority** (vs. other ready processes)
+- remaining **timeslice** (CPU allocation)
+
+---
+
+### process scheduling | **two types**
+
+
+---
+
+### process scheduling | **two types**
+
+| type | behavior |
+|------|----------|
+| **CPU bound** | most **time on CPU**, rarely waits for I/O |
+
+---
+
+### process scheduling | **two types**
+
+| type | behavior |
+|------|----------|
+| **CPU bound** | most **time on CPU**, rarely waits for I/O |
+| **I/O bound** | short CPU bursts, mostly **waiting on I/O** |
+||
+
+---
+
+### process scheduling | **examples**
+
+| type | examples |
+|------|----------|
+| **CPU bound** | computing pi, climate modeling, crypto mining |
+| **I/O bound** | X server (keyboard/mouse), web servers |
+||
+
+---
+
+### process scheduling 
+
+- schedulers usually **prioritize I/O-bound** processes
+
+---
+
+### process scheduling 
+
+- schedulers usually **prioritize I/O-bound** processes
+- just woke up for some I/O &rarr; **process it right away**
+
+<br>
+<br>
+
+## why?
+
+---
+
+so...what prevents...
+
+a single **CPU-bound** process from **monopolizing** CPU?
+
+---
+
+## timer interrupts
+
+---
+
+### timer interrupts
+
+- an interrupt from an _on-processor_ timekeeping device
+  - e.g. <scb>100 Hz</scb> in Linux &rarr; every <scb>10 ms</scb>
+
+---
+
+### timer interrupts
+
+- an interrupt from an _on-processor_ timekeeping device
+  - e.g. <scb>100 Hz</scb> in Linux &rarr; every <scb>10 ms</scb>
+- lets kernel **keep time**
+  - track execution of different processes
+  - schedule accordingly
+
+---
+
+### timer interrupts
+
+- an interrupt from an _on-processor_ timekeeping device
+  - e.g. <scb>100 Hz</scb> in Linux &rarr; every <scb>10 ms</scb>
+- lets kernel **keep time**
+  - track execution of different processes
+  - schedule accordingly
+- **timeslice** &rarr; **multiple** of timer's "inter-arrival time"
+
+---
+
+### timer interrupts
+
+- an interrupt from an _on-processor_ timekeeping device
+  - e.g. <scb>100 Hz</scb> in Linux &rarr; every <scb>10 ms</scb>
+- lets kernel **keep time**
+  - track execution of different processes
+  - schedule accordingly
+- **timeslice** &rarr; **multiple** of timer's "inter-arrival time"
+- **preempt** running thread &rarr; enables "**preemptive scheduling**"
+
+---
+
+### timer interrupts | **wall-clock time**
+
+---
+
+### timer interrupts | **wall-clock time**
+
+- timer interrupts are the kernel's **main** way to **keep time**
+
+---
+
+### timer interrupts | **wall-clock time**
+
+- timer interrupts are the kernel's **main** way to **keep time**
+  - the clock on your screen &rarr; the OS _counting ticks_
+  - fine-grained; NTP servers correct the drift
+
+---
+
+## so what is...**scheduling**?
+
+---
+
+### so what is...**scheduling**?
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 60% 40%; gap: 20px; align-items: center;">
+<div>
+
+- imagine you have <scb>n</scb> cpu cores
+
+</div>
+
+<div>
+
+<img src="./img/processes/schedule_map.0.png" height="400">
+
+</div>
+</div>
+
+---
+
+### so what is...**scheduling**?
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 60% 40%; gap: 20px; align-items: center;">
+<div>
+
+- imagine you have <scb>n</scb> cpu cores
+- and <scb>m</scb> processes where <scb>m >> n</scb>
+
+</div>
+
+<div>
+
+<img src="./img/processes/schedule_map.1.png" height="500">
+
+</div>
+</div>
+
+---
+
+## scheduling question | map <scb>m &rarr; n</scb>?
+
+---
+
+## scheduling question | map <scb>m &rarr; n</scb>?
+
+<img src="./img/processes/schedule_map.2.png" height="700">
+
+---
+
+### scheduling question | map <scb>m &rarr; n</scb>?
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 60% 40%; gap: 20px; align-items: center;">
+<div>
+
+- **<sc>n</sc> cores** &rarr; <scb>n</scb> _parallel_ sets of registers &rarr; n processes at once
+
+</div>
+
+<div>
+
+<img src="./img/processes/schedule_map.2.png" height="500">
+
+</div>
+</div>
+
+---
+
+### scheduling question | map <scb>m &rarr; n</scb>?
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 60% 40%; gap: 20px; align-items: center;">
+<div>
+
+- **<sc>n</sc> cores** &rarr; <scb>n</scb> _parallel_ sets of registers &rarr; n processes at once
+- but usually <scb>m >> n</scb> &rarr; far more processes than cores
+
+</div>
+
+<div>
+
+<img src="./img/processes/schedule_map.2.png" height="500">
+
+</div>
+</div>
+
+---
+
+### scheduling question | map <scb>m &rarr; n</scb>?
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 60% 40%; gap: 20px; align-items: center;">
+<div>
+
+- **<sc>n</sc> cores** &rarr; <scb>n</scb> _parallel_ sets of registers &rarr; n processes at once
+- but usually <scb>m >> n</scb> &rarr; far more processes than cores
+
+</div>
+
+<div>
+
+<img src="./img/processes/schedule_map.2.png" height="500">
+
+</div>
+</div>
+
+<br>
+<center><div class="center" data-id="box" style="height: 75px; width: 1150px; background: orange;">
+<b>scheduler</b> decides &rarr; which process is next
+</div></center>
+
+---
+
+### scheduling question | map <scb>m &rarr; n</scb>?
+
+- <b>scheduler</b> decides &rarr; which process is next
+- **dispatches**/switches current process &rarr; next
+
+---
+
+### scheduling question | map <scb>m &rarr; n</scb>?
+
+- <b>scheduler</b> decides &rarr; which process is next
+- **dispatches**/switches current process &rarr; next
+- <scb>ready</scb> state &rarr; <scb>running</scb> state
+
+---
+
+### scheduling question | map <scb>m &rarr; n</scb>?
+
+- <b>scheduler</b> decides &rarr; which process is next
+- **dispatches**/switches current process &rarr; next
+- <scb>ready</scb> state &rarr; <scb>running</scb> state
+- **context switch** time is _overhead_ &rarr; **minimal**
+
+---
+
+what is _involved_ in a context switch? 
+
+---
+
+what is _involved_ in a context switch?  
+
+what must be **saved** and/or **restored**?
+
+---
+
+what must be **saved** and/or **restored**?
+
+- registers for a process
+
+---
+
+what must be **saved** and/or **restored**?
+
+- registers for a process
+- switch VAS from one process to another
+
+---
+
+## context switch
+
+---
+
+### context switch
+
+ 1. save **outgoing** process state to its PCB
+ 2. (re)load **incoming** one's state (from PCB)
+
+---
+
+### context switch
+
+ 1. save **outgoing** process state to its PCB
+ 2. (re)load **incoming** one's state (from PCB)
+
+<img src="./img/processes/context_overview.png" height="700">
+
+---
+
+### context switch
+
+while the OS switches, _both_ processes are briefly **idle** 
+
+<img src="./img/processes/context_overview.png" height="700">
+
+---
+
+### context switch
+
+while the OS switches, _both_ processes are briefly **idle** 
+
+<img src="./img/processes/context_overview.png" height="700">
+
+<br>
+<br>
+<center><div class="center" data-id="box" style="height: 75px; width: 450px; background: orange;">
+<b>pure overhead!</b>
+</div>
+
+---
+
+## xv6 context switch
+
+---
+
+### xv6 context switch
+
+it's _"just structs, C and asm"_ &rarr; let's trace <scb>swtch.S</scb>
+
+---
+
+### xv6 context switch | **how we got here**
+
+- syscall &rarr; save **user** registers 
+
+---
+
+### xv6 context switch | **how we got here**
+
+- syscall &rarr; save **user** registers 
+- <scb>tf</scb> (trap frame) points at them
+
+---
+
+### xv6 context switch | **how we got here**
+
+- syscall &rarr; save **user** registers 
+- <scb>tf</scb> (trap frame) points at them
+
+<img src="./img/processes/kstack_context_1.png" height="700">
+
+---
+
+### xv6 context switch | **how we got here**
+
+- handler blocks <br> <scb>wait_for_io</scb> &rarr; calls <scb>sched()</scb> &rarr; calls <scb>swtch()</scb>
+
+<img src="./img/processes/kstack_context_2.png" height="700">
+
+---
+
+`void swtch(struct context **old, struct context *new);`
+
+---
+
+### xv6 context switch | **how we got here**
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 60% 40%; gap: 20px; align-items: center;">
+<div>
+
+two **different** register contexts
+
+|||
+|----|----|
+| <scb>trap frame</scb> (<scb>tf</scb>) | user regs |
+| <scb>context</scb> | kernel regs |
+|
+
+</div>
+
+<div>
+
+<img src="./img/processes/kstack_context_2.png" height="500">
+
+</div>
+</div>
+
+---
+
+two **different** register contexts
+
+```C
+// Per-process state
+struct proc {
+  ...
+  struct trapframe *trapframe; // data page for trampoline.S
+  struct context context;      // swtch() here to run process
+  ...
+};
+```
+
+---
+
+<scb>xv6/x86.h</scb>
+
+<img src="./img/processes/trap_frame.png" height="800">
+
+---
+
+<scb>xv6/x86.h</scb>
+
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/processes/trap_frame.png" height="550">
+
+</div>
+
+<div>
+
+```C
+struct trapframe {
+  // registers as pushed by pusha
+  uint edi;
+  uint esi;
+  uint ebp;
+  uint oesp;      // useless & ignored
+  uint ebx;
+  uint edx;
+  uint ecx;
+  uint eax;
+```
+
+</div>
+</div>
+
+
+---
+
+<scb>xv6/x86.h</scb>
+
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/processes/trap_frame.png" height="550">
+
+</div>
+
+<div>
+
+```C[3-10]
+struct trapframe {
+  // registers as pushed by pusha
+  uint edi;
+  uint esi;
+  uint ebp;
+  uint oesp;      // useless & ignored
+  uint ebx;
+  uint edx;
+  uint ecx;
+  uint eax;
+```
+
+</div>
+</div>
+
+---
+
+### xv6 context switch | **how we got here**
+
+<scb>context</scb> &rarr; only valid when process is **not running**
+
+<img src="./img/processes/kstack_context_3.png" height="700">
+
+Note:
+- while running, the registers live in the CPU -- nothing for context to track.
+
+---
+
+### <scb>swtch.S</scb>
+
+<img src="./img/processes/swtch.s.png" height="800">
+
+---
+
+recall that there are **two** processes &rarr; <scb>P0</scb> and <scb>P1</scb>
+
+---
+
+### xv6 context switch | **mechanics**
+
+<scb>P0</scb> kernel stack &rarr; copy register by register
+
+<img src="./img/processes/xv6_swtch_1.png" height="700">
+
+---
+
+### xv6 context switch | **mechanics**
+
+<scb>swtch(&amp;curr-&gt;context, next-&gt;context)</scb> <br> save current, load next
+
+<img src="./img/processes/xv6_swtch_2.png" height="700">
+
+---
+
+### xv6 context switch | **mechanics**
+
+read the two args off the stack &rarr; <scb>%curr</scb>, <scb>%next</scb>
+
+<img src="./img/processes/xv6_swtch_3.png" height="700">
+
+---
+
+### xv6 context switch | **mechanics**
+
+**save** callee-saved registers 
+
+<scb>push ebp, ebx, esi, edi</scb>
+
+<img src="./img/processes/xv6_swtch_4.png" height="700">
+
+
+---
+
+### xv6 context switch | **mechanics**
+
+**save** callee-saved registers 
+
+<scb>push ebp, ebx, esi, edi</scb>
+
+<img src="./img/processes/xv6_swtch_4.png" height="700">
+
+these four pushes build saved context on <scB>P0</scb>'s kernel stack
+
+---
+
+### xv6 context switch | **mechanics**
+
+stash old <scb>esp</scb> into <scb>curr-&gt;context</scb>
+
+<img src="./img/processes/xv6_swtch_5.png" height="700">
+
+---
+
+### xv6 context switch | **mechanics**
+
+**switch stacks** 
+
+load <scb>esp</scb> from <scb>next-&gt;context</scb>  (now on <scb>P1</scb>!)
+
+<img src="./img/processes/xv6_swtch_6.png" height="700">
+
+---
+
+### xv6 context switch | **mechanics**
+
+**switch stacks** 
+
+load <scb>esp</scb> from <scb>next-&gt;context</scb>  (now on <scb>P1</scb>!)
+
+<img src="./img/processes/xv6_swtch_6.png" height="700">
+
+one register move is entire "switch" &rarr; esp now points at <scb>P1</scb>'s stack
+
+---
+
+### xv6 context switch | **mechanics**
+
+**restore** <scb>P1</scb>'s registers 
+
+<scb>pop edi, esi, ebx, ebp</scb>
+
+<img src="./img/processes/xv6_swtch_7.png" height="700">
+
+---
+
+### xv6 context switch | **mechanics**
+
+<scb>ret</scb> pops <scb>P1</scb>'s return address 
+
+<img src="./img/processes/xv6_swtch_8.png" height="700">
+
+---
+
+### xv6 context switch | **mechanics**
+
+<scb>ret</scb> pops <scb>P1</scb>'s return address 
+
+<img src="./img/processes/xv6_swtch_8.png" height="700">
+
+**now running <scb>P1</scb>!**
+
+---
+
+### xv6 context switch | **mechanics**
+
+<scb>ret</scb> pops <scb>P1</scb>'s return address 
+
+<img src="./img/processes/xv6_swtch_8.png" height="700">
+
+**now running <scb>P1</scb>!**
+
+<scb>swtch</scb> returns onto a **different** stack than it was called on!
+
+---
+
+### xv6 context switch | **summary**
+
+|pre-switch|post-switch|
+|----------|-----------|
+|||
+
+---
+
+### xv6 context switch | **summary**
+
+|pre-switch|post-switch|
+|----------|-----------|
+|<scb>P0</scb> stack active, wants to switch||
+|<scb>P1</scb> picked to run next||
+
+---
+
+### xv6 context switch | **summary**
+
+|pre-switch|post-switch|
+|----------|-----------|
+|<scb>P0</scb> stack active, wants to switch| <scb>P0</scb> stack and context ready to be switched **back** |
+|<scb>P1</scb> picked to run next| <scb>P1</scb> stack active, registers restored |
+||
+
+---
+
+### xv6 context switch | **summary**
+
+|pre-switch|post-switch|
+|----------|-----------|
+|<scb>P0</scb> stack active, wants to switch| <scb>P0</scb> stack and context ready to be switched **back** |
+|<scb>P1</scb> picked to run next| <scb>P1</scb> stack active, registers restored |
+||
+
+**context** &rarr; active only when process is **not** running
+
+---
+
+## process summary
+
+---
+
+### process summary
+
+- an **abstraction** for computation and memory
+
+---
+
+### process summary
+
+- an **abstraction** for computation and memory
+- implemented _without magic_
+  - &rarr; just **structs, C, and asm**
+
+---
+
+### process summary
+
+- an **abstraction** for computation and memory
+- implemented _without magic_
+  - &rarr; just **structs, C, and asm**
+
+<br>
+
+**next class** &rarr; UNIX APIs for processes &amp; communication
+                    </textarea>
+                </section>
+            </div>
+        </div>
+        <script src="assets/reveal-js/dist/reveal.js"></script>
+        <script src="assets/reveal-js/plugin/markdown/markdown.js"></script>
+        <script src="assets/reveal-js/plugin/highlight/highlight.js"></script>
+        <script src="assets/reveal-js/plugin/zoom/zoom.js"></script>
+        <script src="assets/reveal-js/plugin/notes/notes.js"></script>
+        <script src="assets/reveal-js/plugin/math/math.js"></script>
+
+        
+            
+                
+                    
+                        <script src="https://cdn.jsdelivr.net/npm/reveal.js-mermaid-plugin/plugin/mermaid/mermaid.min.js"></script>
+                    
+                
+            
+                
+                    
+                        <script src="https://cdn.jsdelivr.net/npm/reveal-plantuml/dist/reveal-plantuml.min.js"></script>
+                    
+                
+            
+        
+
+        <script>
+            Reveal.initialize({
+                
+                    
+                        history: true,
+                    
+                        slideNumber: "c/t",
+                    
+                        height: 1080,
+                    
+                        width: 1920,
+                    
+                        transition: "fade",
+                    
+                        backgroundTransition: "slide",
+                    
+                        RevealMermaid: {"htmlLabels": true, "useMaxWidth": true},
+                    
+                
+                plugins: [
+                    RevealMarkdown,
+                    RevealHighlight,
+                    RevealZoom,
+                    RevealNotes,
+                    RevealMath,
+
+                    
+                        
+                            
+                                RevealMermaid,
+                            
+                        
+                            
+                        
+                    
+                ],
+            });
+        </script>
+    </body>
+</html>

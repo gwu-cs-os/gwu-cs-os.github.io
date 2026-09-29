@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        
+            <link rel="icon" href="assets/sibin.integral.favicon.ico">
+        
+
+        <link rel="stylesheet" href="assets/reveal-js/dist/reveal.css" />
+
+        
+            <link rel="stylesheet" href="assets/custom.sibin.css" />
+        
+        
+            <link rel="stylesheet" href="assets/monokai.css" />
+        
+
+        
+            
+        
+            
+        
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section data-markdown
+                
+                    data-separator="^\s*---\s*$"
+                
+                    data-separator-vertical="^\s*-v-\s*$"
+                
+                    data-separator-notes="^Notes?:"
+                
+                    data-charset="utf-8"
+                
+                    data-auto-animate="True"
+                
+                >
+                    <textarea data-template>
+                        ## system architecture and structure
+
+##  **operating systems**
+### csci 3411
+### Prof. **Sibin Mohan**
+
+<br>
+
+_<font size="5"> acknowledgments: some content modified from Silberschatz et al. and West</font>_
+
+---
+
+## learning operating systems 
+
+---
+
+## learning operating systems 
+
+many types of classes that focus on different types of learning
+
+---
+
+## learning operating systems 
+
+many types of classes that focus on different types of learning
+
+- honing _logical thinking_
+- training in _inductive reasoning_
+- _memorization_
+- _understanding relationships_ between things
+- enhancing _creative_ thinking
+- enhancing _critical_ thinking
+
+---
+
+## learning operating systems 
+
+many types of classes that focus on different types of learning
+
+- **<font color="darkred">honing _logical thinking_</font>**
+- training in _inductive reasoning_
+- _memorization_
+- **<font color="darkred">_understanding relationships_ between things</font>**
+- enhancing _creative_ thinking
+- **<font color="darkred">enhancing _critical_ thinking</font>**
+
+---
+
+## atoms
+
+---
+
+## atoms
+
+- **atoms** &rarr; basic building block*
+- **molecules** &rarr; compositions of atoms
+
+---
+
+## atoms
+
+- **atoms** &rarr; basic building block*
+- **molecules** &rarr; compositions of atoms
+
+<br>
+<br>
+[* was considered to be the smallest/most indivisible unit]
+
+---
+
+## atoms of operating systems
+
+- **atoms** &rarr; smallest unit in the system
+
+---
+
+## atoms of operating systems
+
+- **atoms** &rarr; smallest unit in the system
+    - what the hardware (HW) gifts us
+    - and **lowest-level operations** we can perform with it
+
+---
+
+## atoms of operating systems
+
+- **atoms** &rarr; smallest unit in the system
+    - what the hardware (HW) gifts us
+    - and **lowest-level operations** we can perform with it
+- **molecules** &rarr; compositions of atoms
+
+---
+
+## atoms of operating systems
+
+- **atoms** &rarr; smallest unit in the system
+    - what the hardware (HW) gifts us
+    - and **lowest-level operations** we can perform with it
+- **molecules** &rarr; compositions of atoms
+    - compositions of atoms and other (lower-level) molecules
+    - the systems we use today!
+
+---
+
+so what are the "atoms" in an OS?
+
+---
+
+## OS atoms
+
+- registers/stacks
+---
+
+## OS atoms
+
+- registers/stacks
+- dual mode execution
+---
+
+## OS atoms
+
+- registers/stacks
+- dual mode execution
+- system calls
+---
+
+## OS atoms
+
+- registers/stacks
+- dual mode execution
+- system calls
+- interrupts
+---
+
+## OS atoms
+
+- registers/stacks
+- dual mode execution
+- system calls
+- interrupts
+- I/O DMA 
+- I/O interaction instructions
+
+---
+
+## OS atoms
+
+- registers/stacks
+- dual mode execution
+- system calls
+- interrupts
+- I/O DMA 
+- I/O interaction instructions
+- exceptions
+---
+
+## OS atoms
+
+- registers/stacks
+- dual mode execution
+- system calls
+- interrupts
+- I/O DMA 
+- I/O interaction instructions
+- exceptions
+- page-tables and virtual address spaces
+---
+
+## OS atoms
+
+- registers/stacks
+- dual mode execution
+- system calls
+- interrupts
+- I/O DMA 
+- I/O interaction instructions
+- exceptions
+- page-tables and virtual address spaces
+- translation lookaside buffers (TLBs)
+---
+
+## OS atoms
+
+- registers/stacks
+- dual mode execution
+- system calls
+- interrupts
+- I/O DMA 
+- I/O interaction instructions
+- exceptions
+- page-tables and virtual address spaces
+- translation lookaside buffers (TLBs)
+- cache-lines
+---
+
+## OS atoms
+
+- registers/stacks
+- dual mode execution
+- system calls
+- interrupts
+- I/O DMA 
+- I/O interaction instructions
+- exceptions
+- page-tables and virtual address spaces
+- translation lookaside buffers (TLBs)
+- cache-lines
+- atomic instructions
+
+---
+
+## atom-based OS education
+
+---
+
+## atom-based OS education
+
+- focus on and learn &rarr; **atoms**
+
+---
+
+## atom-based OS education
+
+- focus on and learn &rarr; **atoms**
+  - _what_ they are
+  - _how_ they work
+  - what their _performance properties_ are
+
+---
+
+## atom-based OS education [contd.]
+
+- focus on how atoms &rarr; **used together**
+
+---
+
+## atom-based OS education [contd.]
+
+- focus on how atoms &rarr; **used together**
+  - **molecules** use _many atoms_
+
+---
+
+## atom-based OS education [contd.]
+
+- focus on how atoms &rarr; **used together**
+  - **molecules** use _many atoms_
+  - molecule behavior _derived_ from atoms <br>
+  &rarr; understand molecule by understanding atoms
+
+---
+
+## learning via OS atoms
+
+---
+
+## learning via OS atoms
+
+| skill | description |
+|-------|-------------|
+| **critical thinking** | |
+
+---
+
+## learning via OS atoms
+
+| skill | description |
+|-------|-------------|
+| **critical thinking** | what atoms are involved? |
+
+---
+
+## learning via OS atoms
+
+| skill | description |
+|-------|-------------|
+| **critical thinking** | what atoms are involved? |
+| **logical reasoning** | |
+
+---
+
+## learning via OS atoms
+
+| skill | description |
+|-------|-------------|
+| **critical thinking** | what atoms are involved? |
+| **logical reasoning** | how do atoms **interact** <br> to generate molecule's behavior? |
+
+---
+
+## learning via OS atoms
+
+| skill | description |
+|-------|-------------|
+| **critical thinking** | what atoms are involved? |
+| **logical reasoning** | how do atoms **interact** <br> to generate molecule's behavior? |
+| **understanding relationships** | |
+
+---
+
+## learning via OS atoms
+
+| skill | description |
+|-------|-------------|
+| **critical thinking** | what atoms are involved? |
+| **logical reasoning** | how do atoms **interact** <br> to generate molecule's behavior? |
+| **understanding relationships** | how do the atoms **impact** molecules? <br> how do molecules **compose**? |
+||
+
+---
+
+read this **[article](https://faculty.cs.gwu.edu/gparmer/posts/2016-05-07-operating-systems-atoms.html)** about OS atoms...
+
+---
+
+## system architecture and structure
+
+understand some _fundamental_ behaviors...
+
+---
+
+### system architecture and structure
+
+understand some _fundamental_ behaviors...
+
+<img src="./img/sysarch/system_architecture-1.png" height="725">
+
+---
+
+### system architecture and structure
+
+understand some _fundamental_ behaviors...
+
+|||
+|----|----|
+|<img src="./img/sysarch/system_architecture-1.png" height="725">| some important questions:|
+||
+
+---
+
+### system architecture and structure
+
+understand some _fundamental_ behaviors...
+
+|||
+|----|----|
+|<img src="./img/sysarch/system_architecture-1.png" height="725">| some important questions: <br> 1. how does HW interact with OS?|
+||
+
+---
+
+### system architecture and structure
+
+understand some _fundamental_ behaviors...
+
+|||
+|----|----|
+|<img src="./img/sysarch/system_architecture-1.png" height="725">| some important questions: <br> 1. how does HW interact with OS? <br> 2. how do applications/OS interact?  |
+||
+
+---
+
+### system architecture and structure
+
+understand some _fundamental_ behaviors...
+
+|||
+|----|----|
+|<img src="./img/sysarch/system_architecture-2.png" height="750">| some important questions: <br> 1. how does HW interact with OS? <br> 2. how do applications/OS interact? <br><br> basically, study these **two** interfaces |
+||
+
+---
+
+this is where **OS services** come in...
+
+---
+
+## OS services
+
+---
+
+## OS services
+
+<img src="./img/sysarch/system_architecture-2.png" height="700">
+
+---
+
+## OS services
+
+<img src="./img/sysarch/system_architecture-2.png" height="500">
+<img src="./img/sysarch/os_services.jpg" height="500">
+
+
+---
+
+## aside | **storage hierarchy**
+
+---
+
+## aside | **storage hierarchy**
+
+<img src="./img/sysarch/Memory-Hierarchy-Design-colorcorrected.png" height="700">
+
+---
+
+### storage hierarchy | **attributes**
+---
+
+### storage hierarchy | **attributes**
+
+| storage type||||
+|---------|-------|---------|-------------|
+| registers ||||
+| cache ||||
+| memory ||||
+| storage ||||
+||
+
+---
+
+### storage hierarchy | **attributes**
+
+| storage type| speed | ||
+|---------|-------|---------|-------------|
+| registers | < cycle |||
+| cache | 4-45 cycles |||
+| memory | 150-500 cycles |||
+| storage | all of the cycles |||
+||
+
+
+---
+
+### storage hierarchy | **attributes**
+
+
+| storage type| speed | storage ||
+|---------|-------|---------|-------------|
+| registers | < cycle | ~1KiB ||
+| cache | 4-45 cycles | 10s KiB -- 10s MiB ||
+| memory | 150-500 cycles | GiB ||
+| storage | all of the cycles | many TiB ||
+||
+
+---
+
+### storage hierarchy | **attributes**
+
+what entity **manges** each of these?
+
+| storage type| speed | storage | managed by? |
+|---------|-------|---------|-------------|
+| registers | < cycle | ~1KiB ||
+| cache | 4-45 cycles | 10s KiB -- 10s MiB ||
+| memory | 150-500 cycles | GiB ||
+| storage | all of the cycles | many TiB ||
+||
+
+---
+
+### storage hierarchy | **attributes**
+
+| storage type| speed | storage | managed by? |
+|---------|-------|---------|-------------|
+| registers | < cycle | ~1KiB | compiler |
+| cache | 4-45 cycles | 10s KiB -- 10s MiB | hardware |
+| memory | 150-500 cycles | GiB | **OS** |
+| storage | all of the cycles | many TiB | **OS** |
+||
+
+
+---
+
+### storage hierarchy | **goals**
+
+---
+
+### storage hierarchy | **goals**
+
+we want **all accesses to be as fast as registers**
+
+---
+
+### storage hierarchy | **goals**
+
+we want **all accesses to be as fast as registers**
+
+...and also have the storage size of disk!
+
+---
+
+## caching
+
+---
+
+### caching
+
+process of **temporarily copying** data 
+
+---
+
+### caching
+
+process of **temporarily copying** data 
+
+from **slower &rarr; faster** memory
+
+---
+
+### caching
+
+- performed at **many levels** in a computer
+
+---
+
+### caching
+
+- performed at **many levels** in a computer
+- faster storage (cache) checked first 
+  - to determine if information is there
+
+---
+
+### caching
+
+- performed at **many levels** in a computer
+- faster storage (cache) checked first 
+  - to determine if information is there
+  - **yes** &rarr; information used directly from cache (fast)
+  - **no** &rarr; data copied to cache and used there
+
+---
+
+### caching [contd.]
+
+- cache **smaller** than storage being cached
+
+---
+
+### caching [contd.]
+
+- cache **smaller** than storage being cached
+- cache **management** important design problem
+  - cache **size** and **replacement** policy
+
+---
+
+these concepts did not/does not exist in...
+
+...older/simpler operating systems
+
+---
+
+### MSDOS/FreeRTOS
+
+<img src="./img/sysarch/msdos_structure.png" height="475">
+
+**no protections** or structure for the system even!
+
+---
+
+### normal hardware execution
+
+---
+
+### normal hardware execution
+
+communication &rarr; **function calls**!
+
+---
+
+### normal hardware execution
+
+communication &rarr; **function calls**!
+
+<img src="./img/sysarch/func_comm.1.png" height="475">
+<img src="./img/sysarch/func_comm.2.png" height="475">
+
+---
+
+### normal hardware execution
+
+communication &rarr; **function calls**!
+
+<br>
+<br>
+
+<div class="multicolumn">
+<div>
+<img src="./img/sysarch/func_comm.1.png" height="325">
+<img src="./img/sysarch/func_comm.2.png" height="325">
+</div>
+<div>
+
+- how does CPU perform **addition**?
+</div>
+</div>
+---
+
+### normal hardware execution
+
+communication &rarr; **function calls**!
+
+<br>
+<br>
+
+<div class="multicolumn">
+<div>
+<img src="./img/sysarch/func_comm.1.png" height="325">
+<img src="./img/sysarch/func_comm.2.png" height="325">
+</div>
+<div>
+
+- how does CPU perform **addition**?
+- where are <scb>b</scb>, <scb>c</scb> stored?
+- how about <scb>a</scb> (return value)?
+</div>
+</div>
+
+---
+
+### calling convention example
+
+---
+
+### calling convention example
+
+
+- where can a function **store local variables**?
+
+---
+
+### calling convention example
+
+
+- where can a function **store local variables**?
+- where are **arguments passed** to called function?
+---
+
+### calling convention example
+
+
+- where can a function **store local variables**?
+- where are **arguments passed** to called function?
+- how are **return values** passed to caller?
+
+---
+
+### calling convention example
+
+let's look at the previous code example again...
+
+<img src="./img/sysarch/func_comm.1.png" height="475">
+<img src="./img/sysarch/func_comm.2.png" height="475">
+
+
+---
+
+### calling convention example
+
+<img src="./img/sysarch/callconv_01.png" height="720">
+
+---
+
+### calling convention example
+
+<img src="./img/sysarch/callconv_02.png" height="720">
+
+---
+
+### calling convention example
+
+<img src="./img/sysarch/callconv_03.png" height="720">
+
+---
+
+### calling convention example
+
+<img src="./img/sysarch/callconv_04.png" height="720">
+
+---
+
+### calling convention example
+
+<img src="./img/sysarch/callconv_05.png" height="720">
+
+---
+
+### calling convention example
+
+<img src="./img/sysarch/callconv_06.png" height="720">
+
+---
+
+so, what have we seen so far?
+
+---
+
+### calling convention example
+
+1. local variables &rarr; stored in registers or stack
+2. arguments / retvals &rarr; passed via registers
+3. delicate dance &rarr; with sp and fp
+4. return address register &rarr; track return IP
+
+---
+
+### calling conventions...
+
+...are protocols for...
+
+---
+
+### calling conventions...
+
+...are protocols for...
+
+1. how to save/restore registers
+2. manage the stack
+3. pass arguments and return values
+
+---
+
+### calling conventions...
+
+system calls have conventions for &rarr; **function calls**
+
+from **user** &rarr; **kernel**
+
+---
+
+now let's look at this in a bit more detail...
+
+---
+
+### lower level details
+
+consider the same example...
+
+<img src="./img/sysarch/hwexec_01.png" height="720">
+
+---
+
+### lower level details
+
+<div class="multicolumn">
+<div>
+<img src="./img/sysarch/hwexec_01.png" height="425">
+</div>
+<div>
+
+|||
+|----|----|
+|<sc>eip</sc>| instruction pointer |
+|<sc>ebp</sc>| stack **frame** pointer |
+|<sc>esp</sc>| stack **base** pointer |
+|<sc>eax</sc>| register|
+||
+</div>
+</div>
+
+---
+
+let's look at the **disassembly** for each function
+
+`objdump -S binary`
+
+---
+
+### lower level details
+
+<img src="./img/sysarch/hwexec_02.png" height="720">
+
+---
+
+### lower level details
+
+<img src="./img/sysarch/hwexec_03.png" height="720">
+
+---
+
+### lower level details
+
+<img src="./img/sysarch/hwexec_04.png" height="720">
+
+---
+
+### lower level details
+
+<img src="./img/sysarch/hwexec_05.png" height="720">
+
+---
+
+### lower level details
+
+<img src="./img/sysarch/hwexec_06.png" height="720">
+
+---
+
+### OS kernels
+
+---
+
+### OS kernels
+
+separate &rarr; OS resource management from user applications
+
+---
+
+### OS kernels
+
+separate &rarr; OS resource management from user applications
+
+<br>
+<br>
+
+**why?**
+
+---
+
+### protection 
+
+---
+
+### protection 
+1. applications from **each other**
+
+---
+
+### protection 
+1. applications from **each other**
+2. **kernel** from applications
+
+---
+
+how do we get this "protection"?
+
+---
+
+remember kernel/user modes?
+
+---
+
+###  kernel [ring 0]
+
+<img src="img/sysarch/hw_sw_stack.ring0.png" height="700">
+
+---
+
+###  kernel [ring 0]
+                   
+|||
+|--------|--------|
+|<img src="img/sysarch/hw_sw_stack.ring0.png" height="450">| * highest privilege level <br> * manage h/w resources <br> * manage jobs <br> * trusted base <br> * set privilege <br> * restrict jobs <br> |
+||
+
+---
+
+###  user space [ring 3]
+
+<img src="img/sysarch/hw_sw_stack.ring3.png" height="700">
+
+---
+
+###  user space [ring 3]
+
+|||
+|--------|--------|
+|<img src="img/sysarch/hw_sw_stack.ring3.png" height="450">| * restricted privilege <br> * most applications run at ring 3<br> * cannot access kernel memory <br> * cannot directly access h/w <br> * kernel mediates access <br>|
+||
+
+---
+
+## **dual-mode** hardware
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+### **dual-mode** hardware
+
+<img src="./img/sysarch/dual_mode_syscall.png" height="500">
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+### **dual-mode** hardware
+
+<br>
+
+<div class="multicolumn">
+<div>
+<img src="./img/sysarch/dual_mode_syscall.png" height="350">
+</div>
+<div>
+
+processor has hidden **mode bit**
+
+</div>
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+### **dual-mode** hardware
+
+<br>
+
+<div class="multicolumn">
+<div>
+<img src="./img/sysarch/dual_mode_syscall.png" height="350">
+</div>
+<div>
+
+processor has hidden **mode bit**
+- set to <scb>{0,1}</scb> at all times
+
+</div>
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+### **dual-mode** hardware
+
+<br>
+
+<div class="multicolumn">
+<div>
+<img src="./img/sysarch/dual_mode_syscall.png" height="350">
+</div>
+<div>
+
+processor has hidden **mode bit**
+- set to <scb>{0,1}</scb> at all times
+- **special instructions** <br> 
+  &rarr; change mode bit
+
+</div>
+</div>
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+### **dual-mode** hardware
+
+<br>
+
+<div class="multicolumn">
+<div>
+<img src="./img/sysarch/dual_mode_syscall.png" height="350">
+</div>
+<div>
+
+| value | mode | |
+|-------|------|-------|
+| <scb>0</scb> | **kernel** | |
+||
+
+</div>
+</div>
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+### **dual-mode** hardware
+
+<br>
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 35% 65%; gap: 20px; align-items: center;">
+<div>
+<img src="./img/sysarch/dual_mode_syscall.png" height="250">
+</div>
+<div>
+
+| value | mode | notes |
+|-------|------|-------|
+| <scb>0</scb> | **kernel** | access kernel mem segments <br> protected/sensitive instructions |
+||
+
+</div>
+</div>
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+### **dual-mode** hardware
+
+<br>
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 35% 65%; gap: 20px; align-items: center;">
+<div>
+<img src="./img/sysarch/dual_mode_syscall.png" height="250">
+</div>
+<div>
+
+| value | mode | notes |
+|-------|------|-------|
+| <scb>0</scb> | **kernel** | access kernel mem segments <br> protected/sensitive instructions |
+||
+
+</div>
+</div>
+
+<br>
+
+what instructions **should not** execute in application mode?
+
+Note:
+- shutting system down (halt)
+- I/O instructions
+- many others
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+### **dual-mode** hardware
+
+<br>
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 35% 65%; gap: 20px; align-items: center;">
+<div>
+<img src="./img/sysarch/dual_mode_syscall.png" height="250">
+</div>
+<div>
+
+| value | mode | notes |
+|-------|------|-------|
+| <scb>0</scb> | **kernel** | access kernel mem segments <br> protected/sensitive instructions |
+| <scb>1</scb> | **user** | |
+||
+
+</div>
+</div>
+
+---
+
+<!-- .slide: data-background-color="white" -->
+
+### **dual-mode** hardware
+
+<br>
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 35% 65%; gap: 20px; align-items: center;">
+<div>
+<img src="./img/sysarch/dual_mode_syscall.png" height="250">
+</div>
+<div>
+
+| value | mode | notes |
+|-------|------|-------|
+| <scb>0</scb> | **kernel** | access kernel mem segments <br> protected/sensitive instructions |
+| <scb>1</scb> | **user** | **not so simple!** |
+||
+
+</div>
+</div>
+
+Note:
+
+- mode 1 cannot access kernel memory/instructions
+
+---
+
+some issues to think about...
+
+---
+
+how do you **invoke** a system call in **kernel**?
+- like a <scb>write</scb> system call?
+
+---
+
+how do you **invoke** a system call in **kernel**?
+
+- like a <scb>write</scb> system call?
+- passing arguments (stack?)
+- getting return values (also stack?)
+
+---
+
+how do you **invoke** a system call in **kernel**?
+
+- like a <scb>write</scb> system call?
+- passing arguments (stack?)
+- getting return values (also stack?)
+
+<br>
+<br>
+
+dealing with **stack** &rarr; add new stack frame for **syscall**?
+
+
+---
+
+how do you **invoke** a system call in **kernel**?
+
+- like a <scb>write</scb> system call?
+- passing arguments (stack?)
+- getting return values (also stack?)
+
+<br>
+<br>
+
+dealing with **stack** &rarr; add new stack frame for **syscall**?
+- what happens to the registers?
+
+---
+
+turns out, system calls &rarr; **one** way of switching into kernel
+
+---
+
+<img src="./img/sysarch/star-wars-admiral-ackbar.gif" height="750">
+
+
+---
+
+## interrupts, exceptions, traps
+
+---
+
+### interrupts, exceptions, traps
+
+- **software-triggered events**
+
+---
+
+### interrupts, exceptions, traps
+
+- **software-triggered events**
+  - application, user-level state &rarr; saved 
+  - later be resumed
+
+---
+
+### interrupts, exceptions, traps | **three** types
+
+---
+
+### interrupts, exceptions, traps | **three** types
+
+| type | description |
+|------|-------------|
+| **exceptions** | |
+
+---
+
+### interrupts, exceptions, traps | **three** types
+
+| type | description |
+|------|-------------|
+| **exceptions** | program faults |
+
+---
+
+### interrupts, exceptions, traps | **three** types
+
+| type | description |
+|------|-------------|
+| **exceptions** | program faults <br> **not** requested by executing application |
+
+
+---
+
+### interrupts, exceptions, traps | **three** types
+
+| type | description |
+|------|-------------|
+| **exceptions** | program faults <br> **not** requested by executing application <br> (divide by zero, general protection fault, segfault) |
+
+---
+
+### interrupts, exceptions, traps | **three** types
+
+| type | description |
+|------|-------------|
+| **exceptions** | program faults <br> **not** requested by executing application <br> (divide by zero, general protection fault, segmentation fault) |
+| **traps/software interrupts** | |
+
+
+---
+
+### interrupts, exceptions, traps | **three** types
+
+| type | description |
+|------|-------------|
+| **exceptions** | program faults <br> **not** requested by executing application <br> (divide by zero, general protection fault, segmentation fault) |
+| **traps/software interrupts** | system calls! |
+
+
+---
+
+### interrupts, exceptions, traps | **three** types
+
+| type | description |
+|------|-------------|
+| **exceptions** | program faults <br> **not** requested by executing application <br> (divide by zero, general protection fault, segmentation fault) |
+| **traps/software interrupts** | system calls! <br> **requested by application** &rarr; specific instruction |
+
+
+---
+
+### interrupts, exceptions, traps | **three** types
+
+| type | description |
+|------|-------------|
+| **exceptions** | program faults <br> **not** requested by executing application <br> (divide by zero, general protection fault, segmentation fault) |
+| **traps/software interrupts** | system calls! <br> **requested by application** &rarr; specific instruction <br> <scb>sysenter</scb> or <scb>int %d</scb> on x86, <scb>ecall</scb> in riscv |
+
+---
+
+### interrupts, exceptions, traps | **three** types
+
+| type | description |
+|------|-------------|
+| **exceptions** | program faults <br> **not** requested by executing application <br> (divide by zero, general protection fault, segmentation fault) |
+| **traps/software interrupts** | system calls! <br> **requested by application** &rarr; specific instruction <br> <scb>sysenter</scb> or <scb>int %d</scb> on x86, <scb>ecall</scb> in riscv |
+| **interrupts** | |
+||
+
+---
+
+### interrupts, exceptions, traps | **three** types
+
+| type | description |
+|------|-------------|
+| **exceptions** | program faults <br> **not** requested by executing application <br> (divide by zero, general protection fault, segmentation fault) |
+| **traps/software interrupts** | system calls! <br> **requested by application** &rarr; specific instruction <br> <scb>sysenter</scb> or <scb>int %d</scb> on x86, <scb>ecall</scb> in riscv |
+| **interrupts** | device &harr; kernel |
+||
+
+
+---
+
+### interrupts, exceptions, traps | **three** types
+
+| type | description |
+|------|-------------|
+| **exceptions** | program faults <br> **not** requested by executing application <br> (divide by zero, general protection fault, segmentation fault) |
+| **traps/software interrupts** | system calls! <br> **requested by application** &rarr; **<font color="darkred">specific instruction</font>** <br> <scb>sysenter</scb> or <scb>int %d</scb> on x86, <scb>ecall</scb> in riscv |
+| **interrupts** | device &harr; kernel |
+||
+
+---
+
+### system calls
+
+- wait, **hardware support** for calling into the kernel?
+- why can't I just call it directly (function call)?
+
+---
+
+### syscall mechanics | <scb>printf()</scb> example
+
+---
+<!-- .slide: data-background-color="white" -->
+
+### <scb> printf()</scb> example
+
+<img src="./img/sysarch/printf_ring3.5.png" height="700">
+
+---
+<!-- .slide: data-background-color="white" -->
+
+### <scb> printf()</scb> example | some additional details
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+<img src="./img/sysarch/printf_ring3.5.png" height="400">
+</div>
+<div>
+
+- put following into **registers** 
+  - syscall number for <scb>write</scb> [<scb>4</scb>]
+  - file descriptor [<scb>1</scb>]
+  - pointer to text &rarr; <scb>"gwu"</scb>
+
+</div>
+</div>
+
+---
+<!-- .slide: data-background-color="white" -->
+
+### <scb> printf()</scb> example | some additional details
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+<img src="./img/sysarch/printf_ring3.5.png" height="400">
+</div>
+<div>
+
+- put following into **registers** 
+  - syscall number for <scb>write</scb> [<scb>4</scb>]
+  - file descriptor [<scb>1</scb>]
+  - pointer to text &rarr; <scb>"gwu"</scb>
+- <scb>ecall</scb>: change mode bit &rarr; <scb>0</scb>
+
+</div>
+</div>
+
+---
+<!-- .slide: data-background-color="white" -->
+
+### <scb> printf()</scb> example | some additional details
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+<img src="./img/sysarch/printf_ring3.5.png" height="400">
+</div>
+<div>
+
+- put following into **registers** 
+  - syscall number for <scb>write</scb> [<scb>4</scb>]
+  - file descriptor [<scb>1</scb>]
+  - pointer to text &rarr; <scb>"gwu"</scb>
+- <scb>ecall</scb>: change mode bit &rarr; <scb>0</scb>
+- call address in syscall tbl &rarr; index <scb>4</scb>
+
+</div>
+</div>
+
+---
+<!-- .slide: data-background-color="white" -->
+
+### <scb> printf()</scb> example | some additional details
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+<img src="./img/sysarch/printf_ring3.5.png" height="500">
+</div>
+<div>
+
+- put following into **registers** 
+  - syscall number for <scb>write</scb> [<scb>4</scb>]
+  - file descriptor [<scb>1</scb>]
+  - pointer to text &rarr; <scb>"gwu"</scb>
+- <scb>ecall</scb>: change mode bit &rarr; <scb>0</scb>
+- call address in syscall tbl &rarr; index <scb>4</scb>
+- execute <scb>write</scb> system call
+
+</div>
+</div>
+
+---
+<!-- .slide: data-background-color="white" -->
+
+### <scb> printf()</scb> example | some additional details
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+<img src="./img/sysarch/printf_ring3.ret.png" height="450">
+</div>
+<div>
+
+- put following into **registers** 
+  - syscall number for <scb>write</scb> [<scb>4</scb>]
+  - file descriptor [<scb>1</scb>]
+  - pointer to text &rarr; <scb>"gwu"</scb>
+- <scb>ecall</scb>: change mode bit &rarr; <scb>0</scb>
+- call address in syscall tbl &rarr; index <scb>4</scb>
+- execute <scb>write</scb> system call
+- <scb>sret</scb>: change mode bit &rarr; <scb>1</scb>
+
+</div>
+</div>
+
+---
+<!-- .slide: data-background-color="white" -->
+
+### <scb> printf()</scb> example | some additional details
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 45% 55%; gap: 20px; align-items: center;">
+<div>
+<img src="./img/sysarch/printf_ring3.ret.png" height="450">
+</div>
+<div>
+
+- put following into **registers** 
+  - syscall number for <scb>write</scb> [<scb>4</scb>]
+  - file descriptor [<scb>1</scb>]
+  - pointer to text &rarr; <scb>"gwu"</scb>
+- <scb>ecall</scb>: change mode bit &rarr; <scb>0</scb>
+- call address in syscall tbl &rarr; index <scb>4</scb>
+- execute <scb>write</scb> system call
+- <scb>sret</scb>: change mode bit &rarr; <scb>1</scb>
+- **restore** application registers
+
+</div>
+</div>
+
+---
+
+### system call execution | **detailed example**
+
+---
+
+### system call execution | **detailed example**
+
+let's go back to the earlier example...
+
+<img src="./img/sysarch/func_comm.1.png" height="475">
+<img src="./img/sysarch/func_comm.2.png" height="475">
+
+---
+
+### system call execution | **detailed example**
+
+let's go back to the earlier example...
+
+but replace <sc>foo()</sc> with "system call" &rarr; <scb>kernel_foo()</scb>
+
+<img src="./img/sysarch/func_comm.1.png" height="475">
+<img src="./img/sysarch/kernel_foo.png" height="475">
+
+---
+
+### system call execution | **detailed example**
+
+<img src="./img/sysarch/syscallexec_01.png" height="820">
+
+---
+
+### system call execution | **detailed example**
+
+<img src="./img/sysarch/syscallexec_02.png" height="820">
+
+---
+
+### system call execution | **detailed example**
+
+<img src="./img/sysarch/syscallex_01.png" height="820">
+
+---
+
+### system call execution | **detailed example**
+
+<img src="./img/sysarch/syscallex_02.png" height="820">
+
+---
+
+### system call execution | **detailed example**
+
+<img src="./img/sysarch/syscallex_03.png" height="820">
+
+---
+
+### system call execution | **detailed example**
+
+<img src="./img/sysarch/syscallex_04.png" height="820">
+
+---
+
+### system call execution | **detailed example**
+
+<img src="./img/sysarch/syscallex_05.png" height="820">
+
+---
+
+### system call execution | **detailed example**
+
+<img src="./img/sysarch/syscallex_06.png" height="820">
+
+---
+
+### system call execution | **detailed example**
+
+<img src="./img/sysarch/syscallex_07.png" height="820">
+
+---
+
+## xv6 system calls
+
+---
+
+### xv6 system calls
+
+a system call's journey through xv6 
+
+`write(1, "os", 3)`
+
+---
+
+### xv6 system calls
+
+a system call's journey through xv6 &rarr; <scb>write(1, "os", 3)</scb>
+
+<img src="./img/sysarch/xv6_01.png" height="800">
+
+---
+
+### xv6 system calls
+
+user application calls <scb>write()</scb> &rarr; the C library stub
+
+<img src="./img/sysarch/xv6_02.png" height="800">
+
+---
+
+### xv6 system calls
+
+<scb>usys.S</scb>: syscall number &rarr; <scb>a7</scb>, then <scb>ecall</scb> traps into the kernel
+
+<img src="./img/sysarch/xv6_03.png" height="800">
+
+---
+
+### xv6 system calls
+
+<scb>trampoline.S</scb>: save user reg into trap frame &rarr; <scb>jr user_trap</scb>
+
+<img src="./img/sysarch/xv6_04.png" height="800">
+
+Note:
+- `jr` is meant to jump to code pointed to by regsiter
+
+---
+
+### xv6 system calls
+
+<scb>trap.c</scb> (user_trap): <scb>scause == 8</scb> means a syscall &rarr; call <scb>syscall()</scb>
+
+<img src="./img/sysarch/xv6_05.png" height="800">
+
+---
+
+### xv6 system calls
+
+<scb>syscall.c</scb>: read num from <scb>a7</scb><br> dispatch via syscall table &rarr; <scb>sys_write</scb>
+
+<img src="./img/sysarch/xv6_06.png" height="700">
+
+---
+
+### xv6 system calls
+
+<scb>sysfile.c</scb> (sys_write): read args fromthe trap frame &rarr; <scb>filewrite()</scb>, return the result in <scb>a0</scb>
+
+<img src="./img/sysarch/xv6_07.png" height="700">
+
+---
+
+### xv6 system calls
+
+back in <scb>trap.c</scb>: <scb>syscall()</scb> returned <br> <scb>usertrapret()</scb> calls <scb>userret()</scb>
+
+<img src="./img/sysarch/xv6_08.png" height="700">
+
+---
+
+### xv6 system calls
+
+<scb>trampoline.S</scb> (userret): restore registers, <scb>sret</scb> back to user
+
+<img src="./img/sysarch/xv6_09.png" height="800">
+
+---
+
+### xv6 system calls
+
+back in the application, return value in <scb>a0</scb>
+
+<img src="./img/sysarch/xv6_10.png" height="800">
+
+---
+
+## summary
+
+- **calling conventions**
+  - map programming language function calls &rarr; registers/stack
+
+---
+
+## summary
+
+- **calling conventions**
+  - map programming language function calls &rarr; registers/stack
+- multiple, untrusted applications<br>
+  &rarr; operating systems use **dual mode**<br>
+  &rarr; kernel mode for OS code<br>
+  &rarr; system calls instead of function calls
+
+---
+
+## summary
+
+- **calling conventions**
+  - map programming language function calls &rarr; registers/stack
+- multiple, untrusted applications<br>
+  &rarr; operating systems use **dual mode**<br>
+  &rarr; kernel mode for OS code<br>
+  &rarr; system calls instead of function calls
+- use **hardware instructions** to switch modes
+                    </textarea>
+                </section>
+            </div>
+        </div>
+        <script src="assets/reveal-js/dist/reveal.js"></script>
+        <script src="assets/reveal-js/plugin/markdown/markdown.js"></script>
+        <script src="assets/reveal-js/plugin/highlight/highlight.js"></script>
+        <script src="assets/reveal-js/plugin/zoom/zoom.js"></script>
+        <script src="assets/reveal-js/plugin/notes/notes.js"></script>
+        <script src="assets/reveal-js/plugin/math/math.js"></script>
+
+        
+            
+                
+                    
+                        <script src="https://cdn.jsdelivr.net/npm/reveal.js-mermaid-plugin/plugin/mermaid/mermaid.min.js"></script>
+                    
+                
+            
+                
+                    
+                        <script src="https://cdn.jsdelivr.net/npm/reveal-plantuml/dist/reveal-plantuml.min.js"></script>
+                    
+                
+            
+        
+
+        <script>
+            Reveal.initialize({
+                
+                    
+                        history: true,
+                    
+                        slideNumber: "c/t",
+                    
+                        height: 1080,
+                    
+                        width: 1920,
+                    
+                        transition: "fade",
+                    
+                        backgroundTransition: "slide",
+                    
+                        RevealMermaid: {"htmlLabels": true, "useMaxWidth": true},
+                    
+                
+                plugins: [
+                    RevealMarkdown,
+                    RevealHighlight,
+                    RevealZoom,
+                    RevealNotes,
+                    RevealMath,
+
+                    
+                        
+                            
+                                RevealMermaid,
+                            
+                        
+                            
+                        
+                    
+                ],
+            });
+        </script>
+    </body>
+</html>
