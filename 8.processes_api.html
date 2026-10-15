@@ -266,7 +266,6 @@ we are calling <scb>fork()</scb> mainly for its **side effects**
 </div>
 </div>
 
-
 ---
 
 ### a simple example | <scb>ls</scb> in the shell
@@ -284,7 +283,6 @@ we are calling <scb>fork()</scb> mainly for its **side effects**
 
 </div>
 </div>
-
 
 ---
 
@@ -304,8 +302,6 @@ we are calling <scb>fork()</scb> mainly for its **side effects**
 
 </div>
 </div>
-
-
 
 ---
 
@@ -338,14 +334,14 @@ a very **strange** function...
 
 ### <scb>fork()</scb> | **returns twice**
 
-- two **indentical** processes 
+- two **identical** processes 
 - except for **pids** and fork's **return value**
 
 ---
 
 ### <scb>fork()</scb> | **returns twice**
 
-- two **indentical** processes 
+- two **identical** processes 
 - except for **pids** and fork's **return value**
 
 | returns in | value |
@@ -356,7 +352,7 @@ a very **strange** function...
 
 ### <scb>fork()</scb> | **returns twice**
 
-- two **indentical** processes 
+- two **identical** processes 
 - except for **pids** and fork's **return value**
 
 | returns in | value |
@@ -368,7 +364,7 @@ a very **strange** function...
 
 ### <scb>fork()</scb> | **returns twice**
 
-- two **indentical** processes 
+- two **identical** processes 
 - except for **pids** and fork's **return value**
 
 | returns in | value |
@@ -412,38 +408,36 @@ return value &rarr; the **only** way to tell...
 
 ---
 
-let's look at <scb>xv6</scb>... <scb>kernel/proc.c</scb>
+let's look at <scb>xv6</scb> (x86)... <scb>proc.c</scb>
 
 ---
 
-### <scb>xv6</scb> | <scb>kfork()</scb>
+### <scb>xv6</scb> | <scb>fork()</scb>
 
 ```C
 int
-kfork(void)
+fork(void)
 {
   ...
   // Allocate process.
-  if ((np = allocproc()) == 0) {
+  if((np = allocproc()) == 0){
     return -1;
   }
 
-  // Copy user memory from parent to child.
-  if (uvmcopy(p->pagetable, np->pagetable, p->sz) < 0) {
+  // Copy process state from proc.
+  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
     ...
   }
-  np->sz = p->sz;
+  np->sz = curproc->sz;
+  np->parent = curproc;
+  *np->tf = *curproc->tf;
 
-  // copy saved user registers.
-  *(np->trapframe) = *(p->trapframe);
+  // Clear %eax so that fork returns 0 in the child.
+  np->tf->eax = 0;
 
-  // Cause fork to return 0 in the child.
-  np->trapframe->a0 = 0;
-
-  // increment reference counts on open file descriptors.
-  for (i = 0; i < NOFILE; i++)
-    if (p->ofile[i])
-      np->ofile[i] = filedup(p->ofile[i]);
+  for(i = 0; i < NOFILE; i++)
+    if(curproc->ofile[i])
+      np->ofile[i] = filedup(curproc->ofile[i]);
   ...
   np->state = RUNNABLE;
   ...
@@ -453,34 +447,32 @@ kfork(void)
 
 ---
 
-### <scb>xv6</scb> | <scb>kfork()</scb>
+### <scb>xv6</scb> | <scb>fork()</scb>
 
-```C [6|11|17|20|23-25|27|29]
+```C [6|11|15|16|19|21-23|25|27]
 int
-kfork(void)
+fork(void)
 {
   ...
   // Allocate process.
-  if ((np = allocproc()) == 0) {
+  if((np = allocproc()) == 0){
     return -1;
   }
 
-  // Copy user memory from parent to child.
-  if (uvmcopy(p->pagetable, np->pagetable, p->sz) < 0) {
+  // Copy process state from proc.
+  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
     ...
   }
-  np->sz = p->sz;
+  np->sz = curproc->sz;
+  np->parent = curproc;
+  *np->tf = *curproc->tf;
 
-  // copy saved user registers.
-  *(np->trapframe) = *(p->trapframe);
+  // Clear %eax so that fork returns 0 in the child.
+  np->tf->eax = 0;
 
-  // Cause fork to return 0 in the child.
-  np->trapframe->a0 = 0;
-
-  // increment reference counts on open file descriptors.
-  for (i = 0; i < NOFILE; i++)
-    if (p->ofile[i])
-      np->ofile[i] = filedup(p->ofile[i]);
+  for(i = 0; i < NOFILE; i++)
+    if(curproc->ofile[i])
+      np->ofile[i] = filedup(curproc->ofile[i]);
   ...
   np->state = RUNNABLE;
   ...
@@ -489,71 +481,85 @@ kfork(void)
 ```
 
 Note:
-- uvmcopy = copy ALL of the parent's user memory, page by page.
-- a0 is the RISC-V return-value register -> the child sees 0; the parent gets pid.
+- copyuvm = copy ALL of the parent's user memory, page by page.
+- %eax is the x86 return-value register -> the child sees 0; the parent gets pid.
 
 ---
 
-### <scb>xv6</scb> | <scb>kfork()</scb>
+### <scb>xv6</scb> | <scb>fork()</scb>
 
 | step | what it does |
 |---|---|
-| <scb>allocproc()</scb> | new <scb>struct proc</scb> (PCB) + pid |
+| <scb>allocproc()</scb> | new <scb>struct proc</scb> (PCB) + new <sc>pid</sc> |
 
 ---
 
-### <scb>xv6</scb> | <scb>kfork()</scb>
+### <scb>xv6</scb> | <scb>fork()</scb>
 
 | step | what it does |
 |---|---|
-| <scb>allocproc()</scb> | new <scb>struct proc</scb> (PCB) + pid |
-| <scb>uvmcopy()</scb> | **copy** all user memory |
+| <scb>allocproc()</scb> | new <scb>struct proc</scb> (PCB) + new <sc>pid</sc> |
+| <scb>copyuvm()</scb> | **copy** all user memory |
 
 ---
 
-### <scb>xv6</scb> | <scb>kfork()</scb>
+### <scb>xv6</scb> | <scb>fork()</scb>
 
 | step | what it does |
 |---|---|
-| <scb>allocproc()</scb> | new <scb>struct proc</scb> (PCB) + pid |
-| <scb>uvmcopy()</scb> | **copy** all user memory |
-| copy <scb>trapframe</scb> | same user registers &rarr; same place in the code |
+| <scb>allocproc()</scb> | new <scb>struct proc</scb> (PCB) + new <sc>pid</sc> |
+| <scb>copyuvm()</scb> | **copy** all user memory |
+| <scb>np-&gt;parent</scb> | remember who the **parent** is |
 
 ---
 
-### <scb>xv6</scb> | <scb>kfork()</scb>
+### <scb>xv6</scb> | <scb>fork()</scb>
 
 | step | what it does |
 |---|---|
-| <scb>allocproc()</scb> | new <scb>struct proc</scb> (PCB) + pid |
-| <scb>uvmcopy()</scb> | **copy** all user memory |
-| copy <scb>trapframe</scb> | same user registers &rarr; same place in the code |
-| <scb>a0 = 0</scb> | child's **return value** is 0 |
+| <scb>allocproc()</scb> | new <scb>struct proc</scb> (PCB) + new <sc>pid</sc> |
+| <scb>copyuvm()</scb> | **copy** all user memory |
+| <scb>np-&gt;parent</scb> | remember who the **parent** is |
+| copy <scb>tf</scb> (trap frame) | same user registers &rarr; same place in the code |
 
 ---
 
-### <scb>xv6</scb> | <scb>kfork()</scb>
+### <scb>xv6</scb> | <scb>fork()</scb>
 
 | step | what it does |
 |---|---|
-| <scb>allocproc()</scb> | new <scb>struct proc</scb> (PCB) + pid |
-| <scb>uvmcopy()</scb> | **copy** all user memory |
-| copy <scb>trapframe</scb> | same user registers &rarr; same place in the code |
-| <scb>a0 = 0</scb> | child's **return value** is 0 |
+| <scb>allocproc()</scb> | new <scb>struct proc</scb> (PCB) + new <sc>pid</sc> |
+| <scb>copyuvm()</scb> | **copy** all user memory |
+| <scb>np-&gt;parent</scb> | remember who the **parent** is |
+| copy <scb>tf</scb> (trap frame) | same user registers &rarr; same place in the code |
+| <scb>tf-&gt;eax = 0</scb> | child's **return value** is 0 |
+
+---
+
+### <scb>xv6</scb> | <scb>fork()</scb>
+
+| step | what it does |
+|---|---|
+| <scb>allocproc()</scb> | new <scb>struct proc</scb> (PCB) + new <sc>pid</sc> |
+| <scb>copyuvm()</scb> | **copy** all user memory |
+| <scb>np-&gt;parent</scb> | remember who the **parent** is |
+| copy <scb>tf</scb> (trap frame) | same user registers &rarr; same place in the code |
+| <scb>tf-&gt;eax = 0</scb> | child's **return value** is 0 |
 | <scb>filedup()</scb> | child **shares** the open files |
 
 ---
 
-### <scb>xv6</scb> | <scb>kfork()</scb>
+### <scb>xv6</scb> | <scb>fork()</scb>
 
 | step | what it does |
 |---|---|
-| <scb>allocproc()</scb> | new <scb>struct proc</scb> (PCB) + pid |
-| <scb>uvmcopy()</scb> | **copy** all user memory |
-| copy <scb>trapframe</scb> | same user registers &rarr; same place in the code |
-| <scb>a0 = 0</scb> | child's **return value** is 0 |
+| <scb>allocproc()</scb> | new <scb>struct proc</scb> (PCB) + new <sc>pid</sc> |
+| <scb>copyuvm()</scb> | **copy** all user memory |
+| <scb>np-&gt;parent</scb> | remember who the **parent** is |
+| copy <scb>tf</scb> (trap frame) | same user registers &rarr; same place in the code |
+| <scb>tf-&gt;eax = 0</scb> | child's **return value** is 0 |
 | <scb>filedup()</scb> | child **shares** the open files |
-| <scb>RUNNABLE</scb> | child is ready &rarr; parent returns child's pid |
+| <scb>RUNNABLE</scb> | child is ready &rarr; parent returns child's <sc>pid</sc> |
 ||
 
 ---
@@ -567,14 +573,22 @@ Note:
 ### <scb>fork()</scb> | **not aged well**
 
 - hard to use &rarr; full of nuance and corner cases
-- see: _"A fork() in the road"_ (Baumann et al., HotOS 2019)
+- "[A fork() in the road](https://www.microsoft.com/en-us/research/publication/a-fork-in-the-road/)" by Baumann _et al.,_ HotOS 2019
 
 ---
 
 ### <scb>fork()</scb> | **not aged well**
 
 - hard to use &rarr; full of nuance and corner cases
-- see: _"A fork() in the road"_ (Baumann et al., HotOS 2019)
+- "[A fork() in the road](https://www.microsoft.com/en-us/research/publication/a-fork-in-the-road/)" by Baumann _et al.,_ HotOS 2019
+- but it **is** the core UNIX API... and what **xv6** uses
+
+---
+
+### <scb>fork()</scb> | **not aged well**
+
+- hard to use &rarr; full of nuance and corner cases
+- "[A fork() in the road](https://www.microsoft.com/en-us/research/publication/a-fork-in-the-road/)" by Baumann _et al.,_ HotOS 2019
 - but it **is** the core UNIX API... and what **xv6** uses
 
 <br>
@@ -585,11 +599,11 @@ Note:
 
 ---
 
-## <scb>fork</scb> + <scb>exec</scb> + <scb>wait</scb>
+### <scb>fork</scb> + <scb>exec</scb> + <scb>wait</scb>
 
 ---
 
-let's look at `code` example... <scb>forktest.c</scb>
+let's look at a `code` example... <scb>forktest.c</scb>
 
 ---
 
@@ -651,6 +665,12 @@ if (pid == 0) {          // child
 
 <scb>pid = fork()</scb> &rarr; parent gets <scb>101</scb>, child gets <scb>0</scb>
 
+---
+
+### <scb>forktest</scb>
+
+<scb>pid = fork()</scb> &rarr; parent gets <scb>101</scb>, child gets <scb>0</scb>
+
 <img src="./img/process_api/forktest_1.png" height="645">
 
 ---
@@ -665,13 +685,21 @@ child calls <scb>execlp()</scb> &rarr; its VAS is **replaced** by <scb>/bin/ret4
 
 ### <scb>forktest</scb>
 
-child calls <scb>execlp()</scb> &rarr; its VAS is **replaced** by <scb>/bin/ret42</scb>
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
 
-<img src="./img/process_api/forktest_2.png" height="560">
+<img src="./img/process_api/forktest_2.png" height="400">
 
-"_never get here_" 
+</div>
+
+<div>
+
+`// never get here`
 - if <scb>exec</scb> succeeds
 - this code **no longer exists** in child
+
+</div>
+</div>
 
 ---
 
@@ -703,22 +731,41 @@ child returns <scb>42</scb> &rarr; pops out of parent's <scb>wait()</scb> as <sc
 
 ### <scb>wait()</scb> | **linux vs xv6**
 
-|  | linux (POSIX) | xv6 |
+|  | linux (POSIX) | xv6 (x86) |
 |---|---|---|
-| returns | pid of the exited child | pid of the exited child |
+| signature | <scb>pid_t wait(int *status)</scb> | <scb>int wait(void)</scb> |
 
 ---
 
 ### <scb>wait()</scb> | **linux vs xv6**
 
-|  | linux (POSIX) | xv6 |
+|  | linux (POSIX) | xv6 (x86) |
 |---|---|---|
-| returns | pid of the exited child | pid of the exited child |
-| <scb>status</scb> | packed word &rarr; <scb>WEXITSTATUS(status)</scb> = 42 | the exit value itself = 42 |
+| signature | <scb>pid_t wait(int *status)</scb> | <scb>int wait(void)</scb> |
+| returns | <sc>pid</sc> of exited child | <sc>pid</sc> of exited child |
+
+---
+
+### <scb>wait()</scb> | **linux vs xv6**
+
+|  | linux (POSIX) | xv6 (x86) |
+|---|---|---|
+| signature | <scb>pid_t wait(int *status)</scb> | <scb>int wait(void)</scb> |
+| returns | <sc>pid</sc> of exited child | <sc>pid</sc> of exited child |
+| exit value | packed in <scb>status</scb> &rarr; <scb>WEXITSTATUS(status)</scb> = 42 | **none**! <scb>exit(void)</scb> takes no argument |
 ||
 
 Note:
 - the assert(retpid == pid) checks wait's return value.
+- see [wait(2)](https://man7.org/linux/man-pages/man2/wait.2.html).
+
+---
+
+### <scb>wait()</scb> | **linux vs xv6**
+
+xv6 (x86) &rarr; a child **cannot** pass a value back to its parent!
+
+- <scb>forktest</scb> as written &rarr; needs a **real** UNIX (Linux, macOS)
 
 ---
 
@@ -750,8 +797,6 @@ parent prints the child's return value
 
 ---
 
----
-
 ## process **hierarchy**
 
 ---
@@ -773,8 +818,8 @@ parent prints the child's return value
 
 - a **parent** process may <scb>fork()</scb> a **child** process
 - parent can <scb>wait()</scb> &rarr; stop until the child <scb>exit()</scb>s
-- parent can <scb>kill()</scb> its children (!)
-  - sends a **signal** to the child
+- parent can <scb>kill()</scb> its children!
+  - sends a **signal** to child
 
 ---
 
@@ -782,8 +827,8 @@ parent prints the child's return value
 
 - a **parent** process may <scb>fork()</scb> a **child** process
 - parent can <scb>wait()</scb> &rarr; stop until the child <scb>exit()</scb>s
-- parent can <scb>kill()</scb> its children (!)
-  - sends a **signal** to the child
+- parent can <scb>kill()</scb> its children!
+  - sends a **signal** to child
 - processes form a **hierarchy**...
 
 ---
@@ -805,7 +850,8 @@ parent prints the child's return value
 
 1. which is the **first** process?
 2. where does a **shell** fit in?
-3. when does a shell <scb>wait()</scb>? when does it **not**?
+3. when does a shell <scb>wait()</scb>? 
+4. when does it **not**?
 
 ---
 
@@ -813,8 +859,9 @@ parent prints the child's return value
 
 1. which is the **first** process?
 2. where does a **shell** fit in?
-3. when does a shell <scb>wait()</scb>? when does it **not**?
-4. what does <scb>ctrl-C</scb> in a shell do?
+3. when does a shell <scb>wait()</scb>? 
+4. when does it **not**?
+5. what does <scb>ctrl-C</scb> in a shell do?
 
 ---
 
@@ -826,68 +873,87 @@ where does it all **start**?
 
 ### process hierarchy | **the first process**
 
+---
+
+### process hierarchy | **the first process**
+
 <img src="./img/process_api/proc_tree_1.png" height="645">
 
 ---
 
 ### process hierarchy | **the first process**
 
-<scb>init</scb> &rarr; kernel starts **exactly one** process (<scb>pid 1</scb>) &rarr; everything else is forked from it
+- <scb>init</scb> &rarr; kernel starts **exactly one** process (<scb>pid 1</scb>)
+
+<img src="./img/process_api/proc_tree_1.png" height="645">
+
+---
+
+### process hierarchy | **the first process**
+
+- <scb>init</scb> &rarr; kernel starts **exactly one** process (<scb>pid 1</scb>)
+- **everything else** is <scb>fork</scb>-ed from it
 
 <img src="./img/process_api/proc_tree_2.png" height="645">
 
 ---
 
-### process hierarchy | **the first process**
+if the first process has <scb>pid = 1</scb>...what is <scb>pid = 0</scb>
 
-- modern Linux &rarr; <scb>systemd</scb> is the init process
+<img src="./img/process_api/proc_tree_1.png" height="645">
+
+---
+
+if the first process has <scb>pid = 1</scb>...what is <scb>pid = 0</scb>
+
+<scb>idle</scb> thread or "**swapper**"/scheduler
 
 ---
 
 ### process hierarchy | **the first process**
 
-- modern Linux &rarr; <scb>systemd</scb> is the init process
+---
+
+### process hierarchy | **the first process**
+
+- modern Linux &rarr; <scb>systemd</scb> is init process
 - many variants exist
 
 ---
 
 ### process hierarchy | **the first process**
 
-- modern Linux &rarr; <scb>systemd</scb> is the init process
+- modern Linux &rarr; <scb>systemd</scb> is init process
 - many variants exist
 - try <scb>pstree</scb> on a Linux machine &rarr; see your own tree
 
 ---
 
-let's look at <scb>xv6</scb>... <scb>user/init.c</scb>
+let's look at <scb>xv6</scb>... <scb>init.c</scb>
 
 ---
 
 ### <scb>xv6</scb> | <scb>init</scb>
 
 ```C
-for (;;) {
-  printf("init: starting sh\n");
-  pid = fork();
+int
+main(void)
+{
   ...
-  if (pid == 0) {
-    exec("sh", argv);
-    printf("init: exec sh failed\n");
-    exit(1);
-  }
-
-  for (;;) {
-    // this call to wait() returns if the shell exits,
-    // or if a parentless process exits.
-    wpid = wait((int *)0);
-    if (wpid == pid) {
-      // the shell exited; restart it.
-      break;
-    } else if (wpid < 0) {
-      ...
-    } else {
-      // it was a parentless process; do nothing.
+  for(;;){
+    printf(1, "init: starting sh\n");
+    pid = fork();
+    if(pid < 0){
+      printf(1, "init: fork failed\n");
+      exit();
     }
+    if(pid == 0){
+      exec("sh", argv);
+      printf(1, "init: exec sh failed\n");
+      exit();
+    }
+    while((wpid=wait()) >= 0 && wpid != pid)
+      printf(1, "zombie!\n");
   }
 }
 ```
@@ -896,42 +962,120 @@ for (;;) {
 
 ### <scb>xv6</scb> | <scb>init</scb>
 
-```C [3|5-8|14|15-17|20-21]
-for (;;) {
-  printf("init: starting sh\n");
-  pid = fork();
+```C [5|7|12-14|17|18]
+int
+main(void)
+{
   ...
-  if (pid == 0) {
-    exec("sh", argv);
-    printf("init: exec sh failed\n");
-    exit(1);
-  }
-
-  for (;;) {
-    // this call to wait() returns if the shell exits,
-    // or if a parentless process exits.
-    wpid = wait((int *)0);
-    if (wpid == pid) {
-      // the shell exited; restart it.
-      break;
-    } else if (wpid < 0) {
-      ...
-    } else {
-      // it was a parentless process; do nothing.
+  for(;;){
+    printf(1, "init: starting sh\n");
+    pid = fork();
+    if(pid < 0){
+      printf(1, "init: fork failed\n");
+      exit();
     }
+    if(pid == 0){
+      exec("sh", argv);
+      printf(1, "init: exec sh failed\n");
+      exit();
+    }
+    while((wpid=wait()) >= 0 && wpid != pid)
+      printf(1, "zombie!\n");
+  }
+}
+```
+
+
+---
+
+### <scb>xv6</scb> | <scb>init</scb>
+
+```C 
+int
+main(void)
+{
+  ...
+  for(;;){
+    printf(1, "init: starting sh\n");
+    pid = fork();
+    if(pid < 0){
+      printf(1, "init: fork failed\n");
+      exit();
+    }
+    if(pid == 0){
+      exec("sh", argv);
+      printf(1, "init: exec sh failed\n");
+      exit();
+    }
+    while((wpid=wait()) >= 0 && wpid != pid)
+      printf(1, "zombie!\n");
   }
 }
 ```
 
 ---
 
-<scb>init</scb> forks + execs the **shell**... and _restarts_ it if it dies
+### <scb>xv6</scb> | <scb>init</scb>
 
-<br>
+---
 
-<center><div class="center" data-id="box" style="height: 75px; width: 535px; background: orange;">
+### <scb>xv6</scb> | <scb>init</scb>
+
+- <scb>fork()</scb> + <scb>exec("sh")</scb> &rarr; start **shell**
+
+---
+
+### <scb>xv6</scb> | <scb>init</scb>
+
+- <scb>fork()</scb> + <scb>exec("sh")</scb> &rarr; start **shell**
+- <scb>wait()</scb> &rarr; until shell exits &rarr; then **restart** it
+
+---
+
+### <scb>xv6</scb> | <scb>init</scb>
+
+- <scb>fork()</scb> + <scb>exec("sh")</scb> &rarr; start **shell**
+- <scb>wait()</scb> &rarr; until shell exits &rarr; then **restart** it
+- any **other** child that exits &rarr; reaped here
+
+---
+
+### <scb>xv6</scb> | <scb>init</scb>
+
+- <scb>fork()</scb> + <scb>exec("sh")</scb> &rarr; start **shell**
+- <scb>wait()</scb> &rarr; until shell exits &rarr; then **restart** it
+- any **other** child that exits &rarr; reaped here
+  - prints <scb>zombie!</scb>
+
+
+---
+
+### <scb>xv6</scb> | <scb>init</scb>
+
+- <scb>fork()</scb> + <scb>exec("sh")</scb> &rarr; start **shell**
+- <scb>wait()</scb> &rarr; until shell exits &rarr; then **restart** it
+- any **other** child that exits &rarr; reaped here
+  - prints <scb>zombie!</scb>
+
+  <br>
+
+<center><div class="center" data-id="box" style="height: 75px; width: 650px; background: orange;">
 <b>process management!</b>
 </div></center>
+
+---
+
+### <scb>xv6</scb> | <scb>init</scb>
+
+why would <scb>init</scb> get **other** children it never forked?
+
+---
+
+### <scb>xv6</scb> | <scb>init</scb>
+
+why would <scb>init</scb> get **other** children it never forked?
+
+&rarr; **orphans**... (more on that with <scb>exit()</scb>)
 
 ---
 
@@ -941,14 +1085,24 @@ for (;;) {
 
 ### the shell | **fork + exec + wait**
 
-- the shell &rarr; one of the main **users** of the process API
+---
+
+### the shell | **fork + exec + wait**
+
+- the shell &rarr; one of the main **users** of process API
 
 ---
 
 ### the shell | **fork + exec + wait**
 
-- the shell &rarr; one of the main **users** of the process API
-- every command you type &rarr; <scb>fork()</scb> + <scb>exec()</scb>
+- the shell &rarr; one of the main **users** of process API
+- **every** command you type &rarr; <scb>fork()</scb> + <scb>exec()</scb>
+
+---
+
+### the shell | **foreground**
+
+shell <scb>wait()</scb>s &rarr; prompt only returns when **child exits**
 
 ---
 
@@ -962,7 +1116,13 @@ shell <scb>wait()</scb>s &rarr; prompt only returns when the child exits
 
 ### the shell | **background**
 
-a trailing <scb>&amp;</scb> &rarr; shell does **not** wait &rarr; both run **concurrently**
+a trailing <scb>&amp;</scb> &rarr; shell does **not** wait
+
+---
+
+### the shell | **background**
+
+a trailing <scb>&amp;</scb> &rarr; shell does **not** wait
 
 <img src="./img/process_api/shell_2.png" height="515">
 
@@ -970,22 +1130,70 @@ a trailing <scb>&amp;</scb> &rarr; shell does **not** wait &rarr; both run **con
 
 ### the shell | **background**
 
-try it!
+a trailing <scb>&amp;</scb> &rarr; shell does **not** wait
 
-- run <scb>gedit</scb> &rarr; no prompt until you close it
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/shell_2.png" height="400">
+
+</div>
+
+<div>
+
+- shell and child run **concurrently**
+
+</div>
+</div>
 
 ---
 
 ### the shell | **background**
 
-try it!
+a trailing <scb>&amp;</scb> &rarr; shell does **not** wait
 
-- run <scb>gedit</scb> &rarr; no prompt until you close it
-- run <scb>gedit &amp;</scb> &rarr; prompt right away
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/shell_2.png" height="400">
+
+</div>
+
+<div>
+
+- shell and child run **concurrently**
+- try it!<br> 
+<scb>gedit</scb> &rarr; no prompt until you close it
+
+</div>
+</div>
 
 ---
 
-let's look at <scb>xv6</scb>... <scb>user/sh.c</scb>
+### the shell | **background**
+
+a trailing <scb>&amp;</scb> &rarr; shell does **not** wait
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/shell_2.png" height="400">
+
+</div>
+
+<div>
+
+- shell and child run **concurrently**
+- try it! <br>
+ <scb>gedit</scb> &rarr; no prompt until you close it <br>
+ <scb>gedit &amp;</scb> &rarr; prompt right away
+
+</div>
+</div>
+
+---
+
+let's look at <scb>xv6</scb>... <scb>sh.c</scb>
 
 ---
 
@@ -993,58 +1201,76 @@ let's look at <scb>xv6</scb>... <scb>user/sh.c</scb>
 
 ```C
 // Read and run input commands.
-while (getcmd(buf, sizeof(buf)) >= 0) {
-  ...
-  if (cmd[0] == 'c' && cmd[1] == 'd' && cmd[2] == ' ') {
+while(getcmd(buf, sizeof(buf)) >= 0){
+  if(buf[0] == 'c' && buf[1] == 'd' && buf[2] == ' '){
     // Chdir must be called by the parent, not the child.
-    ...
-    if (chdir(cmd + 3) < 0)
-      fprintf(2, "cannot cd %s\n", cmd + 3);
-  } else {
-    if (fork1() == 0)
-      runcmd(parsecmd(cmd));
-    wait(0);
+    buf[strlen(buf)-1] = 0;  // chop \n
+    if(chdir(buf+3) < 0)
+      printf(2, "cannot cd %s\n", buf+3);
+    continue;
   }
+  if(fork1() == 0)
+    runcmd(parsecmd(buf));
+  wait();
 }
+exit();
 ```
 
 ---
 
 ### <scb>xv6</scb> | <scb>sh</scb>
 
-```C [2|10-11|12|4-5|7]
+```C [2|10-11|12|3-4|6]
 // Read and run input commands.
-while (getcmd(buf, sizeof(buf)) >= 0) {
-  ...
-  if (cmd[0] == 'c' && cmd[1] == 'd' && cmd[2] == ' ') {
+while(getcmd(buf, sizeof(buf)) >= 0){
+  if(buf[0] == 'c' && buf[1] == 'd' && buf[2] == ' '){
     // Chdir must be called by the parent, not the child.
-    ...
-    if (chdir(cmd + 3) < 0)
-      fprintf(2, "cannot cd %s\n", cmd + 3);
-  } else {
-    if (fork1() == 0)
-      runcmd(parsecmd(cmd));
-    wait(0);
+    buf[strlen(buf)-1] = 0;  // chop \n
+    if(chdir(buf+3) < 0)
+      printf(2, "cannot cd %s\n", buf+3);
+    continue;
   }
+  if(fork1() == 0)
+    runcmd(parsecmd(buf));
+  wait();
 }
+exit();
 ```
 
 ---
 
+### the shell | <scb>cd</scb>
+
 why must <scb>cd</scb> run in the **parent**?
 
 ---
 
+### the shell | <scb>cd</scb>
+
 why must <scb>cd</scb> run in the **parent**?
 
-- the current directory &rarr; part of each **process'** state
+- current directory &rarr; part of each **process'** state <br> (<scb>cwd</scb> in <scb>struct proc</scb>)
 
 ---
 
+### the shell | <scb>cd</scb>
+
 why must <scb>cd</scb> run in the **parent**?
 
-- the current directory &rarr; part of each **process'** state
-- a child's <scb>chdir()</scb> &rarr; changes only the **child**... which then exits!
+- current directory &rarr; part of each **process'** <br> state (<scb>cwd</scb> in <scb>struct proc</scb>)
+- child's <scb>chdir()</scb> &rarr; changes only the **child**...
+---
+
+### the shell | <scb>cd</scb>
+
+why must <scb>cd</scb> run in the **parent**?
+
+- current directory &rarr; part of each **process'** <br> state (<scb>cwd</scb> in <scb>struct proc</scb>)
+- child's <scb>chdir()</scb> &rarr; changes only the **child**...
+- ...which then exits!
+
+<br> 
+<br> 
 
 <center><div class="center" data-id="box" style="height: 75px; width: 485px; background: orange;">
 <b>isolation, again!</b>
@@ -1054,50 +1280,106 @@ why must <scb>cd</scb> run in the **parent**?
 
 ### <scb>xv6</scb> | **background** (<scb>&amp;</scb>)
 
-but <scb>sh</scb> **always** calls <scb>wait(0)</scb>... so how does <scb>&amp;</scb> work?
+---
+
+### <scb>xv6</scb> | **background** (<scb>&amp;</scb>)
+
+but <scb>sh</scb> **always** calls <scb>wait()</scb>...
+
+so how does <scb>&amp;</scb> work?
 
 ---
 
 ### <scb>xv6</scb> | **background** (<scb>&amp;</scb>)
 
+<scb>runcmd()</scb> in <scb>sh.c</scb>
+
 ```C [3|4|7]
 case BACK:
-  bcmd = (struct backcmd *)cmd;
-  if (fork1() == 0)
+  bcmd = (struct backcmd*)cmd;
+  if(fork1() == 0)
     runcmd(bcmd->cmd);
   break;
-...
-exit(0);
+}
+exit();
 ```
 
 ---
 
 ### <scb>xv6</scb> | **background** (<scb>&amp;</scb>)
 
-- the shell's child forks a **grandchild** to run the command
+- shell's child forks a **grandchild** &rarr; runs the command
 
 ---
 
 ### <scb>xv6</scb> | **background** (<scb>&amp;</scb>)
 
-- the shell's child forks a **grandchild** to run the command
-- the child exits **immediately** &rarr; shell's <scb>wait(0)</scb> returns right away
+- shell's child forks a **grandchild** &rarr; runs the command
+- child exits **immediately** &rarr; shell's <scb>wait()</scb> returns right away
 
 ---
 
 ### <scb>xv6</scb> | **background** (<scb>&amp;</scb>)
 
-- the shell's child forks a **grandchild** to run the command
-- the child exits **immediately** &rarr; shell's <scb>wait(0)</scb> returns right away
-- the grandchild keeps running &rarr; an **orphan** (adopted by <scb>init</scb>)
+- shell's child forks a **grandchild** &rarr; runs the command
+- child exits **immediately** &rarr; shell's <scb>wait()</scb> returns right away
+- grandchild keeps running &rarr; an **orphan** &rarr; adopted by <scb>init</scb>
 
 ---
 
 ### the shell | <scb>ctrl-C</scb>
 
-a **signal** is sent to the foreground child &rarr; it terminates &rarr; <scb>wait()</scb> returns
+<scb>ctrl-C</scb> &rarr; a **signal** to the foreground child
+
+---
+
+### the shell | <scb>ctrl-C</scb>
+
+<scb>ctrl-C</scb> &rarr; a **signal** to the foreground child
 
 <img src="./img/process_api/shell_3.png" height="515">
+
+---
+
+### the shell | <scb>ctrl-C</scb>
+
+<scb>ctrl-C</scb> &rarr; a **signal** to the foreground child
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/shell_3.png" height="400">
+
+</div>
+
+<div>
+
+- child **terminates**
+
+</div>
+</div>
+
+---
+
+### the shell | <scb>ctrl-C</scb>
+
+<scb>ctrl-C</scb> &rarr; a **signal** to the foreground child
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/shell_3.png" height="400">
+
+</div>
+
+<div>
+
+- child **terminates**
+- shell's <scb>wait()</scb> returns 
+- prompt comes back
+
+</div>
+</div>
 
 ---
 
@@ -1122,7 +1404,7 @@ Note:
 
 ---
 
-## <scb>fork()</scb> | **copying the address space**
+### <scb>fork()</scb> | **copying the address space**
 
 ---
 
@@ -1135,14 +1417,14 @@ Note:
 ### <scb>fork()</scb> | **copying the address space**
 
 - <scb>fork()</scb> creates a **copy** of the parent's address space
-- quite literally a <sc>memcpy</sc> of **all** memory (<scb>uvmcopy</scb> in xv6)
+- quite literally a <sc>memcpy</sc> of **all** memory (<scb>copyuvm</scb> in xv6)
 
 ---
 
 ### <scb>fork()</scb> | **copying the address space**
 
 - <scb>fork()</scb> creates a **copy** of the parent's address space
-- quite literally a <sc>memcpy</sc> of **all** memory (<scb>uvmcopy</scb> in xv6)
+- quite literally a <sc>memcpy</sc> of **all** memory (<scb>copyuvm</scb> in xv6)
 - copying all memory &rarr; **expensive**!
 
 ---
@@ -1156,32 +1438,40 @@ Note:
 ### <scb>fork()</scb> | **and then...**
 
 - very often the intention &rarr; **execute a new program**
-- <scb>exec() / execve() / execlp()</scb> &rarr; load program from disk into **current** process
+- <scb>exec()/execve()/execlp()</scb> 
+  - load program from disk into **current** process
 
 ---
 
 ### <scb>fork()</scb> | **and then...**
 
 - very often the intention &rarr; **execute a new program**
-- <scb>exec() / execve() / execlp()</scb> &rarr; load program from disk into **current** process
-- _the_ way to run a new program
+- <scb>exec()/execve()/execlp()</scb> 
+  - load program from disk into **current** process
+- **the** way to run a new program
 
 ---
 
-why is copying **slow**?
+### why is copying **slow**?
 
 ---
 
-why is copying **slow**?
+### why is copying **slow**?
 
 - **caches** &rarr; the only thing that makes modern CPUs feel fast
 
 ---
 
-why is copying **slow**?
+### why is copying **slow**?
 
 - **caches** &rarr; the only thing that makes modern CPUs feel fast
 - without them &rarr; roughly <scb>~300x</scb> slower!
+
+---
+
+### why is copying **slow**?
+
+cache holds your **hot** data (working set)
 
 ---
 
@@ -1195,7 +1485,7 @@ cache holds your **hot** data (working set)
 
 ### why is copying **slow**?
 
-copy <scb>256 KB</scb> &rarr; touch <scb>512 KB</scb> (src + dst) &rarr; ~ size of an L2 cache
+copy <scb>256 KB</scb> &rarr; touch <scb>512 KB</scb> (src + dst)
 
 <img src="./img/process_api/cache_copy_2.png" height="405">
 
@@ -1203,22 +1493,116 @@ copy <scb>256 KB</scb> &rarr; touch <scb>512 KB</scb> (src + dst) &rarr; ~ size 
 
 ### why is copying **slow**?
 
-- the **copy** itself is slow
+copy <scb>256 KB</scb> &rarr; touch <scb>512 KB</scb> (src + dst)
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/cache_copy_2.png" height="300">
+
+</div>
+
+<div>
+
+- ~ the size of an **L2 cache**
+
+</div>
+</div>
 
 ---
 
 ### why is copying **slow**?
 
+copy <scb>256 KB</scb> &rarr; touch <scb>512 KB</scb> (src + dst)
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/cache_copy_2.png" height="300">
+
+</div>
+
+<div>
+
+- ~ the size of an **L2 cache**
 - the **copy** itself is slow
-- hot data **evicted** &rarr; slow _after_ the fork too
+
+</div>
+</div>
 
 ---
 
 ### why is copying **slow**?
 
+copy <scb>256 KB</scb> &rarr; touch <scb>512 KB</scb> (src + dst)
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/cache_copy_2.png" height="300">
+
+</div>
+
+<div>
+
+- ~ the size of an **L2 cache**
 - the **copy** itself is slow
-- hot data **evicted** &rarr; slow _after_ the fork too
+- hot data **evicted**! 
+
+</div>
+</div>
+
+
+---
+
+### why is copying **slow**?
+
+copy <scb>256 KB</scb> &rarr; touch <scb>512 KB</scb> (src + dst)
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/cache_copy_2.png" height="300">
+
+</div>
+
+<div>
+
+- ~ the size of an **L2 cache**
+- the **copy** itself is slow
+- slow _after_ the fork too!
+
+</div>
+</div>
+
+---
+
+### why is copying **slow**?
+
+copy <scb>256 KB</scb> &rarr; touch <scb>512 KB</scb> (src + dst)
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/cache_copy_2.png" height="300">
+
+</div>
+
+<div>
+
+- ~ the size of an **L2 cache**
+- the **copy** itself is slow
+- slow _after_ the fork too!
 - you can _feel_ how slow fork is on xv6
+
+</div>
+</div>
+
+---
+
+### <scb>fork()</scb> then <scb>exec()</scb>
+
+parent's VAS &rarr; **all** of it
 
 ---
 
@@ -1275,7 +1659,8 @@ load the new program from disk
 ### <scb>fork()</scb> then <scb>exec()</scb>
 
 - in a shell &rarr; <scb>fork</scb> is almost **always** followed by <scb>exec</scb>
-- other systems (Windows, research OSes like Composite) &rarr; saner **spawn**-style APIs
+- other systems (Windows, research OSes like Composite) 
+  - saner "**spawn**-style" APIs
 
 ---
 
@@ -1297,6 +1682,12 @@ don't complain &rarr; **engineer** around it!
 
 - <scb>vfork()</scb> &rarr; stop parent's execution until child <scb>exec()</scb>s
 - **COW** &rarr; copy-on-write memory sharing
+
+---
+
+### <scb>vfork()</scb> | **don't copy at all**
+
+child runs **inside** parent's VAS
 
 ---
 
@@ -1334,39 +1725,58 @@ child can modify parent's memory &rarr; even its **stack frames**!
 
 ### <scb>vfork()</scb> | **a HACK**
 
-- only safe use &rarr; <scb>vfork()</scb> **immediately** followed by <scb>exec()</scb> or <scb>_exit()</scb>
+only safe use 
+
+- <scb>vfork()</scb> 
+- **immediately** followed by <scb>exec()</scb> or <scb>_exit()</scb>
 
 ---
 
 ### <scb>vfork()</scb> | **a HACK**
 
-- only safe use &rarr; <scb>vfork()</scb> **immediately** followed by <scb>exec()</scb> or <scb>_exit()</scb>
-- improves performance by making a hard API **even harder** to use
+- <scb>vfork()</scb> 
+- **immediately** followed by <scb>exec()</scb> or <scb>_exit()</scb>
+- improves performance
+  - making a hard API **even harder** to use
+
+<br>
+<br>
 
 <center><div class="center" data-id="box" style="height: 75px; width: 200px; background: orange;">
-<b>HACK</b>
+<b>HACK!</b>
 </div></center>
 
 ---
 
 ### copy-on-write (COW)
 
-- use **hardware** virtual memory support &rarr; pages can be marked **read-only**
+---
+
+### copy-on-write (COW)
+
+- use **hardware** virtual memory support 
 
 ---
 
 ### copy-on-write (COW)
 
-- use **hardware** virtual memory support &rarr; pages can be marked **read-only**
-- recall: <scb>/proc/&lt;pid&gt;/maps</scb> showed code as <scb>r-xp</scb> (<scb>p</scb> = private, copy-on-write!)
+- use **hardware** virtual memory support 
+- pages marked **read-only**
 
 ---
 
 ### copy-on-write (COW)
 
-- use **hardware** virtual memory support &rarr; pages can be marked **read-only**
-- recall: <scb>/proc/&lt;pid&gt;/maps</scb> showed code as <scb>r-xp</scb> (<scb>p</scb> = private, copy-on-write!)
-- page tables in detail &rarr; _later in the course_
+- use **hardware** virtual memory support 
+- pages marked **read-only**
+
+<br>
+
+recall: <scb>/proc/&lt;pid&gt;/maps</scb> showed code as <scb>r-xp</scb> <br> (<scb>p</scb> = private, copy-on-write!)
+
+---
+
+page tables in detail &rarr; _later in the course_
 
 ---
 
@@ -1390,11 +1800,40 @@ after <scb>fork()</scb> &rarr; **share** every frame, mark **all** read-only
 
 after <scb>fork()</scb> &rarr; **share** every frame, mark **all** read-only
 
-<img src="./img/process_api/cow_2.png" height="505">
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
 
-<center><div class="center" data-id="box" style="height: 75px; width: 335px; background: orange;">
-<b>no copying!</b>
-</div></center>
+<img src="./img/process_api/cow_2.png" height="330">
+
+</div>
+
+<div>
+
+- **no** copying at fork time!
+
+</div>
+</div>
+
+---
+
+### copy-on-write (COW)
+
+after <scb>fork()</scb> &rarr; **share** every frame, mark **all** read-only
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/cow_2.png" height="330">
+
+</div>
+
+<div>
+
+- **no** copying at fork time!
+- parent/child point at **same** frames
+
+</div>
+</div>
 
 ---
 
@@ -1416,14 +1855,42 @@ kernel copies **only** page B, maps both read-write, retries the store
 
 ### copy-on-write (COW)
 
-- other pages stay **shared** (read-only) until someone writes
+kernel copies **only** page B, maps both read-write, retries the store
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/cow_4.png" height="330">
+
+</div>
+
+<div>
+
+- other pages stay **shared** (read-only) <br> until someone writes
+
+</div>
+</div>
 
 ---
 
 ### copy-on-write (COW)
 
-- other pages stay **shared** (read-only) until someone writes
-- child <scb>exec()</scb>s right away &rarr; almost **nothing** is ever copied
+kernel copies **only** page B, maps both read-write, retries the store
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/cow_4.png" height="330">
+
+</div>
+
+<div>
+
+- other pages stay **shared** (read-only) <br> until someone writes
+- child <scb>exec()</scb>s right away <br> almost **nothing** is ever copied
+
+</div>
+</div>
 
 ---
 
@@ -1444,15 +1911,40 @@ kernel copies **only** page B, maps both read-write, retries the store
 
 - extra cost &rarr; handling faults, delayed copies
 - but we copy **only** what _has_ to be copied
-- in practice &rarr; only a **small** fraction of a VAS is ever written
+- in practice &rarr; only **small** fraction of VAS is ever written
 
-<center><div class="center" data-id="box" style="height: 75px; width: 1160px; background: orange;">
-<b>brilliant engineering &rarr; used everywhere</b>
+<br>
+<br>
+
+<center><div class="center" data-id="box" style="height: 75px; width: 1135px; background: orange;">
+<b>brilliant engineering &rarr; used everywhere!</b>
 </div></center>
 
 ---
 
-...to paper over a fundamentally **awkward** API (<scb>fork</scb> + <scb>exec</scb>)
+### copy-on-write (COW) | **used everywhere**
+
+- ...to paper over a fundamentally **awkward** API (<scb>fork</scb> + <scb>exec</scb>)
+
+---
+
+### copy-on-write (COW) | **used everywhere**
+
+- ...to paper over a fundamentally **awkward** API (<scb>fork</scb> + <scb>exec</scb>)
+- does x86 xv6 use COW?
+
+
+---
+
+### copy-on-write (COW) | **used everywhere**
+
+- ...to paper over a fundamentally **awkward** API (<scb>fork</scb> + <scb>exec</scb>)
+- does x86 xv6 use COW? 
+
+<br>
+<br>
+
+**no**! <scb>copyuvm()</scb> copies everything
 
 ---
 
@@ -1462,35 +1954,45 @@ kernel copies **only** page B, maps both read-write, retries the store
 
 ### process termination | <scb>exit()</scb>
 
-- <scb>exit(ret)</scb> &rarr; **the** way for a process to _intentionally_ terminate itself
+---
+
+### process termination | <scb>exit()</scb>
+
+- <scb>exit(ret)</scb> &rarr; **the** way for process to _intentionally_ terminate itself
 
 ---
 
 ### process termination | <scb>exit()</scb>
 
-- <scb>exit(ret)</scb> &rarr; **the** way for a process to _intentionally_ terminate itself
-- release the process' **resources** back to the system
-  - memory / VAS, kernel stack, open files, PCB...
+- <scb>exit(ret)</scb> &rarr; **the** way for process to _intentionally_ terminate itself
+- release process' **resources** back to system
+  - memory/VAS, kernel stack, open files, PCB...
 
 ---
 
 ### process termination | <scb>exit()</scb>
 
-- <scb>exit(ret)</scb> &rarr; **the** way for a process to _intentionally_ terminate itself
-- release the process' **resources** back to the system
-  - memory / VAS, kernel stack, open files, PCB...
-- discontinue execution
+- <scb>exit(ret)</scb> &rarr; **the** way for process to _intentionally_ terminate itself
+- release process' **resources** back to system
+  - memory/VAS, kernel stack, open files, PCB...
+- **discontinue execution**
 
 ---
 
 ### process termination | <scb>exit()</scb>
 
-- <scb>exit(ret)</scb> &rarr; **the** way for a process to _intentionally_ terminate itself
-- release the process' **resources** back to the system
-  - memory / VAS, kernel stack, open files, PCB...
-- discontinue execution
-- takes an argument &rarr; the child's **return value**
+- <scb>exit(ret)</scb> &rarr; **the** way for process to _intentionally_ terminate itself
+- release process' **resources** back to system
+  - memory/VAS, kernel stack, open files, PCB...
+- **discontinue execution**
+- takes an argument &rarr; child's **return value**
   - same as returning an integer from <scb>main</scb>
+
+---
+
+### <scb>exit()</scb> | **main's return**
+
+returning an integer from <scb>main</scb>...
 
 ---
 
@@ -1512,7 +2014,8 @@ returning an integer from <scb>main</scb>...
 
 ### <scb>exit()</scb> | **main's return**
 
-programs **don't start** in <scb>main</scb> &rarr; <scb>_start</scb> calls <scb>main</scb>, then <scb>exit()</scb>s
+- programs **don't start** in <scb>main</scb> 
+- <scb>_start</scb> calls <scb>main</scb>, then <scb>exit()</scb>s
 
 <img src="./img/process_api/exit_start_3.png" height="550">
 
@@ -1520,32 +2023,122 @@ programs **don't start** in <scb>main</scb> &rarr; <scb>_start</scb> calls <scb>
 
 ### <scb>exit()</scb> | **main's return**
 
-- <scb>_start</scb> &rarr; usually an assembly routine (<scb>crt0</scb>)
+<scb>_start</scb> calls <scb>main</scb>, then <scb>exit()</scb>s
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/exit_start_3.png" height="320">
+
+</div>
+
+<div>
+
+- <scb>_start</scb> &rarr; usually assembly routine
+
+(* shown here as C)
+</div>
+</div>
 
 ---
 
 ### <scb>exit()</scb> | **main's return**
 
-- <scb>_start</scb> &rarr; usually an assembly routine (<scb>crt0</scb>)
-- shown here as C
+<scb>_start</scb> calls <scb>main</scb>, then <scb>exit()</scb>s
 
-<br>
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
 
-<center><div class="center" data-id="box" style="height: 75px; width: 1360px; background: orange;">
-<b>xv6: no _start plumbing &rarr; call exit() yourself!</b>
-</div></center>
+<img src="./img/process_api/exit_start_3.png" height="320">
+
+</div>
+
+<div>
+
+- <scb>_start</scb> &rarr; usually assembly routine
+- **C runtime zero** (<scb>crt0</scb>)
+
+(* shown here as C)
+</div>
+</div>
 
 ---
+
+### <scb>exit()</scb> | **main's return**
+
+<scb>_start</scb> calls <scb>main</scb>, then <scb>exit()</scb>s
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/exit_start_3.png" height="320">
+
+</div>
+
+<div>
+
+- <scb>_start</scb> &rarr; usually assembly routine*
+- **C runtime zero** (<scb>crt0</scb>)
+
+(* shown here as C)
+
+</div>
+</div>
+
+---
+
+### <scb>exit()</scb> | **in xv6**
+
+what if <scb>main</scb> just **returns** in xv6?
+
+---
+
+### <scb>exit()</scb> | **in xv6**
+
+what if <scb>main</scb> just **returns** in xv6?
+
+- xv6 has **no** <scb>_start</scb> plumbing
+
+---
+
+### <scb>exit()</scb> | **in xv6**
+
+what if <scb>main</scb> just **returns** in xv6?
+
+- xv6 has **no** <scb>_start</scb> plumbing
+- returning from <scb>main</scb> &rarr; jumps to a bogus address &rarr; **trap**!
+
+---
+
+### <scb>exit()</scb> | **in xv6**
+
+what if <scb>main</scb> just **returns** in xv6?
+
+- xv6 has **no** <scb>_start</scb> plumbing
+- returning from <scb>main</scb> &rarr; jumps to a bogus address &rarr; **trap**!
+- xv6 programs &rarr; must call <scb>exit()</scb> **explicitly**
+
+---
+
+## <scb>exit()</scb> | **zombies**
+
+---
+
+### <scb>exit()</scb> | **zombies**
 
 the child exits **before** the parent calls <scb>wait()</scb>...
 
 ---
+
+### <scb>exit()</scb> | **zombies**
 
 the child exits **before** the parent calls <scb>wait()</scb>...
 
 - where do we keep <scb>42</scb> until the parent asks for it?
 
 ---
+
+### <scb>exit()</scb> | **zombies**
 
 the child exits **before** the parent calls <scb>wait()</scb>...
 
@@ -1553,6 +2146,8 @@ the child exits **before** the parent calls <scb>wait()</scb>...
 - free **all** of the child's resources &rarr; value is **lost**
 
 ---
+
+### <scb>exit()</scb> | **zombies**
 
 the child exits **before** the parent calls <scb>wait()</scb>...
 
@@ -1572,9 +2167,50 @@ child is running &rarr; parent is busy, **not** waiting
 
 ### <scb>exit()</scb> | **zombies**
 
-child exits &rarr; most resources freed, but <scb>struct proc</scb> **stays** &rarr; a **zombie**
+child exits &rarr; most resources freed, but <scb>struct proc</scb> **stays**
 
 <img src="./img/process_api/zombie_2.png" height="535">
+
+---
+
+### <scb>exit()</scb> | **zombies**
+
+child exits &rarr; most resources freed, but <scb>struct proc</scb> **stays**
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/zombie_2.png" height="340">
+
+</div>
+
+<div>
+
+- state &rarr; <scb>ZOMBIE</scb>
+
+</div>
+</div>
+
+---
+
+### <scb>exit()</scb> | **zombies**
+
+child exits &rarr; most resources freed, but <scb>struct proc</scb> **stays**
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/zombie_2.png" height="340">
+
+</div>
+
+<div>
+
+- state &rarr; <scb>ZOMBIE</scb>
+- keeps the **exit value** for the parent
+
+</div>
+</div>
 
 ---
 
@@ -1586,33 +2222,39 @@ parent calls <scb>wait()</scb> &rarr; gets <scb>42</scb> &rarr; zombie is **reap
 
 ---
 
-let's look at <scb>xv6</scb>... <scb>kexit()</scb>
+let's look at <scb>xv6</scb>... <scb>exit()</scb> in <scb>proc.c</scb>
 
 ---
 
-### <scb>xv6</scb> | <scb>kexit()</scb>
+### <scb>xv6</scb> | <scb>exit()</scb>
 
 ```C
 void
-kexit(int status)
+exit(void)
 {
   ...
+  if(curproc == initproc)
+    panic("init exiting");
+
   // Close all open files.
-  for (int fd = 0; fd < NOFILE; fd++) {
-    ...
-      fileclose(f);
+  for(fd = 0; fd < NOFILE; fd++){
+    if(curproc->ofile[fd]){
+      fileclose(curproc->ofile[fd]);
+      ...
   }
   ...
-  // Give any children to init.
-  reparent(p);
-
   // Parent might be sleeping in wait().
-  wakeup(p->parent);
-  ...
-  p->xstate = status;
-  p->state = ZOMBIE;
-  ...
+  wakeup1(curproc->parent);
+
+  // Pass abandoned children to init.
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->parent == curproc){
+      p->parent = initproc;
+      ...
+  }
+
   // Jump into the scheduler, never to return.
+  curproc->state = ZOMBIE;
   sched();
   panic("zombie exit");
 }
@@ -1620,29 +2262,70 @@ kexit(int status)
 
 ---
 
-### <scb>xv6</scb> | <scb>kexit()</scb>
+### <scb>xv6</scb> | <scb>exit()</scb>
 
-```C [6-8|12|15|17|18|21|22]
+```C [5-6|9-11|16|18-21|26|27]
 void
-kexit(int status)
+exit(void)
 {
   ...
+  if(curproc == initproc)
+    panic("init exiting");
+
   // Close all open files.
-  for (int fd = 0; fd < NOFILE; fd++) {
-    ...
-      fileclose(f);
+  for(fd = 0; fd < NOFILE; fd++){
+    if(curproc->ofile[fd]){
+      fileclose(curproc->ofile[fd]);
+      ...
   }
   ...
-  // Give any children to init.
-  reparent(p);
-
   // Parent might be sleeping in wait().
-  wakeup(p->parent);
-  ...
-  p->xstate = status;
-  p->state = ZOMBIE;
-  ...
+  wakeup1(curproc->parent);
+
+  // Pass abandoned children to init.
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->parent == curproc){
+      p->parent = initproc;
+      ...
+  }
+
   // Jump into the scheduler, never to return.
+  curproc->state = ZOMBIE;
+  sched();
+  panic("zombie exit");
+}
+```
+---
+
+### <scb>xv6</scb> | <scb>exit()</scb>
+
+```C
+void
+exit(void)
+{
+  ...
+  if(curproc == initproc)
+    panic("init exiting");
+
+  // Close all open files.
+  for(fd = 0; fd < NOFILE; fd++){
+    if(curproc->ofile[fd]){
+      fileclose(curproc->ofile[fd]);
+      ...
+  }
+  ...
+  // Parent might be sleeping in wait().
+  wakeup1(curproc->parent);
+
+  // Pass abandoned children to init.
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->parent == curproc){
+      p->parent = initproc;
+      ...
+  }
+
+  // Jump into the scheduler, never to return.
+  curproc->state = ZOMBIE;
   sched();
   panic("zombie exit");
 }
@@ -1650,148 +2333,234 @@ kexit(int status)
 
 ---
 
-### <scb>xv6</scb> | <scb>kexit()</scb>
+### <scb>xv6</scb> | <scb>exit()</scb>
 
 | step | why |
 |---|---|
+| <scb>panic("init exiting")</scb> | <scb>init</scb> must **never** exit |
+
+---
+
+### <scb>xv6</scb> | <scb>exit()</scb>
+
+| step | why |
+|---|---|
+| <scb>panic("init exiting")</scb> | <scb>init</scb> must **never** exit |
 | close files | release resources |
 
 ---
 
-### <scb>xv6</scb> | <scb>kexit()</scb>
+### <scb>xv6</scb> | <scb>exit()</scb>
 
 | step | why |
 |---|---|
+| <scb>panic("init exiting")</scb> | <scb>init</scb> must **never** exit |
 | close files | release resources |
-| <scb>reparent(p)</scb> | my children &rarr; adopted by <scb>init</scb> (**orphans**) |
+| <scb>wakeup1(parent)</scb> | parent may be **sleeping** in <scb>wait()</scb> |
 
 ---
 
-### <scb>xv6</scb> | <scb>kexit()</scb>
+### <scb>xv6</scb> | <scb>exit()</scb>
 
 | step | why |
 |---|---|
+| <scb>panic("init exiting")</scb> | <scb>init</scb> must **never** exit |
 | close files | release resources |
-| <scb>reparent(p)</scb> | my children &rarr; adopted by <scb>init</scb> (**orphans**) |
-| <scb>wakeup(p-&gt;parent)</scb> | parent may be **sleeping** in <scb>wait()</scb> |
+| <scb>wakeup1(parent)</scb> | parent may be **sleeping** in <scb>wait()</scb> |
+| <scb>p-&gt;parent = initproc</scb> | my children &rarr; adopted by <scb>init</scb> (**orphans**) |
 
 ---
 
-### <scb>xv6</scb> | <scb>kexit()</scb>
+### <scb>xv6</scb> | <scb>exit()</scb>
 
 | step | why |
 |---|---|
+| <scb>panic("init exiting")</scb> | <scb>init</scb> must **never** exit |
 | close files | release resources |
-| <scb>reparent(p)</scb> | my children &rarr; adopted by <scb>init</scb> (**orphans**) |
-| <scb>wakeup(p-&gt;parent)</scb> | parent may be **sleeping** in <scb>wait()</scb> |
-| <scb>xstate = status</scb> | keep the **exit value** in the PCB |
-
----
-
-### <scb>xv6</scb> | <scb>kexit()</scb>
-
-| step | why |
-|---|---|
-| close files | release resources |
-| <scb>reparent(p)</scb> | my children &rarr; adopted by <scb>init</scb> (**orphans**) |
-| <scb>wakeup(p-&gt;parent)</scb> | parent may be **sleeping** in <scb>wait()</scb> |
-| <scb>xstate = status</scb> | keep the **exit value** in the PCB |
+| <scb>wakeup1(parent)</scb> | parent may be **sleeping** in <scb>wait()</scb> |
+| <scb>p-&gt;parent = initproc</scb> | my children &rarr; adopted by <scb>init</scb> (**orphans**) |
 | <scb>state = ZOMBIE</scb> | PCB stays around until reaped |
 
 ---
 
-### <scb>xv6</scb> | <scb>kexit()</scb>
+### <scb>xv6</scb> | <scb>exit()</scb>
 
 | step | why |
 |---|---|
+| <scb>panic("init exiting")</scb> | <scb>init</scb> must **never** exit |
 | close files | release resources |
-| <scb>reparent(p)</scb> | my children &rarr; adopted by <scb>init</scb> (**orphans**) |
-| <scb>wakeup(p-&gt;parent)</scb> | parent may be **sleeping** in <scb>wait()</scb> |
-| <scb>xstate = status</scb> | keep the **exit value** in the PCB |
+| <scb>wakeup1(parent)</scb> | parent may be **sleeping** in <scb>wait()</scb> |
+| <scb>p-&gt;parent = initproc</scb> | my children &rarr; adopted by <scb>init</scb> (**orphans**) |
 | <scb>state = ZOMBIE</scb> | PCB stays around until reaped |
 | <scb>sched()</scb> | switch away &rarr; **never** returns |
 ||
 
 ---
 
-...and <scb>kwait()</scb>
+### <scb>xv6</scb> | <scb>exit()</scb>
+
+where is the **exit value** stored?
 
 ---
 
-### <scb>xv6</scb> | <scb>kwait()</scb>
+### <scb>xv6</scb> | <scb>exit()</scb>
+
+where is the **exit value** stored?
+
+- **nowhere**! 
+  - x86 xv6's <scb>exit(void)</scb> takes no argument
+
+---
+
+### <scb>xv6</scb> | <scb>exit()</scb>
+
+where is the **exit value** stored?
+
+- **nowhere**! 
+  - x86 xv6's <scb>exit(void)</scb> takes no argument
+- Linux (and newer **RISC-V xv6**) &rarr; keep it in PCB
+  - <scb>xstate</scb>
+
+---
+
+...and <scb>wait()</scb>
+
+---
+
+### <scb>xv6</scb> | <scb>wait()</scb>
 
 ```C
-for (;;) {
+for(;;){
   // Scan through table looking for exited children.
-  for (pp = proc; pp < &proc[NPROC]; pp++) {
-    if (pp->parent == p) {
+  havekids = 0;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->parent != curproc)
+      continue;
+    havekids = 1;
+    if(p->state == ZOMBIE){
+      // Found one.
+      pid = p->pid;
+      kfree(p->kstack);
       ...
-      if (pp->state == ZOMBIE) {
-        // Found one.
-        pid = pp->pid;
-        copyout(p->pagetable, ..., (char *)&pp->xstate, ...);
-        freeproc(pp);
-        ...
-        return pid;
-      }
+      freevm(p->pgdir);
+      ...
+      p->state = UNUSED;
+      release(&ptable.lock);
+      return pid;
     }
   }
   ...
-  // Wait for a child to exit.
-  sleep_prepare(p);
-  ...
-  sleep();
+  // Wait for children to exit.  (See wakeup1 call in proc_exit.)
+  sleep(curproc, &ptable.lock);
 }
 ```
 
 ---
 
-### <scb>xv6</scb> | <scb>kwait()</scb>
+### <scb>xv6</scb> | <scb>wait()</scb>
 
-```C [3-4|6|9|10|12|17-20]
-for (;;) {
+```C [4-6|8|11-13|15|17|22]
+for(;;){
   // Scan through table looking for exited children.
-  for (pp = proc; pp < &proc[NPROC]; pp++) {
-    if (pp->parent == p) {
+  havekids = 0;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->parent != curproc)
+      continue;
+    havekids = 1;
+    if(p->state == ZOMBIE){
+      // Found one.
+      pid = p->pid;
+      kfree(p->kstack);
       ...
-      if (pp->state == ZOMBIE) {
-        // Found one.
-        pid = pp->pid;
-        copyout(p->pagetable, ..., (char *)&pp->xstate, ...);
-        freeproc(pp);
-        ...
-        return pid;
-      }
+      freevm(p->pgdir);
+      ...
+      p->state = UNUSED;
+      release(&ptable.lock);
+      return pid;
     }
   }
   ...
-  // Wait for a child to exit.
-  sleep_prepare(p);
+  // Wait for children to exit.  (See wakeup1 call in proc_exit.)
+  sleep(curproc, &ptable.lock);
+}
+```
+---
+
+### <scb>xv6</scb> | <scb>wait()</scb>
+
+```C
+for(;;){
+  // Scan through table looking for exited children.
+  havekids = 0;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->parent != curproc)
+      continue;
+    havekids = 1;
+    if(p->state == ZOMBIE){
+      // Found one.
+      pid = p->pid;
+      kfree(p->kstack);
+      ...
+      freevm(p->pgdir);
+      ...
+      p->state = UNUSED;
+      release(&ptable.lock);
+      return pid;
+    }
+  }
   ...
-  sleep();
+  // Wait for children to exit.  (See wakeup1 call in proc_exit.)
+  sleep(curproc, &ptable.lock);
 }
 ```
 
 ---
 
-### <scb>xv6</scb> | <scb>kwait()</scb>
+### <scb>xv6</scb> | <scb>wait()</scb>
+
+---
+
+### <scb>xv6</scb> | <scb>wait()</scb>
 
 - scan **all** processes for my children
 
 ---
 
-### <scb>xv6</scb> | <scb>kwait()</scb>
+### <scb>xv6</scb> | <scb>wait()</scb>
 
-- scan **all** processes for my children
-- found a <scb>ZOMBIE</scb> &rarr; copy out <scb>xstate</scb>, **free** its PCB (reap)
+- scan **all** processes for **my** children
+- found a <scb>ZOMBIE</scb>!
 
 ---
 
-### <scb>xv6</scb> | <scb>kwait()</scb>
+### <scb>xv6</scb> | <scb>wait()</scb>
 
-- scan **all** processes for my children
-- found a <scb>ZOMBIE</scb> &rarr; copy out <scb>xstate</scb>, **free** its PCB (reap)
-- none yet &rarr; **sleep** until a child's <scb>kexit()</scb> wakes me
+- scan **all** processes for **my** children
+- found a <scb>ZOMBIE</scb>!
+  1. free its kernel stack + memory 
+  2. <scb>UNUSED</scb> (**reaped**)
+
+---
+
+### <scb>xv6</scb> | <scb>wait()</scb>
+
+- scan **all** processes for **my** children
+- found a <scb>ZOMBIE</scb>!
+  1. free its kernel stack + memory 
+  2. <scb>UNUSED</scb> (**reaped**)
+- no <scb>ZOMBIE</scb> found
+
+---
+
+### <scb>xv6</scb> | <scb>wait()</scb>
+
+- scan **all** processes for **my** children
+- found a <scb>ZOMBIE</scb>!
+  1. free its kernel stack + memory 
+  2. <scb>UNUSED</scb> (**reaped**)
+- no <scb>ZOMBIE</scb> found
+  1. **sleep** 
+  2. until a child's <scb>exit()</scb> wakes me
 
 ---
 
@@ -1803,7 +2572,15 @@ a **new** process state &rarr; <scb>zombie</scb>
 
 ---
 
-recall &rarr; <scb>enum procstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };</scb>
+### <scb>exit()</scb> | **zombies**
+
+a **new** process state &rarr; <scb>zombie</scb>
+
+```C
+enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+```
+
+recall &rarr; the <scb>xv6</scb> states (<scb>proc.h</scb>)
 
 ---
 
@@ -1835,17 +2612,43 @@ recall &rarr; <scb>enum procstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, Z
 - children that exit become **zombies**...
 - ...until the parent <scb>wait()</scb>s to **reap** them
 
+<br>
+<br>
+
+_someone had a grim sense of humor!_
+
 ---
 
-### <scb>exit()</scb> | **zombies**
+### <scb>exit()</scb> | **orphans**
 
-- parents <scb>fork()</scb> children...
-- ...can <scb>kill()</scb> them...
-- children that exit become **zombies**...
-- ...until the parent <scb>wait()</scb>s to **reap** them
-- parent dies first? &rarr; children become **orphans** &rarr; adopted by <scb>init</scb>
+what if the **parent** exits first?
 
-_someone had a grim sense of humor_
+---
+
+### <scb>exit()</scb> | **orphans**
+
+what if the **parent** exits first?
+
+- its children become **orphans**
+
+---
+
+### <scb>exit()</scb> | **orphans**
+
+what if the **parent** exits first?
+
+- its children become **orphans**
+- adopted by <scb>init</scb> <br> (<scb>p-&gt;parent = initproc</scb>)
+
+---
+
+### <scb>exit()</scb> | **orphans**
+
+what if the **parent** exits first?
+
+- its children become **orphans**
+- adopted by <scb>init</scb> <br> (<scb>p-&gt;parent = initproc</scb>)
+- <scb>init</scb>'s <scb>wait()</scb> loop reaps them &rarr; <scb>zombie!</scb>
 
 ---
 
@@ -1855,26 +2658,43 @@ _someone had a grim sense of humor_
 
 ### <scb>kill()</scb> | **send a signal**
 
-- <scb>kill()</scb> is **badly named** &rarr; it just sends a **signal**
-
 ---
 
 ### <scb>kill()</scb> | **send a signal**
 
 - <scb>kill()</scb> is **badly named** &rarr; it just sends a **signal**
-- a **signal** &rarr; notification of an **event**
-  - triggers execution in a **handler** function
-  - ...at **any time** (non-deterministic)
 
 ---
 
-which **stack** does the handler run on?
+### signals
+
+- **signal** &rarr; notification of an **event**
+  - triggers execution in a **handler** function
+  - ...at **any time** (non-deterministic)
+
+see [signal(7)](https://man7.org/linux/man-pages/man7/signal.7.html) for more details and examples
+
+---
+
+### signals
+
+<img src="./img/process_api/signal_handler9.png" height="800">
 
 ---
 
 ### signals | **user-level interrupts**
 
-process runs its normal flow, having registered a handler
+---
+
+### signals | **user-level interrupts**
+
+process runs its normal flow, having registered a "**handler**"
+
+---
+
+### signals | **user-level interrupts**
+
+process runs its normal flow, having registered a "**handler**"
 
 <img src="./img/process_api/signal_1.png" height="535">
 
@@ -1882,7 +2702,7 @@ process runs its normal flow, having registered a handler
 
 ### signals | **user-level interrupts**
 
-a signal arrives &rarr; execution **diverted** into the handler, at **any** point
+signal arrives &rarr; execution **diverted** into handler, at **any** point
 
 <img src="./img/process_api/signal_2.png" height="535">
 
@@ -1890,21 +2710,42 @@ a signal arrives &rarr; execution **diverted** into the handler, at **any** poin
 
 ### signals | **which stack?**
 
-- kernel **saves** the interrupted registers
+which **stack** does the handler run on?
 
 ---
 
 ### signals | **which stack?**
 
-- kernel **saves** the interrupted registers
-- builds a **signal frame** on the user stack (or an alternate stack, <scb>sigaltstack</scb>)
+which **stack** does the handler run on?
+
+- kernel **saves** interrupted registers
 
 ---
 
 ### signals | **which stack?**
 
-- kernel **saves** the interrupted registers
-- builds a **signal frame** on the user stack (or an alternate stack, <scb>sigaltstack</scb>)
+which **stack** does the handler run on?
+
+- kernel **saves** interrupted registers
+- builds a **signal frame** on user stack 
+
+---
+
+### signals | **which stack?**
+
+which **stack** does the handler run on?
+
+- kernel **saves** interrupted registers
+- builds a **signal frame** on user stack <br> (or an alternate stack, [<scb>sigaltstack</scb>](https://man7.org/linux/man-pages/man2/sigaltstack.2.html))
+
+---
+
+### signals | **which stack?**
+
+which **stack** does the handler run on?
+
+- kernel **saves** interrupted registers
+- builds a **signal frame** on user stack <br> (or an alternate stack, [<scb>sigaltstack</scb>](https://man7.org/linux/man-pages/man2/sigaltstack.2.html))
 - then "returns" into the **handler**
 
 Note:
@@ -1920,28 +2761,48 @@ handler returns &rarr; process resumes **right where it left off**
 
 ---
 
-returning from the handler &rarr; <scb>sigreturn</scb> restores the saved registers
+### signals | **user-level interrupts**
+
+handler returns &rarr; process resumes **right where it left off**
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/process_api/signal_3.png" height="340">
+
+</div>
+
+<div>
+
+- <scb>sigreturn</scb> &rarr; restores saved registers
+
+</div>
+</div>
 
 ---
 
 ### signals | **user-level interrupts**
 
-- signals = _"user-level interrupts"_
+- signals &rarr;  **"user-level interrupts"**
 
 ---
 
 ### signals | **user-level interrupts**
 
-- signals = _"user-level interrupts"_
-- the kernel's hard-to-use mechanism (interrupts)... **exported to user level**
+- signals &rarr;  **"user-level interrupts"**
+- kernel's hard-to-use mechanism (interrupts)
+  - **exported to user level**
 
 ---
 
 ### signals | **user-level interrupts**
 
-- signals = _"user-level interrupts"_
-- the kernel's hard-to-use mechanism (interrupts)... **exported to user level**
-- e.g. a user-level OS emulator can **fake** timer interrupts &rarr; periodic <scb>SIGALRM</scb>
+- signals &rarr;  **"user-level interrupts"**
+- kernel's hard-to-use mechanism (interrupts)
+  - **exported to user level**
+- _e.g._ user-level OS emulator 
+  - can **fake** timer interrupts
+  - periodic <scb>SIGALRM</scb>
 
 ---
 
@@ -2003,7 +2864,62 @@ or define your **own** handler (except for <scb>SIGKILL</scb>)
 
 - **polite** first &rarr; <scb>SIGTERM</scb> &rarr; process can clean up
 - doesn't exit? &rarr; follow up with <scb>SIGKILL</scb>
-- signals can go to any **descendant** (subject to permissions)
+- signals can go to any **descendant** <br> (subject to permissions)
+
+---
+
+### <scb>xv6</scb> | <scb>kill()</scb>
+
+does xv6 have signals?
+
+---
+
+### <scb>xv6</scb> | <scb>kill()</scb>
+
+does xv6 have signals? &rarr; **no**!
+
+```C [7|9]
+int
+kill(int pid)
+{
+  ...
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == pid){
+      p->killed = 1;
+      // Wake process from sleep if necessary.
+      if(p->state == SLEEPING)
+        p->state = RUNNABLE;
+      ...
+      return 0;
+    }
+  }
+  ...
+  return -1;
+}
+```
+
+---
+
+### <scb>xv6</scb> | <scb>kill()</scb>
+
+- just sets a **flag**: <scb>p-&gt;killed = 1</scb>
+
+---
+
+### <scb>xv6</scb> | <scb>kill()</scb>
+
+- just sets a **flag**: <scb>p-&gt;killed = 1</scb>
+- victim notices on next trip into kernel (<scb>trap.c</scb>) 
+- calls <scb>exit()</scb>
+
+---
+
+### <scb>xv6</scb> | <scb>kill()</scb>
+
+- just sets a **flag**: <scb>p-&gt;killed = 1</scb>
+- victim notices on next trip into kernel (<scb>trap.c</scb>) 
+- calls <scb>exit()</scb>
+- no handlers, no signal numbers &rarr; **only** "please die"
 
 ---
 
@@ -2022,6 +2938,13 @@ go from a single <scb>init</scb> process &rarr; up to a **full system**
 ### process API | **summary**
 
 - go from a single <scb>init</scb> &rarr; up to a **full system**
+- **coordinate** between processes
+|||
+| --- | --- |
+| <scb>fork</scb>, <scb>wait</scb>, signals | creation, interrupts |
+| shell | e.g. xv6's <scb>sh.c</scb> |
+| <scb>x11</scb> (gui) | visual shell <br> (double-click = fork + exec) |
+||
 
 ---
 
@@ -2029,26 +2952,18 @@ go from a single <scb>init</scb> process &rarr; up to a **full system**
 
 - go from a single <scb>init</scb> &rarr; up to a **full system**
 - **coordinate** between processes
-  - <scb>fork</scb>, <scb>wait</scb>, signals
-  - the **shell** &rarr; e.g. xv6's <scb>sh.c</scb>
-  - <scb>x11</scb> (GUI) &rarr; a **visual** shell (double-click = fork + exec)
-
----
-
-### process API | **summary**
-
-- go from a single <scb>init</scb> &rarr; up to a **full system**
-- **coordinate** between processes
-  - <scb>fork</scb>, <scb>wait</scb>, signals
-  - the **shell** &rarr; e.g. xv6's <scb>sh.c</scb>
-  - <scb>x11</scb> (GUI) &rarr; a **visual** shell (double-click = fork + exec)
 - process **management**
-  - clean up failed processes &rarr; reap zombies, **restart** a crashed server (like <scb>init</scb>!)
-  - define coordination patterns
+|||
+| --- | --- |
+| clean up failed processes | reap zombies <br>**restart** crashed server (<scb>init</scb>!) |
+| define coordination patterns |? |
+||
+
+---
 
 <br>
 
-**next class** &rarr; communication between processes (IPC)
+**next topic** &rarr; communication between processes (IPC)
                     </textarea>
                 </section>
             </div>
