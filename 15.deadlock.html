@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        
+            <link rel="icon" href="assets/sibin.integral.favicon.ico">
+        
+
+        <link rel="stylesheet" href="assets/reveal-js/dist/reveal.css" />
+
+        
+            <link rel="stylesheet" href="assets/custom.sibin.css" />
+        
+        
+            <link rel="stylesheet" href="assets/monokai.css" />
+        
+
+        
+            
+        
+            
+        
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section data-markdown
+                
+                    data-separator="^\s*---\s*$"
+                
+                    data-separator-vertical="^\s*-v-\s*$"
+                
+                    data-separator-notes="^Notes?:"
+                
+                    data-charset="utf-8"
+                
+                    data-auto-animate="True"
+                
+                >
+                    <textarea data-template>
+                        ## **deadlock**
+
+##  **operating systems**
+### csci 3411
+### Prof. **Sibin Mohan**
+
+<br>
+
+_<font size="5"> acknowledgments: some content modified from Silberschatz et al. and West</font>_
+
+---
+
+so far we've seen...
+
+---
+
+|||
+| --- | --- |
+| **race conditions** | &rarr; critical sections |
+
+---
+
+|||
+| --- | --- |
+| **race conditions** | &rarr; critical sections |
+| **locks**, **condition variables** | &rarr; easier abstractions |
+
+---
+
+|||
+| --- | --- |
+| **race conditions** | &rarr; critical sections |
+| **locks**, **condition variables** | &rarr; easier abstractions |
+| **fine-grained** locking | &rarr; more parallelism... more **danger** |
+||
+
+---
+
+today &rarr; yet another way synchronization goes **wrong**!
+
+---
+
+## deadlock
+
+---
+
+- a set of **blocked** processes, each
+    - **holds** a resource <br> [critical section, device, memory]
+    - **waits** to acquire a resource held by **another** process in the set
+
+---
+
+a set of **blocked** processes, each **holds** a resource and **waits** for another's
+
+- **starvation** on **all** associated resources
+
+---
+
+a set of **blocked** processes, each **holds** a resource and **waits** for another's
+
+- **starvation** on **all** associated resources
+- result &rarr; lots of threads, **<font color="darkred">zero progress</font>**!
+
+---
+
+### two threads, two locks
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/deadlock/card_two_threads.png" height="260">
+
+</div>
+
+<div>
+
+|||
+| --- | --- |
+| thread 1 | <scb>s1</scb> then <scb>s2</scb> |
+| thread 2 | <scb>s2</scb> then <scb>s1</scb> |
+| run **concurrently** | what can go wrong? |
+||
+
+</div>
+</div>
+
+---
+
+### two threads, two locks
+
+<img src="./img/deadlock/lock_order_1.png" height="460">
+
+---
+
+### two threads, two locks
+
+<scb>T1</scb> takes <scb>s1</scb>, <scb>T2</scb> takes <scb>s2</scb>
+
+<img src="./img/deadlock/lock_order_2.png" height="460">
+
+---
+
+### two threads, two locks
+
+each now waits for the lock the **other** holds
+
+<img src="./img/deadlock/lock_order_3.png" height="460">
+
+---
+
+### two threads, two locks
+
+## **deadlock!**
+
+---
+
+let's look at a `code` example using <scb>pthreads</scb> (Linux)
+
+---
+
+```C
+#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
+
+pthread_mutex_t s1 = PTHREAD_MUTEX_INITIALIZER;   // "red" lock
+pthread_mutex_t s2 = PTHREAD_MUTEX_INITIALIZER;   // "blue" lock
+
+void *thread1(void *arg) {
+    pthread_mutex_lock(&s1);
+    usleep(1000);                  // widen the window: let thread 2 run
+    pthread_mutex_lock(&s2);       // waits for thread 2...
+    printf("thread 1: processing\n");
+    pthread_mutex_unlock(&s2);
+    pthread_mutex_unlock(&s1);
+    return NULL;
+}
+
+void *thread2(void *arg) {
+    pthread_mutex_lock(&s2);       // opposite order!
+    usleep(1000);
+    pthread_mutex_lock(&s1);       // waits for thread 1...
+    printf("thread 2: processing\n");
+    pthread_mutex_unlock(&s1);
+    pthread_mutex_unlock(&s2);
+    return NULL;
+}
+
+int main(void) {
+    pthread_t t1, t2;
+    pthread_create(&t1, NULL, thread1, NULL);
+    pthread_create(&t2, NULL, thread2, NULL);
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+    printf("done\n");
+    return 0;
+}
+```
+
+---
+
+```C [5-6|8-9|10|11|18-19|21|32-34]
+#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
+
+pthread_mutex_t s1 = PTHREAD_MUTEX_INITIALIZER;   // "red" lock
+pthread_mutex_t s2 = PTHREAD_MUTEX_INITIALIZER;   // "blue" lock
+
+void *thread1(void *arg) {
+    pthread_mutex_lock(&s1);
+    usleep(1000);                  // widen the window: let thread 2 run
+    pthread_mutex_lock(&s2);       // waits for thread 2...
+    printf("thread 1: processing\n");
+    pthread_mutex_unlock(&s2);
+    pthread_mutex_unlock(&s1);
+    return NULL;
+}
+
+void *thread2(void *arg) {
+    pthread_mutex_lock(&s2);       // opposite order!
+    usleep(1000);
+    pthread_mutex_lock(&s1);       // waits for thread 1...
+    printf("thread 2: processing\n");
+    pthread_mutex_unlock(&s1);
+    pthread_mutex_unlock(&s2);
+    return NULL;
+}
+
+int main(void) {
+    pthread_t t1, t2;
+    pthread_create(&t1, NULL, thread1, NULL);
+    pthread_create(&t2, NULL, thread2, NULL);
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+    printf("done\n");
+    return 0;
+}
+```
+
+---
+
+```C
+#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
+
+pthread_mutex_t s1 = PTHREAD_MUTEX_INITIALIZER;   // "red" lock
+pthread_mutex_t s2 = PTHREAD_MUTEX_INITIALIZER;   // "blue" lock
+
+void *thread1(void *arg) {
+    pthread_mutex_lock(&s1);
+    usleep(1000);                  // widen the window: let thread 2 run
+    pthread_mutex_lock(&s2);       // waits for thread 2...
+    printf("thread 1: processing\n");
+    pthread_mutex_unlock(&s2);
+    pthread_mutex_unlock(&s1);
+    return NULL;
+}
+
+void *thread2(void *arg) {
+    pthread_mutex_lock(&s2);       // opposite order!
+    usleep(1000);
+    pthread_mutex_lock(&s1);       // waits for thread 1...
+    printf("thread 2: processing\n");
+    pthread_mutex_unlock(&s1);
+    pthread_mutex_unlock(&s2);
+    return NULL;
+}
+
+int main(void) {
+    pthread_t t1, t2;
+    pthread_create(&t1, NULL, thread1, NULL);
+    pthread_create(&t2, NULL, thread2, NULL);
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+    printf("done\n");
+    return 0;
+}
+```
+
+---
+
+what does it print?
+
+---
+
+### deadlock | **output**
+
+```
+$ gcc -pthread -o deadlock_demo deadlock_demo.c
+$ timeout 3 ./deadlock_demo
+$ echo $?
+124
+```
+
+**nothing**! killed by <scb>timeout</scb> after <scb>3</scb> s &rarr; exit status <scb>124</scb>
+
+Note:
+- actual runs: 3 of 3 hung. usleep(1000) widens the window; without it the deadlock is rarer, not impossible.
+
+---
+
+## deadlock | **doubly linked list**
+
+---
+
+### doubly linked list | **why?**
+
+- <scb>O(1)</scb> removal &rarr; **doubly** linked lists
+
+---
+
+### doubly linked list | **why?**
+
+- <scb>O(1)</scb> removal &rarr; **doubly** linked lists
+- one object on **many** lists <br> [hash chain, LRU list, run/wait queues...]
+
+---
+
+### doubly linked list | **why?**
+
+- <scb>O(1)</scb> removal &rarr; **doubly** linked lists
+- one object on **many** lists <br> [hash chain, LRU list, run/wait queues...]
+- remove a node &rarr; fix **prev** and **next** pointers
+
+---
+
+### doubly linked list | **removal**
+
+| thread | removes | takes locks |
+|---|---|---|
+| <scb>T1</scb> [**<font color="blue">blue</font>**] | <scb>B</scb> | <scb>B</scb> &rarr; <scb>A</scb> (prev) &rarr; <scb>C</scb> (next) |
+
+---
+
+### doubly linked list | **removal**
+
+| thread | removes | takes locks |
+|---|---|---|
+| <scb>T1</scb> [**<font color="blue">blue</font>**] | <scb>B</scb> | <scb>B</scb> &rarr; <scb>A</scb> (prev) &rarr; <scb>C</scb> (next) |
+| <scb>T2</scb> [**<font color="red">red</font>**] | <scb>C</scb> | <scb>C</scb> &rarr; <scb>B</scb> (prev) &rarr; <scb>D</scb> (next) |
+||
+
+---
+
+### doubly linked list | **removal**
+
+1. adjacent nodes, one lock each
+
+<img src="./img/deadlock/dll_1.png" height="540">
+
+---
+
+### doubly linked list | **removal**
+
+2. each thread locks its **own** node
+
+<img src="./img/deadlock/dll_2.png" height="540">
+
+---
+
+### doubly linked list | **removal**
+
+3. <scb>T1</scb> locks <scb>A</scb>... then **blocks** on <scb>C</scb>
+
+<img src="./img/deadlock/dll_3.png" height="540">
+
+---
+
+### doubly linked list | **removal**
+
+4. <scb>T2</scb> **blocks** on <scb>B</scb> &rarr; deadlock!
+
+<img src="./img/deadlock/dll_4.png" height="540">
+
+---
+
+**observation** &rarr; the **<font color="darkred">order</font>** of lock acquisition **matters**!
+
+---
+
+### deadlock | **questions**
+
+1. can we **understand** which orders are dangerous?
+
+---
+
+### deadlock | **questions**
+
+1. can we **understand** which orders are dangerous?
+2. can we **prevent** or **avoid** deadlocks?
+
+---
+
+## traffic and **resource contention**
+
+---
+
+### traffic | **resource contention**
+
+four one-way roads, traffic flowing
+
+<img src="./img/deadlock/traffic_1.png" height="600">
+
+---
+
+### traffic | **resource contention**
+
+intersections &rarr; **contended resources**
+
+<img src="./img/deadlock/traffic_2.png" height="600">
+
+---
+
+### traffic | **resource contention**
+
+<scb>F1</scb> gets **both** top intersections &rarr; flows through
+
+<img src="./img/deadlock/traffic_3.png" height="600">
+
+---
+
+### traffic | **resource contention**
+
+each flow holds **one** intersection, waits for the **next**
+
+<img src="./img/deadlock/traffic_4.png" height="600">
+
+---
+
+### traffic | **resource contention**
+
+## **gridlock!**
+
+---
+
+### traffic | **resource contention**
+
+- humans are **adaptive** &rarr; squeeze through, eventually
+
+---
+
+### traffic | **resource contention**
+
+- humans are **adaptive** &rarr; squeeze through, eventually
+- computers are **not** &rarr; we must design for it
+
+---
+
+## system **model**
+
+---
+
+### system model
+
+|  |  | examples |
+|---|---|---|
+| resource **types** | <scb>R1</scb>, <scb>R2</scb>, <scb>R3</scb>, … | CPU, devices, memory, data structures |
+
+---
+
+### system model
+
+|  |  | examples |
+|---|---|---|
+| resource **types** | <scb>R1</scb>, <scb>R2</scb>, <scb>R3</scb>, … | CPU, devices, memory, data structures |
+| **instances** | type <scb>Ri</scb> has <scb>Wi</scb> instances | bytes of memory, multiple CPUs, counting semaphore |
+||
+
+---
+
+### system model | **using a resource**
+
+| step | lock | memory |
+|---|---|---|
+| <scb>request()</scb> | <scb>lock()</scb> | <scb>malloc()</scb> |
+
+---
+
+### system model | **using a resource**
+
+| step | lock | memory |
+|---|---|---|
+| <scb>request()</scb> | <scb>lock()</scb> | <scb>malloc()</scb> |
+| <scb>use()</scb> | critical section | read/write it |
+
+---
+
+### system model | **using a resource**
+
+| step | lock | memory |
+|---|---|---|
+| <scb>request()</scb> | <scb>lock()</scb> | <scb>malloc()</scb> |
+| <scb>use()</scb> | critical section | read/write it |
+| <scb>release()</scb> | <scb>unlock()</scb> | <scb>free()</scb> |
+||
+
+---
+
+## deadlock | **four conditions**
+
+---
+
+deadlock **<font color="darkred">can</font>** arise if **four** conditions hold **simultaneously**
+
+---
+
+### four conditions
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/deadlock/card_locks.png" height="330">
+
+</div>
+
+<div>
+
+|||
+| --- | --- |
+| 1. **mutual exclusion** | only **one** process at a time uses a resource |
+
+</div>
+</div>
+
+---
+
+### four conditions
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/deadlock/card_locks.png" height="330">
+
+</div>
+
+<div>
+
+|||
+| --- | --- |
+| 1. **mutual exclusion** | only **one** process at a time uses a resource |
+| 2. **hold and wait** | holding **one** resource, waiting for **another** |
+
+</div>
+</div>
+
+---
+
+### four conditions
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/deadlock/card_locks.png" height="330">
+
+</div>
+
+<div>
+
+|||
+| --- | --- |
+| 1. **mutual exclusion** | only **one** process at a time uses a resource |
+| 2. **hold and wait** | holding **one** resource, waiting for **another** |
+| 3. **no preemption** | released only **voluntarily**, after use |
+
+</div>
+</div>
+
+---
+
+### four conditions
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/deadlock/card_locks.png" height="330">
+
+</div>
+
+<div>
+
+|||
+| --- | --- |
+| 1. **mutual exclusion** | only **one** process at a time uses a resource |
+| 2. **hold and wait** | holding **one** resource, waiting for **another** |
+| 3. **no preemption** | released only **voluntarily**, after use |
+| 4. **circular wait** | <scb>P0</scb> waits for <scb>P1</scb>, <scb>P1</scb> for <scb>P2</scb>, …, <scb>Pn</scb> for <scb>P0</scb> |
+||
+
+</div>
+</div>
+
+---
+
+### four conditions
+
+all four hold &rarr; deadlock **guaranteed**?
+
+---
+
+### four conditions
+
+all four hold &rarr; deadlock **guaranteed**?
+
+<br>
+<br>
+
+## **no!**
+
+- "**can**" &rarr; it depends on the **interleaving**
+- like race conditions &rarr; **rare**, hard to test and debug!
+
+---
+
+## resource allocation **graph**
+
+---
+
+### resource allocation graph
+
+- <scb>G = (V, E)</scb>
+
+---
+
+### resource allocation graph
+
+- <scb>G = (V, E)</scb>
+- two types of vertices
+    - **processes** <scb>P = {P0, P1, …, Pn}</scb>
+    - **resource types** <scb>R = {R1, R2, …, Rm}</scb>
+
+---
+
+### resource allocation graph | **edges**
+
+| edge | direction | means |
+|---|---|---|
+| **request** | <scb>Pi &rarr; Rj</scb> | <scb>Pi</scb> asked, is **waiting** <br> [<scb>lock()</scb>, <scb>malloc()</scb> called] |
+
+---
+
+### resource allocation graph | **edges**
+
+| edge | direction | means |
+|---|---|---|
+| **request** | <scb>Pi &rarr; Rj</scb> | <scb>Pi</scb> asked, is **waiting** <br> [<scb>lock()</scb>, <scb>malloc()</scb> called] |
+| **assignment** | <scb>Rj &rarr; Pi</scb> | <scb>Pi</scb> **holds** one instance <br> [<scb>lock()</scb>, <scb>malloc()</scb> returned] |
+||
+
+---
+
+### resource allocation graph | **notation**
+
+<img src="./img/deadlock/rag_legend.png" height="560">
+
+---
+
+### resource allocation graph | **traffic**
+
+the gridlock... as a graph
+
+<img src="./img/deadlock/traffic_rag.png" height="600">
+
+---
+
+### resource allocation graph | **traffic**
+
+the gridlock... as a graph
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/deadlock/traffic_rag.png" height="400">
+
+</div>
+
+<div>
+
+- every flow **holds** one intersection
+- ...and **requests** the next
+- &rarr; a **cycle**!
+
+</div>
+</div>
+
+---
+
+is there a deadlock?
+
+---
+
+### resource allocation graph | **example I**
+
+is there a deadlock?
+
+<img src="./img/deadlock/rag_ex1.png" height="580">
+
+---
+
+### resource allocation graph | **example I**
+
+is there a deadlock?
+
+---
+
+### resource allocation graph | **example I**
+
+is there a deadlock?
+
+<br>
+<br>
+
+## **no!**
+
+- <scb>P2</scb> isn't waiting &rarr; it can release <scb>Rb</scb>
+- then <scb>P1</scb> runs, releases... no cycle
+
+---
+
+### resource allocation graph | **example II**
+
+add **one** edge: <scb>P2</scb> requests <scb>Rc</scb>
+
+<img src="./img/deadlock/rag_ex2.png" height="580">
+
+---
+
+### resource allocation graph | **example II**
+
+is there a deadlock?
+
+<img src="./img/deadlock/rag_ex2_cycle.png" height="580">
+
+---
+
+### resource allocation graph | **example II**
+
+- ## **yes!**
+
+---
+
+### resource allocation graph | **example II**
+
+- ## **yes!**
+- <scb>P0</scb> &rarr; <scb>Ra</scb> &rarr; <scb>P1</scb> &rarr; <scb>Rb</scb> &rarr; <scb>P2</scb> &rarr; <scb>Rc</scb> &rarr; <scb>P0</scb>, <scb>P1</scb>
+
+---
+
+### resource allocation graph | **example II**
+
+- ## **yes!**
+- <scb>P0</scb> &rarr; <scb>Ra</scb> &rarr; <scb>P1</scb> &rarr; <scb>Rb</scb> &rarr; <scb>P2</scb> &rarr; <scb>Rc</scb> &rarr; <scb>P0</scb>, <scb>P1</scb>
+- both <scb>Rc</scb> instances held by **waiting** processes
+
+---
+
+### resource allocation graph | **example III**
+
+is there a deadlock?
+
+<img src="./img/deadlock/rag_ex3.png" height="580">
+
+---
+
+### resource allocation graph | **example III**
+
+a cycle: <scb>P0</scb> &rarr; <scb>Ra</scb> &rarr; <scb>P1</scb> &rarr; <scb>Rc</scb> &rarr; <scb>P0</scb>...
+
+<img src="./img/deadlock/rag_ex3_why.png" height="580">
+
+---
+
+### resource allocation graph | **example III**
+
+- ## **no!**
+
+---
+
+### resource allocation graph | **example III**
+
+- ## **no!**
+- <scb>P2</scb> holds the **other** <scb>Rc</scb> instance, isn't waiting
+
+---
+
+### resource allocation graph | **example III**
+
+- ## **no!**
+- <scb>P2</scb> holds the **other** <scb>Rc</scb> instance, isn't waiting
+- <scb>P2</scb> releases &rarr; <scb>P1</scb> gets <scb>Rc</scb> &rarr; ... &rarr; <scb>P0</scb>
+
+---
+
+### resource allocation graph | **rules**
+
+| graph | deadlock? |
+|---|---|
+| **no** cycle | **no** deadlock |
+
+---
+
+### resource allocation graph | **rules**
+
+| graph | deadlock? |
+|---|---|
+| **no** cycle | **no** deadlock |
+| cycle, **one** instance per type | **deadlock**! |
+
+---
+
+### resource allocation graph | **rules**
+
+| graph | deadlock? |
+|---|---|
+| **no** cycle | **no** deadlock |
+| cycle, **one** instance per type | **deadlock**! |
+| cycle, **several** instances per type | **possible**, not certain |
+||
+
+---
+
+## handling **deadlocks**
+
+---
+
+### handling deadlocks
+
+| approach | when | how |
+|---|---|---|
+| **prevention** | design time | make one of the **4 conditions** impossible |
+
+---
+
+### handling deadlocks
+
+| approach | when | how |
+|---|---|---|
+| **prevention** | design time | make one of the **4 conditions** impossible |
+| **avoidance** | run time | refuse **unsafe** allocations |
+
+---
+
+### handling deadlocks
+
+| approach | when | how |
+|---|---|---|
+| **prevention** | design time | make one of the **4 conditions** impossible |
+| **avoidance** | run time | refuse **unsafe** allocations |
+| **detection + recovery** | after the fact | find cycles, **kill** someone |
+
+---
+
+### handling deadlocks
+
+| approach | when | how |
+|---|---|---|
+| **prevention** | design time | make one of the **4 conditions** impossible |
+| **avoidance** | run time | refuse **unsafe** allocations |
+| **detection + recovery** | after the fact | find cycles, **kill** someone |
+| **ignorance** | never | luck... and crossed fingers |
+||
+
+[most systems &rarr; ad hoc **prevention** + ignorance!]
+
+---
+
+_e.g.,_ Windows 95/98 &rarr; frequent lock-ups... many were deadlocks
+
+---
+
+## deadlock | **prevention**
+
+---
+
+prevent **any one** of the four conditions!
+
+---
+
+### prevention | **per condition**
+
+| condition | prevent it? |
+|---|---|
+| **mutual exclusion** | can't compromise &rarr; some resources **need** it |
+
+---
+
+### prevention | **per condition**
+
+| condition | prevent it? |
+|---|---|
+| **mutual exclusion** | can't compromise &rarr; some resources **need** it |
+| **hold and wait** | request **all** resources at once <br> [taking all, or none] |
+
+---
+
+### prevention | **per condition**
+
+| condition | prevent it? |
+|---|---|
+| **mutual exclusion** | can't compromise &rarr; some resources **need** it |
+| **hold and wait** | request **all** resources at once <br> [taking all, or none] |
+| **no preemption** | can't get the next one? &rarr; **release** all, retry |
+
+---
+
+### prevention | **per condition**
+
+| condition | prevent it? |
+|---|---|
+| **mutual exclusion** | can't compromise &rarr; some resources **need** it |
+| **hold and wait** | request **all** resources at once <br> [taking all, or none] |
+| **no preemption** | can't get the next one? &rarr; **release** all, retry |
+| **circular wait** | impose a **total order** on resources |
+||
+
+---
+
+### prevention | **hold and wait**
+
+- "take everything at once" &rarr; one **coarse** lock
+
+---
+
+### prevention | **hold and wait**
+
+- "take everything at once" &rarr; one **coarse** lock
+- but...
+    - **low** resource utilization
+    - **starvation** possible
+    - applies to memory too &rarr; allocate **all** of it up front!
+
+---
+
+### prevention | **no preemption**
+
+- take locks one by one with **try-lock**
+
+---
+
+### prevention | **no preemption**
+
+- take locks one by one with **try-lock**
+- busy? &rarr; **release** everything, try again
+
+---
+
+### prevention | **no preemption**
+
+- take locks one by one with **try-lock**
+- busy? &rarr; **release** everything, try again
+- [similar idea &rarr; **optimistic concurrency** in databases]
+
+---
+
+let's look at a `code` example using <scb>pthread_mutex_trylock</scb>
+
+---
+
+```C
+#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
+
+pthread_mutex_t s1 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t s2 = PTHREAD_MUTEX_INITIALIZER;
+int retries[2];
+
+/* take `first` then `second`; if `second` is busy, release `first` and retry */
+void lock_both(pthread_mutex_t *first, pthread_mutex_t *second, int id) {
+    while (1) {
+        pthread_mutex_lock(first);
+        usleep(1000);                      // same window as deadlock_demo.c
+        if (pthread_mutex_trylock(second) == 0)
+            return;                        // got both!
+        pthread_mutex_unlock(first);       // "preempt" ourselves
+        retries[id]++;
+        usleep(100);                       // back off, try again
+    }
+}
+
+void *thread1(void *arg) {
+    lock_both(&s1, &s2, 0);
+    usleep(1000);
+    printf("thread 1: processing\n");
+    pthread_mutex_unlock(&s2);
+    pthread_mutex_unlock(&s1);
+    return NULL;
+}
+
+void *thread2(void *arg) {
+    lock_both(&s2, &s1, 1);                // opposite order... but no deadlock
+    usleep(1000);
+    printf("thread 2: processing\n");
+    pthread_mutex_unlock(&s1);
+    pthread_mutex_unlock(&s2);
+    return NULL;
+}
+
+int main(void) {
+    pthread_t t1, t2;
+    pthread_create(&t1, NULL, thread1, NULL);
+    pthread_create(&t2, NULL, thread2, NULL);
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+    printf("done (retries: %d, %d)\n", retries[0], retries[1]);
+    return 0;
+}
+```
+
+---
+
+```C [10|12|13|14-15|16-18|23|32]
+#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
+
+pthread_mutex_t s1 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t s2 = PTHREAD_MUTEX_INITIALIZER;
+int retries[2];
+
+/* take `first` then `second`; if `second` is busy, release `first` and retry */
+void lock_both(pthread_mutex_t *first, pthread_mutex_t *second, int id) {
+    while (1) {
+        pthread_mutex_lock(first);
+        usleep(1000);                      // same window as deadlock_demo.c
+        if (pthread_mutex_trylock(second) == 0)
+            return;                        // got both!
+        pthread_mutex_unlock(first);       // "preempt" ourselves
+        retries[id]++;
+        usleep(100);                       // back off, try again
+    }
+}
+
+void *thread1(void *arg) {
+    lock_both(&s1, &s2, 0);
+    usleep(1000);
+    printf("thread 1: processing\n");
+    pthread_mutex_unlock(&s2);
+    pthread_mutex_unlock(&s1);
+    return NULL;
+}
+
+void *thread2(void *arg) {
+    lock_both(&s2, &s1, 1);                // opposite order... but no deadlock
+    usleep(1000);
+    printf("thread 2: processing\n");
+    pthread_mutex_unlock(&s1);
+    pthread_mutex_unlock(&s2);
+    return NULL;
+}
+
+int main(void) {
+    pthread_t t1, t2;
+    pthread_create(&t1, NULL, thread1, NULL);
+    pthread_create(&t2, NULL, thread2, NULL);
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+    printf("done (retries: %d, %d)\n", retries[0], retries[1]);
+    return 0;
+}
+```
+
+---
+
+```C
+#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
+
+pthread_mutex_t s1 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t s2 = PTHREAD_MUTEX_INITIALIZER;
+int retries[2];
+
+/* take `first` then `second`; if `second` is busy, release `first` and retry */
+void lock_both(pthread_mutex_t *first, pthread_mutex_t *second, int id) {
+    while (1) {
+        pthread_mutex_lock(first);
+        usleep(1000);                      // same window as deadlock_demo.c
+        if (pthread_mutex_trylock(second) == 0)
+            return;                        // got both!
+        pthread_mutex_unlock(first);       // "preempt" ourselves
+        retries[id]++;
+        usleep(100);                       // back off, try again
+    }
+}
+
+void *thread1(void *arg) {
+    lock_both(&s1, &s2, 0);
+    usleep(1000);
+    printf("thread 1: processing\n");
+    pthread_mutex_unlock(&s2);
+    pthread_mutex_unlock(&s1);
+    return NULL;
+}
+
+void *thread2(void *arg) {
+    lock_both(&s2, &s1, 1);                // opposite order... but no deadlock
+    usleep(1000);
+    printf("thread 2: processing\n");
+    pthread_mutex_unlock(&s1);
+    pthread_mutex_unlock(&s2);
+    return NULL;
+}
+
+int main(void) {
+    pthread_t t1, t2;
+    pthread_create(&t1, NULL, thread1, NULL);
+    pthread_create(&t2, NULL, thread2, NULL);
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+    printf("done (retries: %d, %d)\n", retries[0], retries[1]);
+    return 0;
+}
+```
+
+---
+
+### prevention | **try-lock**
+
+```
+$ ./trylock_backoff
+thread 1: processing
+thread 2: processing
+done (retries: 1, 0)
+```
+
+opposite lock orders... **no** deadlock &rarr; thread 1 backed off once
+
+Note:
+- actual runs: 4 of 4 finished with retries (1, 0). see pthread_mutex_trylock(3p).
+
+---
+
+### prevention | **try-lock**
+
+[see [pthread_mutex_trylock(3p)](https://man7.org/linux/man-pages/man3/pthread_mutex_trylock.3p.html)]
+
+---
+
+## prevention | **lock ordering**
+
+---
+
+- **total order** on resources &rarr; always take locks in the **same** order
+
+---
+
+- **total order** on resources &rarr; always take locks in the **same** order
+- the **most common** prevention technique!
+
+---
+
+### lock ordering | **fixed**
+
+```C
+#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
+
+pthread_mutex_t s1 = PTHREAD_MUTEX_INITIALIZER;   // "red" lock
+pthread_mutex_t s2 = PTHREAD_MUTEX_INITIALIZER;   // "blue" lock
+
+void *thread1(void *arg) {
+    pthread_mutex_lock(&s1);
+    usleep(1000);                  // widen the window: let thread 2 run
+    pthread_mutex_lock(&s2);       // waits for thread 2...
+    printf("thread 1: processing\n");
+    pthread_mutex_unlock(&s2);
+    pthread_mutex_unlock(&s1);
+    return NULL;
+}
+
+void *thread2(void *arg) {
+    pthread_mutex_lock(&s1);       // same order as thread 1
+    usleep(1000);
+    pthread_mutex_lock(&s2);
+    printf("thread 2: processing\n");
+    pthread_mutex_unlock(&s2);
+    pthread_mutex_unlock(&s1);
+    return NULL;
+}
+
+int main(void) {
+    pthread_t t1, t2;
+    pthread_create(&t1, NULL, thread1, NULL);
+    pthread_create(&t2, NULL, thread2, NULL);
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+    printf("done\n");
+    return 0;
+}
+```
+
+---
+
+### lock ordering | **fixed**
+
+```C [8-11|18-19|22]
+#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
+
+pthread_mutex_t s1 = PTHREAD_MUTEX_INITIALIZER;   // "red" lock
+pthread_mutex_t s2 = PTHREAD_MUTEX_INITIALIZER;   // "blue" lock
+
+void *thread1(void *arg) {
+    pthread_mutex_lock(&s1);
+    usleep(1000);                  // widen the window: let thread 2 run
+    pthread_mutex_lock(&s2);       // waits for thread 2...
+    printf("thread 1: processing\n");
+    pthread_mutex_unlock(&s2);
+    pthread_mutex_unlock(&s1);
+    return NULL;
+}
+
+void *thread2(void *arg) {
+    pthread_mutex_lock(&s1);       // same order as thread 1
+    usleep(1000);
+    pthread_mutex_lock(&s2);
+    printf("thread 2: processing\n");
+    pthread_mutex_unlock(&s2);
+    pthread_mutex_unlock(&s1);
+    return NULL;
+}
+
+int main(void) {
+    pthread_t t1, t2;
+    pthread_create(&t1, NULL, thread1, NULL);
+    pthread_create(&t2, NULL, thread2, NULL);
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+    printf("done\n");
+    return 0;
+}
+```
+
+---
+
+### lock ordering | **fixed**
+
+```C
+#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
+
+pthread_mutex_t s1 = PTHREAD_MUTEX_INITIALIZER;   // "red" lock
+pthread_mutex_t s2 = PTHREAD_MUTEX_INITIALIZER;   // "blue" lock
+
+void *thread1(void *arg) {
+    pthread_mutex_lock(&s1);
+    usleep(1000);                  // widen the window: let thread 2 run
+    pthread_mutex_lock(&s2);       // waits for thread 2...
+    printf("thread 1: processing\n");
+    pthread_mutex_unlock(&s2);
+    pthread_mutex_unlock(&s1);
+    return NULL;
+}
+
+void *thread2(void *arg) {
+    pthread_mutex_lock(&s1);       // same order as thread 1
+    usleep(1000);
+    pthread_mutex_lock(&s2);
+    printf("thread 2: processing\n");
+    pthread_mutex_unlock(&s2);
+    pthread_mutex_unlock(&s1);
+    return NULL;
+}
+
+int main(void) {
+    pthread_t t1, t2;
+    pthread_create(&t1, NULL, thread1, NULL);
+    pthread_create(&t2, NULL, thread2, NULL);
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+    printf("done\n");
+    return 0;
+}
+```
+
+---
+
+### lock ordering | **runs**
+
+| program | 3 runs |
+|---|---|
+| <scb>deadlock_demo</scb> | hung **3**/**3** &rarr; exit <scb>124</scb> |
+
+---
+
+### lock ordering | **runs**
+
+| program | 3 runs |
+|---|---|
+| <scb>deadlock_demo</scb> | hung **3**/**3** &rarr; exit <scb>124</scb> |
+| <scb>lock_order_fixed</scb> | finished **3**/**3** &rarr; <scb>done</scb> |
+||
+
+---
+
+doubly linked list? &rarr; **hand-over-hand** locking enforces an order!
+
+---
+
+let's look at <scb>xv6</scb>... path lookup [<scb>fs.c</scb>]
+
+---
+
+### <scb>xv6</scb> | <scb>namex()</scb>
+
+```C
+  while((path = skipelem(path, name)) != 0){
+    ilock(ip);
+    if(ip->type != T_DIR){
+      iunlockput(ip);
+      return 0;
+    }
+    ...
+    if((next = dirlookup(ip, name, 0)) == 0){
+      iunlockput(ip);
+      return 0;
+    }
+    iunlockput(ip);
+    ip = next;
+  }
+```
+
+---
+
+### <scb>xv6</scb> | <scb>namex()</scb>
+
+```C [2|3-6|8-11|12|13]
+  while((path = skipelem(path, name)) != 0){
+    ilock(ip);
+    if(ip->type != T_DIR){
+      iunlockput(ip);
+      return 0;
+    }
+    ...
+    if((next = dirlookup(ip, name, 0)) == 0){
+      iunlockput(ip);
+      return 0;
+    }
+    iunlockput(ip);
+    ip = next;
+  }
+```
+
+---
+
+### <scb>xv6</scb> | <scb>namex()</scb>
+
+```C
+  while((path = skipelem(path, name)) != 0){
+    ilock(ip);
+    if(ip->type != T_DIR){
+      iunlockput(ip);
+      return 0;
+    }
+    ...
+    if((next = dirlookup(ip, name, 0)) == 0){
+      iunlockput(ip);
+      return 0;
+    }
+    iunlockput(ip);
+    ip = next;
+  }
+```
+
+---
+
+### <scb>xv6</scb> | <scb>namex()</scb>
+
+- lock directory <scb>ip</scb>, look up <scb>next</scb>
+
+---
+
+### <scb>xv6</scb> | <scb>namex()</scb>
+
+- lock directory <scb>ip</scb>, look up <scb>next</scb>
+- **unlock** <scb>ip</scb> **before** locking <scb>next</scb>
+
+---
+
+### <scb>xv6</scb> | <scb>namex()</scb>
+
+- lock directory <scb>ip</scb>, look up <scb>next</scb>
+- **unlock** <scb>ip</scb> **before** locking <scb>next</scb>
+- never hold **two** inode locks &rarr; no lock-order cycle <br> [<scb>".."</scb> would lock **upward**!]
+
+Note:
+- fs.c: "The separation also helps avoid deadlock and races during pathname lookup."
+
+---
+
+can a thread deadlock **with itself**?
+
+---
+
+### deadlock | **with yourself**
+
+can a thread deadlock **with itself**?
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/deadlock/card_acquire.png" height="300">
+
+</div>
+
+<div>
+
+|||
+| --- | --- |
+| holding a spinlock | interrupt arrives |
+| ISR wants **same** lock | spins **forever** on this core! |
+| xv6 fix | <scb>pushcli()</scb> &rarr; no interrupts while holding |
+| take it **twice**? | <scb>panic("acquire")</scb> |
+||
+
+</div>
+</div>
+
+---
+
+### deadlock | **with yourself**
+
+[<scb>spinlock.c</scb>] &rarr; we saw <scb>pushcli()</scb> last lecture... **this** is why!
+
+---
+
+## deadlock | **avoidance**
+
+---
+
+### avoidance
+
+- **dynamically** check each allocation &rarr; is it **safe**?
+
+---
+
+### avoidance
+
+- **dynamically** check each allocation &rarr; is it **safe**?
+- processes declare **maximum** resource needs **a priori**
+
+---
+
+### avoidance
+
+- **dynamically** check each allocation &rarr; is it **safe**?
+- processes declare **maximum** resource needs **a priori**
+- refuse allocations that **could** lead to circular wait
+
+---
+
+### avoidance | **single instance**
+
+<scb>F1</scb> asks for <scb>TR</scb>...
+
+<img src="./img/deadlock/traffic_avoid_1.png" height="600">
+
+---
+
+### avoidance | **single instance**
+
+granting it could close the cycle &rarr; **deny** (for now)
+
+<img src="./img/deadlock/traffic_avoid_2.png" height="600">
+
+---
+
+### avoidance | **algorithms**
+
+| resources | algorithm |
+|---|---|
+| **single** instance each | avoid **cycles** in the resource allocation graph |
+
+---
+
+### avoidance | **algorithms**
+
+| resources | algorithm |
+|---|---|
+| **single** instance each | avoid **cycles** in the resource allocation graph |
+| **multiple** instances | Dijkstra's [**Banker's algorithm**](https://en.wikipedia.org/wiki/Banker%27s_algorithm) |
+||
+
+[must know **maximum** needs up front &rarr; rarely practical]
+
+---
+
+## deadlock | **detection**
+
+---
+
+### detection
+
+- **periodically** check: is the system deadlocked?
+
+---
+
+### detection
+
+- **periodically** check: is the system deadlocked?
+- uses **current** allocations only &rarr; **practical**
+
+---
+
+### detection
+
+- **periodically** check: is the system deadlocked?
+- uses **current** allocations only &rarr; **practical**
+- single-instance resources &rarr; look for a **cycle**
+
+---
+
+### detection | **waits-for graph**
+
+resource allocation graph...
+
+<img src="./img/deadlock/waits_for_1.png" height="600">
+
+---
+
+### detection | **waits-for graph**
+
+...collapse resources &rarr; **waits-for** graph
+
+<img src="./img/deadlock/waits_for_2.png" height="600">
+
+---
+
+### detection | **waits-for graph**
+
+- <scb>Pi &rarr; Pj</scb> &rarr; <scb>Pi</scb> waits for a resource <scb>Pj</scb> holds
+
+---
+
+### detection | **waits-for graph**
+
+- <scb>Pi &rarr; Pj</scb> &rarr; <scb>Pi</scb> waits for a resource <scb>Pj</scb> holds
+- deadlock &harr; a **cycle**
+
+---
+
+### detection | **waits-for graph**
+
+- <scb>Pi &rarr; Pj</scb> &rarr; <scb>Pi</scb> waits for a resource <scb>Pj</scb> holds
+- deadlock &harr; a **cycle**
+- cycle detection &rarr; a classic **interview** question!
+
+---
+
+## deadlock | **recovery**
+
+---
+
+### recovery
+
+- add preemption &rarr; **terminate** processes
+    - abort **all** deadlocked processes
+    - ...or abort **one at a time** until resolved
+
+---
+
+in which **order**?
+
+---
+
+### recovery | **OOM killer**
+
+- Linux **out-of-memory** killer &rarr; memory "deadlock" recovery
+
+---
+
+### recovery | **OOM killer**
+
+- Linux **out-of-memory** killer &rarr; memory "deadlock" recovery
+- everyone blocked in <scb>malloc()</scb>... who dies?
+
+---
+
+### recovery | **OOM killer**
+
+- Linux **out-of-memory** killer &rarr; memory "deadlock" recovery
+- everyone blocked in <scb>malloc()</scb>... who dies?
+- biggest process? &rarr; maybe the **most important** one (_e.g._ X server)!
+
+---
+
+### recovery | **OOM killer**
+
+- Linux **out-of-memory** killer &rarr; memory "deadlock" recovery
+- everyone blocked in <scb>malloc()</scb>... who dies?
+- biggest process? &rarr; maybe the **most important** one (_e.g._ X server)!
+- **heuristics** &rarr; no perfect answer
+
+---
+
+### recovery | **kernel deadlocks**
+
+deadlock **in the kernel**?
+
+<br>
+<br>
+
+usually &rarr; **reboot**!
+
+---
+
+## deadlock | **summary**
+
+---
+
+|||
+| --- | --- |
+| cause | **dynamic** resource allocation <br> [locks are resources too!] |
+
+---
+
+|||
+| --- | --- |
+| cause | **dynamic** resource allocation <br> [locks are resources too!] |
+| four conditions | mutual exclusion, hold and wait, <br> no preemption, circular wait |
+
+---
+
+|||
+| --- | --- |
+| cause | **dynamic** resource allocation <br> [locks are resources too!] |
+| four conditions | mutual exclusion, hold and wait, <br> no preemption, circular wait |
+| main defense | a **total lock order** <br> [per data structure, across data structures] |
+
+---
+
+|||
+| --- | --- |
+| cause | **dynamic** resource allocation <br> [locks are resources too!] |
+| four conditions | mutual exclusion, hold and wait, <br> no preemption, circular wait |
+| main defense | a **total lock order** <br> [per data structure, across data structures] |
+| also | memory &rarr; OOM killer |
+||
+
+---
+
+**next topic** &rarr; scheduling
+                    </textarea>
+                </section>
+            </div>
+        </div>
+        <script src="assets/reveal-js/dist/reveal.js"></script>
+        <script src="assets/reveal-js/plugin/markdown/markdown.js"></script>
+        <script src="assets/reveal-js/plugin/highlight/highlight.js"></script>
+        <script src="assets/reveal-js/plugin/zoom/zoom.js"></script>
+        <script src="assets/reveal-js/plugin/notes/notes.js"></script>
+        <script src="assets/reveal-js/plugin/math/math.js"></script>
+
+        
+            
+                
+                    
+                        <script src="https://cdn.jsdelivr.net/npm/reveal.js-mermaid-plugin/plugin/mermaid/mermaid.min.js"></script>
+                    
+                
+            
+                
+                    
+                        <script src="https://cdn.jsdelivr.net/npm/reveal-plantuml/dist/reveal-plantuml.min.js"></script>
+                    
+                
+            
+        
+
+        <script>
+            Reveal.initialize({
+                
+                    
+                        history: true,
+                    
+                        slideNumber: "c/t",
+                    
+                        height: 1080,
+                    
+                        width: 1920,
+                    
+                        transition: "fade",
+                    
+                        backgroundTransition: "slide",
+                    
+                        RevealMermaid: {"htmlLabels": true, "useMaxWidth": true},
+                    
+                
+                plugins: [
+                    RevealMarkdown,
+                    RevealHighlight,
+                    RevealZoom,
+                    RevealNotes,
+                    RevealMath,
+
+                    
+                        
+                            
+                                RevealMermaid,
+                            
+                        
+                            
+                        
+                    
+                ],
+            });
+        </script>
+    </body>
+</html>
