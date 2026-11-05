@@ -40,7 +40,7 @@
                 
                 >
                     <textarea data-template>
-                        ## **deadlock**
+                        ## **deadlocks**
 
 ##  **operating systems**
 ### csci 3411
@@ -56,24 +56,24 @@ so far we've seen...
 
 ---
 
-|||
+| problem/tool | lesson |
 | --- | --- |
-| **race conditions** | &rarr; critical sections |
+| **race conditions** | critical sections |
 
 ---
 
-|||
+| problem/tool | lesson |
 | --- | --- |
-| **race conditions** | &rarr; critical sections |
-| **locks**, **condition variables** | &rarr; easier abstractions |
+| **race conditions** | critical sections |
+| **locks**, **condition variables** | easier abstractions |
 
 ---
 
-|||
+| problem/tool | lesson |
 | --- | --- |
-| **race conditions** | &rarr; critical sections |
-| **locks**, **condition variables** | &rarr; easier abstractions |
-| **fine-grained** locking | &rarr; more parallelism... more **danger** |
+| **race conditions** | critical sections |
+| **locks**, **condition variables** | easier abstractions |
+| **fine-grained** locking | more parallelism <br> more **danger** |
 ||
 
 ---
@@ -86,77 +86,122 @@ today &rarr; yet another way synchronization goes **wrong**!
 
 ---
 
-- a set of **blocked** processes, each
-    - **holds** a resource <br> [critical section, device, memory]
-    - **waits** to acquire a resource held by **another** process in the set
+set of **blocked** processes, each:
 
 ---
 
-a set of **blocked** processes, each **holds** a resource and **waits** for another's
+set of **blocked** processes, each:
+
+- **holds** a resource <br> &rarr; critical section, device, memory
+
+---
+
+set of **blocked** processes, each:
+
+- **holds** a resource <br> &rarr; critical section, device, memory
+- **waits** to acquire resource <br> &rarr; held by **another** process in set
+
+---
+
+**blocked** processes, each **holds** resource, **waits** on other
+
+---
+
+**blocked** processes, each **holds** resource, **waits** on other
 
 - **starvation** on **all** associated resources
 
 ---
 
-a set of **blocked** processes, each **holds** a resource and **waits** for another's
+**blocked** processes, each **holds** resource, **waits** on other
 
 - **starvation** on **all** associated resources
-- result &rarr; lots of threads, **<font color="darkred">zero progress</font>**!
+- result &rarr; lots of threads, **<span style="background-color: darkred; color: white;">&nbsp zero progress! &nbsp</span>**
 
 ---
 
-### two threads, two locks
+### example | two threads, two locks
+
+
+---
+
+### example | two threads, two locks
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 50% 50%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/deadlock/card_two_threads.png" height="460">
+
+</div>
+
+<div>
+
+| thread | first | then |
+| --- | --- | --- |
+| thread 1 | <scb>s1</scb> | <scb>s2</scb> |
+| thread 2 | <scb>s2</scb> | <scb>s1</scb> |
+
+</div>
+</div>
+
+---
+
+### example | two threads, two locks
 
 <div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
 <div>
 
-<img src="./img/deadlock/card_two_threads.png" height="260">
+<img src="./img/deadlock/card_two_threads.png" height="460">
 
 </div>
 
 <div>
 
-|||
-| --- | --- |
-| thread 1 | <scb>s1</scb> then <scb>s2</scb> |
-| thread 2 | <scb>s2</scb> then <scb>s1</scb> |
-| run **concurrently** | what can go wrong? |
-||
+| thread | first | then |
+| --- | --- | --- |
+| thread 1 | <scb>s1</scb> | <scb>s2</scb> |
+| thread 2 | <scb>s2</scb> | <scb>s1</scb> |
+
+<br>
+
+run **concurrently** &rarr; what can go wrong?
 
 </div>
 </div>
 
 ---
 
-### two threads, two locks
+### example | two threads, two locks
 
 <img src="./img/deadlock/lock_order_1.png" height="460">
 
 ---
 
-### two threads, two locks
+### example | example | two threads, two locks
 
 <scb>T1</scb> takes <scb>s1</scb>, <scb>T2</scb> takes <scb>s2</scb>
 
-<img src="./img/deadlock/lock_order_2.png" height="460">
+<img src="./img/deadlock/lock_order_2.png" height="660">
 
 ---
 
-### two threads, two locks
+### example | two threads, two locks
 
-each now waits for the lock the **other** holds
+each now waits &rarr; for lock the **other** holds
 
-<img src="./img/deadlock/lock_order_3.png" height="460">
+<img src="./img/deadlock/lock_order_3.png" height="660">
 
 ---
 
-### two threads, two locks
+### example | two threads, two locks
+
+<img src="./img/deadlock/lock_order_3.png" height="660">
 
 ## **deadlock!**
 
 ---
 
-let's look at a `code` example using <scb>pthreads</scb> (Linux)
+let's look at a `code` example using <scb>pthreads</scb> [<sc>Linux</sc>]
 
 ---
 
@@ -296,7 +341,23 @@ $ echo $?
 124
 ```
 
-**nothing**! killed by <scb>timeout</scb> after <scb>3</scb> s &rarr; exit status <scb>124</scb>
+**nothing**!
+
+---
+
+### deadlock | **output**
+
+```
+$ gcc -pthread -o deadlock_demo deadlock_demo.c
+$ timeout 3 ./deadlock_demo
+$ echo $?
+124
+```
+
+**nothing**!
+
+- killed by <scb>timeout</scb> after <scb>3</scb> s
+- exit status &rarr; <scb>124</scb>
 
 Note:
 - actual runs: 3 of 3 hung. usleep(1000) widens the window; without it the deadlock is rarer, not impossible.
@@ -330,18 +391,18 @@ Note:
 
 ### doubly linked list | **removal**
 
-| thread | removes | takes locks |
-|---|---|---|
-| <scb>T1</scb> [**<font color="blue">blue</font>**] | <scb>B</scb> | <scb>B</scb> &rarr; <scb>A</scb> (prev) &rarr; <scb>C</scb> (next) |
+| thread | removes | locks own | then prev | then next |
+|---|---|---|---|---|
+| <scb>T1</scb> [**<font color="blue">blue</font>**] | <scb>B</scb> | <scb>B</scb> | <scb>A</scb> | <scb>C</scb> |
 
 ---
 
 ### doubly linked list | **removal**
 
-| thread | removes | takes locks |
-|---|---|---|
-| <scb>T1</scb> [**<font color="blue">blue</font>**] | <scb>B</scb> | <scb>B</scb> &rarr; <scb>A</scb> (prev) &rarr; <scb>C</scb> (next) |
-| <scb>T2</scb> [**<font color="red">red</font>**] | <scb>C</scb> | <scb>C</scb> &rarr; <scb>B</scb> (prev) &rarr; <scb>D</scb> (next) |
+| thread | removes | locks own | then prev | then next |
+|---|---|---|---|---|
+| <scb>T1</scb> [**<font color="blue">blue</font>**] | <scb>B</scb> | <scb>B</scb> | <scb>A</scb> | <scb>C</scb> |
+| <scb>T2</scb> [**<font color="red">red</font>**] | <scb>C</scb> | <scb>C</scb> | <scb>B</scb> | <scb>D</scb> |
 ||
 
 ---
@@ -364,7 +425,7 @@ Note:
 
 ### doubly linked list | **removal**
 
-3. <scb>T1</scb> locks <scb>A</scb>... then **blocks** on <scb>C</scb>
+3. <scb>T1</scb> locks <scb>A</scb>, then **blocks** on <scb>C</scb>
 
 <img src="./img/deadlock/dll_3.png" height="540">
 
@@ -378,24 +439,24 @@ Note:
 
 ---
 
-**observation** &rarr; the **<font color="darkred">order</font>** of lock acquisition **matters**!
+**observation** &rarr; **<span style="background-color: darkred; color: white;">&nbsp order &nbsp</span>** of lock acquisition **matters**!
 
 ---
 
 ### deadlock | **questions**
 
-1. can we **understand** which orders are dangerous?
+1. can we understand **which orders** are dangerous?
 
 ---
 
 ### deadlock | **questions**
 
-1. can we **understand** which orders are dangerous?
+1. can we understand **which orders** are dangerous?
 2. can we **prevent** or **avoid** deadlocks?
 
 ---
 
-## traffic and **resource contention**
+### traffic and **resource contention**
 
 ---
 
@@ -431,22 +492,27 @@ each flow holds **one** intersection, waits for the **next**
 
 ---
 
-### traffic | **resource contention**
-
 ## **gridlock!**
 
----
-
-### traffic | **resource contention**
-
-- humans are **adaptive** &rarr; squeeze through, eventually
+<img src="./img/deadlock/New_York_City_Gridlock.jpg" height="700">
 
 ---
 
 ### traffic | **resource contention**
 
-- humans are **adaptive** &rarr; squeeze through, eventually
-- computers are **not** &rarr; we must design for it
+| who | adaptive? | result |
+|---|---|---|
+| **humans** | **yes** | squeeze through, eventually |
+
+---
+
+### traffic | **resource contention**
+
+| who | adaptive? | result |
+|---|---|---|
+| **humans** | **yes** | squeeze through, eventually |
+| **computers** | **no** | we must **design** for it |
+||
 
 ---
 
@@ -456,18 +522,18 @@ each flow holds **one** intersection, waits for the **next**
 
 ### system model
 
-|  |  | examples |
+| concept | notation | examples |
 |---|---|---|
-| resource **types** | <scb>R1</scb>, <scb>R2</scb>, <scb>R3</scb>, … | CPU, devices, memory, data structures |
+| resource **types** | <scb>$R_1$</scb>, <scb>$R_2$</scb>, <scb>$R_3$</scb>, … | CPU, devices, memory, data structures |
 
 ---
 
 ### system model
 
-|  |  | examples |
+| concept | notation | examples |
 |---|---|---|
-| resource **types** | <scb>R1</scb>, <scb>R2</scb>, <scb>R3</scb>, … | CPU, devices, memory, data structures |
-| **instances** | type <scb>Ri</scb> has <scb>Wi</scb> instances | bytes of memory, multiple CPUs, counting semaphore |
+| resource **types** | <scb>$R_1$</scb>, <scb>$R_2$</scb>, <scb>$R_3$</scb>, … | CPU, devices, memory, data structures |
+| **instances** | type <scb>$R_i$</scb> has <scb>$W_i$</scb> instances | bytes of memory, multiple CPUs, counting semaphore |
 ||
 
 ---
@@ -500,48 +566,52 @@ each flow holds **one** intersection, waits for the **next**
 
 ---
 
-## deadlock | **four conditions**
+deadlock can arise if **<span style="background-color: darkred; color: white;">&nbsp; four conditions &nbsp;</span>** hold **simultaneously**
 
 ---
 
-deadlock **<font color="darkred">can</font>** arise if **four** conditions hold **simultaneously**
+### deadlock | **four conditions**
 
 ---
 
-### four conditions
+### deadlock | **four conditions**
 
 <div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
 <div>
 
-<img src="./img/deadlock/card_locks.png" height="330">
+<img src="./img/deadlock/card_cond_mutex.png" height="400">
+
+<font size="5">[**<font color="green">green</font>** &rarr; holds, **<font color="red">red</font>** &rarr; waits]</font>
 
 </div>
 
 <div>
 
-|||
+| condition | meaning |
 | --- | --- |
-| 1. **mutual exclusion** | only **one** process at a time uses a resource |
+| 1. **mutual exclusion** | only **one** process at a time uses resource |
 
 </div>
 </div>
 
 ---
 
-### four conditions
+### deadlock | **four conditions**
 
 <div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
 <div>
 
-<img src="./img/deadlock/card_locks.png" height="330">
+<img src="./img/deadlock/card_cond_hold.png" height="400">
+
+<font size="5">[**<font color="green">green</font>** &rarr; holds, **<font color="red">red</font>** &rarr; waits]</font>
 
 </div>
 
 <div>
 
-|||
+| condition | meaning |
 | --- | --- |
-| 1. **mutual exclusion** | only **one** process at a time uses a resource |
+| 1. **mutual exclusion** | only **one** process at a time uses resource |
 | 2. **hold and wait** | holding **one** resource, waiting for **another** |
 
 </div>
@@ -549,45 +619,49 @@ deadlock **<font color="darkred">can</font>** arise if **four** conditions hold 
 
 ---
 
-### four conditions
+### deadlock | **four conditions**
 
 <div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
 <div>
 
-<img src="./img/deadlock/card_locks.png" height="330">
+<img src="./img/deadlock/card_cond_nopreempt.png" height="400">
+
+<font size="5">[**<font color="green">green</font>** &rarr; holds, **<font color="red">red</font>** &rarr; waits]</font>
 
 </div>
 
 <div>
 
-|||
+| condition | meaning |
 | --- | --- |
-| 1. **mutual exclusion** | only **one** process at a time uses a resource |
-| 2. **hold and wait** | holding **one** resource, waiting for **another** |
-| 3. **no preemption** | released only **voluntarily**, after use |
-
-</div>
-</div>
-
----
-
-### four conditions
-
-<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
-<div>
-
-<img src="./img/deadlock/card_locks.png" height="330">
-
-</div>
-
-<div>
-
-|||
-| --- | --- |
-| 1. **mutual exclusion** | only **one** process at a time uses a resource |
+| 1. **mutual exclusion** | only **one** process at a time uses resource |
 | 2. **hold and wait** | holding **one** resource, waiting for **another** |
 | 3. **no preemption** | released only **voluntarily**, after use |
-| 4. **circular wait** | <scb>P0</scb> waits for <scb>P1</scb>, <scb>P1</scb> for <scb>P2</scb>, …, <scb>Pn</scb> for <scb>P0</scb> |
+
+</div>
+</div>
+
+---
+
+### deadlock | **four conditions**
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/deadlock/card_cond_circular.png" height="400">
+
+<font size="5">[**<font color="green">green</font>** &rarr; holds, **<font color="red">red</font>** &rarr; waits]</font>
+
+</div>
+
+<div>
+
+| condition | meaning |
+| --- | --- |
+| 1. **mutual exclusion** | only **one** process at a time uses resource |
+| 2. **hold and wait** | holding **one** resource, waiting for **another** |
+| 3. **no preemption** | released only **voluntarily**, after use |
+| 4. **circular wait** | <scb>$P_0$</scb> waits for <scb>$P_1$</scb>, <scb>$P_1$</scb> for <scb>$P_2$</scb>, …, <scb>$P_n$</scb> for <scb>$P_0$</scb> |
 ||
 
 </div>
@@ -595,13 +669,13 @@ deadlock **<font color="darkred">can</font>** arise if **four** conditions hold 
 
 ---
 
-### four conditions
+### deadlock | **four conditions**
 
 all four hold &rarr; deadlock **guaranteed**?
 
 ---
 
-### four conditions
+### deadlock | **four conditions**
 
 all four hold &rarr; deadlock **guaranteed**?
 
@@ -610,27 +684,55 @@ all four hold &rarr; deadlock **guaranteed**?
 
 ## **no!**
 
-- "**can**" &rarr; it depends on the **interleaving**
-- like race conditions &rarr; **rare**, hard to test and debug!
+---
+
+### deadlock | **four conditions**
+
+"**can**" &rarr; depends on **interleaving**
 
 ---
 
-## resource allocation **graph**
+### deadlock | **four conditions**
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+"**can**" &rarr; depends on **interleaving**
+
+</div>
+
+<div>
+
+like race conditions:
+- **rare**
+- **hard** to test and debug!
+
+</div>
+</div>
 
 ---
 
-### resource allocation graph
-
-- <scb>G = (V, E)</scb>
+model deadlocks as a **graph**
 
 ---
 
-### resource allocation graph
+### deadlock | **resource allocation graph**
 
-- <scb>G = (V, E)</scb>
-- two types of vertices
-    - **processes** <scb>P = {P0, P1, …, Pn}</scb>
-    - **resource types** <scb>R = {R1, R2, …, Rm}</scb>
+---
+
+### deadlock | **resource allocation graph**
+
+graph $G = (V, E)$
+
+---
+
+### deadlock | **resource allocation graph**
+
+graph $G = (V, E)$
+
+two types of vertices:
+- **processes** &rarr; $P = \lbrace P_0, P_1, \ldots, P_n \rbrace$
+- **resource types** &rarr; $R = \lbrace R_1, R_2, \ldots, R_m \rbrace$
 
 ---
 
@@ -638,7 +740,7 @@ all four hold &rarr; deadlock **guaranteed**?
 
 | edge | direction | means |
 |---|---|---|
-| **request** | <scb>Pi &rarr; Rj</scb> | <scb>Pi</scb> asked, is **waiting** <br> [<scb>lock()</scb>, <scb>malloc()</scb> called] |
+| **request** | <scb>$P_i \rightarrow R_j$</scb> | <scb>$P_i$</scb> asked, is **waiting** <br> [<scb>lock()</scb>, <scb>malloc()</scb> called] |
 
 ---
 
@@ -646,8 +748,8 @@ all four hold &rarr; deadlock **guaranteed**?
 
 | edge | direction | means |
 |---|---|---|
-| **request** | <scb>Pi &rarr; Rj</scb> | <scb>Pi</scb> asked, is **waiting** <br> [<scb>lock()</scb>, <scb>malloc()</scb> called] |
-| **assignment** | <scb>Rj &rarr; Pi</scb> | <scb>Pi</scb> **holds** one instance <br> [<scb>lock()</scb>, <scb>malloc()</scb> returned] |
+| **request** | <scb>$P_i \rightarrow R_j$</scb> | <scb>$P_i$</scb> asked, is **waiting** <br> [<scb>lock()</scb>, <scb>malloc()</scb> called] |
+| **assignment** | <scb>$R_j \rightarrow P_i$</scb> | <scb>$P_i$</scb> **holds** one instance <br> [<scb>lock()</scb>, <scb>malloc()</scb> returned] |
 ||
 
 ---
@@ -660,7 +762,7 @@ all four hold &rarr; deadlock **guaranteed**?
 
 ### resource allocation graph | **traffic**
 
-the gridlock... as a graph
+gridlock &rarr; as a graph
 
 <img src="./img/deadlock/traffic_rag.png" height="600">
 
@@ -668,7 +770,7 @@ the gridlock... as a graph
 
 ### resource allocation graph | **traffic**
 
-the gridlock... as a graph
+gridlock &rarr; as a graph
 
 <div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
 <div>
@@ -676,19 +778,22 @@ the gridlock... as a graph
 <img src="./img/deadlock/traffic_rag.png" height="400">
 
 </div>
-
 <div>
 
-- every flow **holds** one intersection
-- ...and **requests** the next
-- &rarr; a **cycle**!
+every flow:
+- **holds** one intersection
+- **requests** next one
+
+<br>
+
+result &rarr; **<span style="background-color: darkred; color: white;">&nbsp; cycle! &nbsp;</span>**
 
 </div>
 </div>
 
 ---
 
-is there a deadlock?
+### example | resource allocation graph
 
 ---
 
@@ -704,25 +809,38 @@ is there a deadlock?
 
 is there a deadlock?
 
+<img src="./img/deadlock/rag_ex1.png" height="580">
+
+## **no!**
+
 ---
 
 ### resource allocation graph | **example I**
 
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
 is there a deadlock?
 
-<br>
-<br>
+<img src="./img/deadlock/rag_ex1.png" height="300">
 
 ## **no!**
 
-- <scb>P2</scb> isn't waiting &rarr; it can release <scb>Rb</scb>
-- then <scb>P1</scb> runs, releases... no cycle
+</div>
+<div>
+
+- <scb>$P_2$</scb> **not waiting** <br> &rarr; can release <scb>$R_b$</scb>
+- then <scb>$P_1$</scb> runs, releases
+- **no** cycle!
+
+</div>
+</div>
 
 ---
 
 ### resource allocation graph | **example II**
 
-add **one** edge: <scb>P2</scb> requests <scb>Rc</scb>
+add **one** edge: <scb>$P_2$</scb> requests <scb>$R_c$</scb>
 
 <img src="./img/deadlock/rag_ex2.png" height="580">
 
@@ -738,22 +856,42 @@ is there a deadlock?
 
 ### resource allocation graph | **example II**
 
-- ## **yes!**
+is there a deadlock?
+
+<img src="./img/deadlock/rag_ex2_cycle.png" height="580">
+
+## **yes!**
 
 ---
 
 ### resource allocation graph | **example II**
 
-- ## **yes!**
-- <scb>P0</scb> &rarr; <scb>Ra</scb> &rarr; <scb>P1</scb> &rarr; <scb>Rb</scb> &rarr; <scb>P2</scb> &rarr; <scb>Rc</scb> &rarr; <scb>P0</scb>, <scb>P1</scb>
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+is there a deadlock?
+
+<img src="./img/deadlock/rag_ex2_cycle.png" height="300">
+
+## **yes!**
+
+</div>
+<div>
+
+cycle &rarr; <scb>$P_0$</scb> &rarr; <scb>$R_a$</scb> &rarr; <scb>$P_1$</scb> &rarr; <scb>$R_b$</scb> &rarr; <scb>$P_2$</scb> &rarr; <scb>$R_c$</scb> &rarr; <scb>$P_0$</scb>, <scb>$P_1$</scb>
+
+</div>
+</div>
 
 ---
 
 ### resource allocation graph | **example II**
 
-- ## **yes!**
-- <scb>P0</scb> &rarr; <scb>Ra</scb> &rarr; <scb>P1</scb> &rarr; <scb>Rb</scb> &rarr; <scb>P2</scb> &rarr; <scb>Rc</scb> &rarr; <scb>P0</scb>, <scb>P1</scb>
-- both <scb>Rc</scb> instances held by **waiting** processes
+cycle &rarr; <scb>$P_0$</scb> &rarr; <scb>$R_a$</scb> &rarr; <scb>$P_1$</scb> &rarr; <scb>$R_b$</scb> &rarr; <scb>$P_2$</scb> &rarr; <scb>$R_c$</scb> &rarr; <scb>$P_0$</scb>, <scb>$P_1$</scb>
+
+<br>
+
+**both** <scb>$R_c$</scb> instances &rarr; held by **waiting** processes
 
 ---
 
@@ -767,7 +905,7 @@ is there a deadlock?
 
 ### resource allocation graph | **example III**
 
-a cycle: <scb>P0</scb> &rarr; <scb>Ra</scb> &rarr; <scb>P1</scb> &rarr; <scb>Rc</scb> &rarr; <scb>P0</scb>...
+cycle &rarr; <scb>$P_0$</scb> &rarr; <scb>$R_a$</scb> &rarr; <scb>$P_1$</scb> &rarr; <scb>$R_c$</scb> &rarr; <scb>$P_0$</scb>
 
 <img src="./img/deadlock/rag_ex3_why.png" height="580">
 
@@ -775,58 +913,95 @@ a cycle: <scb>P0</scb> &rarr; <scb>Ra</scb> &rarr; <scb>P1</scb> &rarr; <scb>Rc<
 
 ### resource allocation graph | **example III**
 
-- ## **no!**
+cycle &rarr; <scb>$P_0$</scb> &rarr; <scb>$R_a$</scb> &rarr; <scb>$P_1$</scb> &rarr; <scb>$R_c$</scb> &rarr; <scb>$P_0$</scb>
+
+<img src="./img/deadlock/rag_ex3_why.png" height="580">
+
+## **no!**
 
 ---
 
 ### resource allocation graph | **example III**
 
-- ## **no!**
-- <scb>P2</scb> holds the **other** <scb>Rc</scb> instance, isn't waiting
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+cycle &rarr; <scb>$P_0$</scb> &rarr; <scb>$R_a$</scb> &rarr; <scb>$P_1$</scb> &rarr; <scb>$R_c$</scb> &rarr; <scb>$P_0$</scb>
+
+<img src="./img/deadlock/rag_ex3_why.png" height="300">
+
+## **no!**
+
+</div>
+<div>
+
+<scb>$P_2$</scb> holds **other** <scb>$R_c$</scb> instance &rarr; **not waiting**
+
+</div>
+</div
 
 ---
 
 ### resource allocation graph | **example III**
 
-- ## **no!**
-- <scb>P2</scb> holds the **other** <scb>Rc</scb> instance, isn't waiting
-- <scb>P2</scb> releases &rarr; <scb>P1</scb> gets <scb>Rc</scb> &rarr; ... &rarr; <scb>P0</scb>
+<scb>$P_2$</scb> holds **other** <scb>$R_c$</scb> instance &rarr; **not waiting**
+
+1. <scb>$P_2$</scb> releases <scb>$R_c$</scb>
+
+---
+
+### resource allocation graph | **example III**
+
+<scb>$P_2$</scb> holds **other** <scb>$R_c$</scb> instance &rarr; **not waiting**
+
+1. <scb>$P_2$</scb> releases <scb>$R_c$</scb>
+2. <scb>$P_1$</scb> gets <scb>$R_c$</scb>, finishes, releases <scb>$R_a$</scb>
+
+---
+
+### resource allocation graph | **example III**
+
+<scb>$P_2$</scb> holds **other** <scb>$R_c$</scb> instance &rarr; **not waiting**
+
+1. <scb>$P_2$</scb> releases <scb>$R_c$</scb>
+2. <scb>$P_1$</scb> gets <scb>$R_c$</scb>, finishes, releases <scb>$R_a$</scb>
+3. <scb>$P_0$</scb> gets <scb>$R_a$</scb> &rarr; **progress**!
 
 ---
 
 ### resource allocation graph | **rules**
 
-| graph | deadlock? |
-|---|---|
-| **no** cycle | **no** deadlock |
+| cycle? | instances per type | deadlock? |
+|---|---|---|
+| **no** | any | **no** |
 
 ---
 
 ### resource allocation graph | **rules**
 
-| graph | deadlock? |
-|---|---|
-| **no** cycle | **no** deadlock |
-| cycle, **one** instance per type | **deadlock**! |
+| cycle? | instances per type | deadlock? |
+|---|---|---|
+| **no** | any | **no** |
+| **yes** | **one** | **yes**! |
 
 ---
 
 ### resource allocation graph | **rules**
 
-| graph | deadlock? |
-|---|---|
-| **no** cycle | **no** deadlock |
-| cycle, **one** instance per type | **deadlock**! |
-| cycle, **several** instances per type | **possible**, not certain |
+| cycle? | instances per type | deadlock? |
+|---|---|---|
+| **no** | any | **no** |
+| **yes** | **one** | **yes**! |
+| **yes** | **several** | **possible** <br> not certain |
 ||
 
 ---
 
-## handling **deadlocks**
+four ways to **handle** deadlocks
 
 ---
 
-### handling deadlocks
+### deadlock | **handling**
 
 | approach | when | how |
 |---|---|---|
@@ -834,7 +1009,7 @@ a cycle: <scb>P0</scb> &rarr; <scb>Ra</scb> &rarr; <scb>P1</scb> &rarr; <scb>Rc<
 
 ---
 
-### handling deadlocks
+### deadlock | **handling**
 
 | approach | when | how |
 |---|---|---|
@@ -843,7 +1018,7 @@ a cycle: <scb>P0</scb> &rarr; <scb>Ra</scb> &rarr; <scb>P1</scb> &rarr; <scb>Rc<
 
 ---
 
-### handling deadlocks
+### deadlock | **handling**
 
 | approach | when | how |
 |---|---|---|
@@ -853,105 +1028,124 @@ a cycle: <scb>P0</scb> &rarr; <scb>Ra</scb> &rarr; <scb>P1</scb> &rarr; <scb>Rc<
 
 ---
 
-### handling deadlocks
+### deadlock | **handling**
 
 | approach | when | how |
 |---|---|---|
 | **prevention** | design time | make one of the **4 conditions** impossible |
 | **avoidance** | run time | refuse **unsafe** allocations |
 | **detection + recovery** | after the fact | find cycles, **kill** someone |
-| **ignorance** | never | luck... and crossed fingers |
+| **ignorance** | never | luck + crossed fingers |
 ||
 
-[most systems &rarr; ad hoc **prevention** + ignorance!]
+most systems &rarr; ad hoc **prevention** + **ignorance!**
 
 ---
 
-_e.g.,_ Windows 95/98 &rarr; frequent lock-ups... many were deadlocks
+_e.g._ <sc>Windows 95/98</sc> &rarr; frequent lock-ups <br> many were **deadlocks**!
 
 ---
 
-## deadlock | **prevention**
-
----
-
-prevent **any one** of the four conditions!
+prevent **any one** of four conditions!
 
 ---
 
 ### prevention | **per condition**
 
-| condition | prevent it? |
-|---|---|
-| **mutual exclusion** | can't compromise &rarr; some resources **need** it |
+| condition | prevent it? | how/why |
+|---|---|---|
+| **mutual exclusion** | **no** | some resources **need** it |
 
 ---
 
 ### prevention | **per condition**
 
-| condition | prevent it? |
-|---|---|
-| **mutual exclusion** | can't compromise &rarr; some resources **need** it |
-| **hold and wait** | request **all** resources at once <br> [taking all, or none] |
+| condition | prevent it? | how/why |
+|---|---|---|
+| **mutual exclusion** | **no** | some resources **need** it |
+| **hold and wait** | **yes** | request **all** resources at once <br> [all or none] |
 
 ---
 
 ### prevention | **per condition**
 
-| condition | prevent it? |
-|---|---|
-| **mutual exclusion** | can't compromise &rarr; some resources **need** it |
-| **hold and wait** | request **all** resources at once <br> [taking all, or none] |
-| **no preemption** | can't get the next one? &rarr; **release** all, retry |
+| condition | prevent it? | how/why |
+|---|---|---|
+| **mutual exclusion** | **no** | some resources **need** it |
+| **hold and wait** | **yes** | request **all** resources at once <br> [all or none] |
+| **no preemption** | **yes** | can't get next one? <br> **release** all, retry |
 
 ---
 
 ### prevention | **per condition**
 
-| condition | prevent it? |
-|---|---|
-| **mutual exclusion** | can't compromise &rarr; some resources **need** it |
-| **hold and wait** | request **all** resources at once <br> [taking all, or none] |
-| **no preemption** | can't get the next one? &rarr; **release** all, retry |
-| **circular wait** | impose a **total order** on resources |
+| condition | prevent it? | how/why |
+|---|---|---|
+| **mutual exclusion** | **no** | some resources **need** it |
+| **hold and wait** | **yes** | request **all** resources at once <br> [all or none] |
+| **no preemption** | **yes** | can't get next one? <br> **release** all, retry |
+| **circular wait** | **yes** | impose **total order** on resources |
 ||
 
 ---
 
 ### prevention | **hold and wait**
 
-- "take everything at once" &rarr; one **coarse** lock
+"take everything at once" &rarr; one **coarse** lock
 
 ---
 
 ### prevention | **hold and wait**
 
-- "take everything at once" &rarr; one **coarse** lock
-- but...
-    - **low** resource utilization
-    - **starvation** possible
-    - applies to memory too &rarr; allocate **all** of it up front!
+"take everything at once" &rarr; one **coarse** lock
+
+but...what's the **catch**?
+
+---
+
+### prevention | **hold and wait cons**
+
+- **low** resource utilization
+
+---
+
+### prevention | **hold and wait cons**
+
+- **low** resource utilization
+- **starvation** possible
+
+---
+
+### prevention | **hold and wait cons**
+
+- **low** resource utilization
+- **starvation** possible
+- applies to memory too
+    - allocate **all** of it up front!
 
 ---
 
 ### prevention | **no preemption**
 
-- take locks one by one with **try-lock**
+- take locks one by one <br> &rarr; with **try-lock**
 
 ---
 
 ### prevention | **no preemption**
 
-- take locks one by one with **try-lock**
-- busy? &rarr; **release** everything, try again
+- take locks one by one <br> &rarr; with **try-lock**
+- busy? <br> &rarr; **release** everything, try again
 
 ---
 
 ### prevention | **no preemption**
 
-- take locks one by one with **try-lock**
-- busy? &rarr; **release** everything, try again
-- [similar idea &rarr; **optimistic concurrency** in databases]
+- take locks one by one <br> &rarr; with **try-lock**
+- busy? <br> &rarr; **release** everything, try again
+
+<br>
+
+[similar idea &rarr; **optimistic concurrency** in databases]
 
 ---
 
@@ -1127,7 +1321,22 @@ thread 2: processing
 done (retries: 1, 0)
 ```
 
-opposite lock orders... **no** deadlock &rarr; thread 1 backed off once
+opposite lock orders &rarr; **no** deadlock!
+
+---
+
+### prevention | **try-lock**
+
+```
+$ ./trylock_backoff
+thread 1: processing
+thread 2: processing
+done (retries: 1, 0)
+```
+
+opposite lock orders &rarr; **no** deadlock!
+
+- thread 1 backed off **once** [<scb>retries: 1</scb>]
 
 Note:
 - actual runs: 4 of 4 finished with retries (1, 0). see pthread_mutex_trylock(3p).
@@ -1140,16 +1349,30 @@ Note:
 
 ---
 
-## prevention | **lock ordering**
+**total order** on resources
 
 ---
 
-- **total order** on resources &rarr; always take locks in the **same** order
+### prevention | **lock ordering**
 
 ---
 
-- **total order** on resources &rarr; always take locks in the **same** order
-- the **most common** prevention technique!
+### prevention | **lock ordering**
+
+**total order** on resources:
+- always take locks in **same** order
+
+---
+
+### prevention | **lock ordering**
+
+**total order** on resources:
+- always take locks in **same** order
+
+<br>
+<br>
+
+**most common** prevention technique!
 
 ---
 
@@ -1284,27 +1507,36 @@ int main(void) {
 
 ### lock ordering | **runs**
 
-| program | 3 runs |
-|---|---|
-| <scb>deadlock_demo</scb> | hung **3**/**3** &rarr; exit <scb>124</scb> |
+| program | 3 runs | result |
+|---|---|---|
+| <scb>deadlock_demo</scb> | hung **3**/**3** | exit <scb>124</scb> |
 
 ---
 
 ### lock ordering | **runs**
 
-| program | 3 runs |
-|---|---|
-| <scb>deadlock_demo</scb> | hung **3**/**3** &rarr; exit <scb>124</scb> |
-| <scb>lock_order_fixed</scb> | finished **3**/**3** &rarr; <scb>done</scb> |
+| program | 3 runs | result |
+|---|---|---|
+| <scb>deadlock_demo</scb> | hung **3**/**3** | exit <scb>124</scb> |
+| <scb>lock_order_fixed</scb> | finished **3**/**3** | <scb>done</scb> |
 ||
 
 ---
 
-doubly linked list? &rarr; **hand-over-hand** locking enforces an order!
+what about **doubly linked list**?
 
 ---
 
-let's look at <scb>xv6</scb>... path lookup [<scb>fs.c</scb>]
+what about **doubly linked list**?
+
+<br>
+<br>
+
+**hand-over-hand** locking &rarr; enforces **<span style="background-color: darkred; color: white;">&nbsp; order! &nbsp;</span>**
+
+---
+
+let's look at <scb>xv6</scb> | path lookup [<scb>fs.c</scb>]
 
 ---
 
@@ -1373,22 +1605,33 @@ let's look at <scb>xv6</scb>... path lookup [<scb>fs.c</scb>]
 
 ### <scb>xv6</scb> | <scb>namex()</scb>
 
-- lock directory <scb>ip</scb>, look up <scb>next</scb>
+1. lock directory <scb>ip</scb>
+2. look up <scb>next</scb>
 
 ---
 
 ### <scb>xv6</scb> | <scb>namex()</scb>
 
-- lock directory <scb>ip</scb>, look up <scb>next</scb>
-- **unlock** <scb>ip</scb> **before** locking <scb>next</scb>
+1. lock directory <scb>ip</scb>
+2. look up <scb>next</scb>
+3. **unlock** <scb>ip</scb> **before** locking <scb>next</scb>
 
 ---
 
 ### <scb>xv6</scb> | <scb>namex()</scb>
 
-- lock directory <scb>ip</scb>, look up <scb>next</scb>
-- **unlock** <scb>ip</scb> **before** locking <scb>next</scb>
-- never hold **two** inode locks &rarr; no lock-order cycle <br> [<scb>".."</scb> would lock **upward**!]
+1. lock directory <scb>ip</scb>
+2. look up <scb>next</scb>
+3. **unlock** <scb>ip</scb> **before** locking <scb>next</scb>
+
+<br>
+
+never hold **two** inode locks &rarr; no lock-order **cycle**
+
+<br>
+<br>
+
+[<scb>".."</scb> would lock **upward**!]
 
 Note:
 - fs.c: "The separation also helps avoid deadlock and races during pathname lookup."
@@ -1396,6 +1639,27 @@ Note:
 ---
 
 can a thread deadlock **with itself**?
+
+---
+### deadlock | **with yourself**
+
+can a thread deadlock **with itself**?
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/deadlock/card_acquire.png" height="300">
+
+</div>
+
+<div>
+
+| situation | what happens |
+| --- | --- |
+| holding spinlock | interrupt arrives |
+
+</div>
+</div>
 
 ---
 
@@ -1412,11 +1676,58 @@ can a thread deadlock **with itself**?
 
 <div>
 
-|||
+| situation | what happens |
 | --- | --- |
-| holding a spinlock | interrupt arrives |
+| holding spinlock | interrupt arrives |
 | ISR wants **same** lock | spins **forever** on this core! |
-| xv6 fix | <scb>pushcli()</scb> &rarr; no interrupts while holding |
+
+</div>
+</div>
+
+---
+
+### deadlock | **with yourself**
+
+can a thread deadlock **with itself**?
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/deadlock/card_acquire.png" height="300">
+
+</div>
+
+<div>
+
+| situation | what happens |
+| --- | --- |
+| holding spinlock | interrupt arrives |
+| ISR wants **same** lock | spins **forever** on this core! |
+| <scb>xv6</scb> fix | <scb>pushcli()</scb> <br> no interrupts while holding |
+
+</div>
+</div>
+
+---
+
+### deadlock | **with yourself**
+
+can a thread deadlock **with itself**?
+
+<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
+<div>
+
+<img src="./img/deadlock/card_acquire.png" height="300">
+
+</div>
+
+<div>
+
+| situation | what happens |
+| --- | --- |
+| holding spinlock | interrupt arrives |
+| ISR wants **same** lock | spins **forever** on this core! |
+| <scb>xv6</scb> fix | <scb>pushcli()</scb> <br> no interrupts while holding |
 | take it **twice**? | <scb>panic("acquire")</scb> |
 ||
 
@@ -1427,38 +1738,53 @@ can a thread deadlock **with itself**?
 
 ### deadlock | **with yourself**
 
-[<scb>spinlock.c</scb>] &rarr; we saw <scb>pushcli()</scb> last lecture... **this** is why!
+we saw <scb>pushcli()</scb> before [<scb>spinlock.c</scb>]
 
 ---
 
-## deadlock | **avoidance**
+### deadlock | **with yourself**
+
+we saw <scb>pushcli()</scb> last lecture [<scb>spinlock.c</scb>]
+
+<br>
+<br>
+
+**this** is why!
 
 ---
 
-### avoidance
-
-- **dynamically** check each allocation &rarr; is it **safe**?
+**refuse unsafe** allocations at run time
 
 ---
 
-### avoidance
-
-- **dynamically** check each allocation &rarr; is it **safe**?
-- processes declare **maximum** resource needs **a priori**
+### deadlock | **avoidance**
 
 ---
 
-### avoidance
+### deadlock | **avoidance**
 
-- **dynamically** check each allocation &rarr; is it **safe**?
-- processes declare **maximum** resource needs **a priori**
-- refuse allocations that **could** lead to circular wait
+- **dynamically** check each allocation <br> &rarr; is it **safe**?
+
+---
+
+### deadlock | **avoidance**
+
+- **dynamically** check each allocation <br> &rarr; is it **safe**?
+- processes declare **maximum** resource needs <br> &rarr; **a priori**
+
+---
+
+### deadlock | **avoidance**
+
+- **dynamically** check each allocation <br> &rarr; is it **safe**?
+- processes declare **maximum** resource needs <br> &rarr; **a priori**
+- refuse allocations <br> &rarr; that **could** lead to circular wait
 
 ---
 
 ### avoidance | **single instance**
 
-<scb>F1</scb> asks for <scb>TR</scb>...
+<scb>F1</scb> asks for <scb>TR</scb>
 
 <img src="./img/deadlock/traffic_avoid_1.png" height="600">
 
@@ -1466,7 +1792,17 @@ can a thread deadlock **with itself**?
 
 ### avoidance | **single instance**
 
-granting it could close the cycle &rarr; **deny** (for now)
+- granting it &rarr; could close **cycle**
+
+<img src="./img/deadlock/traffic_avoid_2.png" height="600">
+
+
+---
+
+### avoidance | **single instance**
+
+- granting it &rarr; could close **cycle**
+- **deny** [for now]
 
 <img src="./img/deadlock/traffic_avoid_2.png" height="600">
 
@@ -1476,7 +1812,7 @@ granting it could close the cycle &rarr; **deny** (for now)
 
 | resources | algorithm |
 |---|---|
-| **single** instance each | avoid **cycles** in the resource allocation graph |
+| **single** instance each | avoid **cycles** in resource allocation graph |
 
 ---
 
@@ -1484,7 +1820,7 @@ granting it could close the cycle &rarr; **deny** (for now)
 
 | resources | algorithm |
 |---|---|
-| **single** instance each | avoid **cycles** in the resource allocation graph |
+| **single** instance each | avoid **cycles** in resource allocation graph |
 | **multiple** instances | Dijkstra's [**Banker's algorithm**](https://en.wikipedia.org/wiki/Banker%27s_algorithm) |
 ||
 
@@ -1492,34 +1828,34 @@ granting it could close the cycle &rarr; **deny** (for now)
 
 ---
 
-## deadlock | **detection**
+periodically **detect** deadlocks
 
 ---
 
-### detection
+### deadlock | **detection**
 
-- **periodically** check: is the system deadlocked?
+- **periodically** check &rarr; is system deadlocked?
 
 ---
 
-### detection
+### deadlock | **detection**
 
-- **periodically** check: is the system deadlocked?
+- **periodically** check &rarr; is system deadlocked?
 - uses **current** allocations only &rarr; **practical**
 
 ---
 
-### detection
+### deadlock | **detection**
 
-- **periodically** check: is the system deadlocked?
+- **periodically** check &rarr; is system deadlocked?
 - uses **current** allocations only &rarr; **practical**
-- single-instance resources &rarr; look for a **cycle**
+- single-instance resources &rarr; look for **cycle**
 
 ---
 
 ### detection | **waits-for graph**
 
-resource allocation graph...
+start with resource allocation graph
 
 <img src="./img/deadlock/waits_for_1.png" height="600">
 
@@ -1527,7 +1863,7 @@ resource allocation graph...
 
 ### detection | **waits-for graph**
 
-...collapse resources &rarr; **waits-for** graph
+collapse resources &rarr; **waits-for** graph
 
 <img src="./img/deadlock/waits_for_2.png" height="600">
 
@@ -1535,118 +1871,171 @@ resource allocation graph...
 
 ### detection | **waits-for graph**
 
-- <scb>Pi &rarr; Pj</scb> &rarr; <scb>Pi</scb> waits for a resource <scb>Pj</scb> holds
+| edge | means |
+|---|---|
+| <scb>$P_i \rightarrow P_j$</scb> | <scb>$P_i$</scb> **waits** for resource <scb>$P_j$</scb> **holds** |
 
 ---
 
 ### detection | **waits-for graph**
 
-- <scb>Pi &rarr; Pj</scb> &rarr; <scb>Pi</scb> waits for a resource <scb>Pj</scb> holds
-- deadlock &harr; a **cycle**
+| edge | means |
+|---|---|
+| <scb>$P_i \rightarrow P_j$</scb> | <scb>$P_i$</scb> **waits** for resource <scb>$P_j$</scb> **holds** |
+
+<br>
+
+deadlock &harr; **<span style="background-color: darkred; color: white;">&nbsp; cycle &nbsp;</span>**
 
 ---
 
 ### detection | **waits-for graph**
 
-- <scb>Pi &rarr; Pj</scb> &rarr; <scb>Pi</scb> waits for a resource <scb>Pj</scb> holds
-- deadlock &harr; a **cycle**
-- cycle detection &rarr; a classic **interview** question!
+| edge | means |
+|---|---|
+| <scb>$P_i \rightarrow P_j$</scb> | <scb>$P_i$</scb> **waits** for resource <scb>$P_j$</scb> **holds** |
+
+<br>
+
+deadlock &harr; **<span style="background-color: darkred; color: white;">&nbsp; cycle &nbsp;</span>**
+
+[cycle detection &rarr; classic **interview** question!]
 
 ---
 
-## deadlock | **recovery**
+how do **recover** from a deadlocked system?
 
 ---
 
-### recovery
+### deadlock | **recovery**
 
-- add preemption &rarr; **terminate** processes
-    - abort **all** deadlocked processes
-    - ...or abort **one at a time** until resolved
+add preemption &rarr; **terminate** processes:
 
 ---
 
-in which **order**?
+### deadlock | **recovery**
+
+add preemption &rarr; **terminate** processes:
+- abort **all** deadlocked processes
+
+---
+
+### deadlock | **recovery**
+
+add preemption &rarr; **terminate** processes:
+- abort **all** deadlocked processes
+- **or** abort **one at a time** until resolved
+
+---
+
+### deadlock | **recovery**
+
+abort one at a time &rarr; in which **order**?
 
 ---
 
 ### recovery | **OOM killer**
 
-- Linux **out-of-memory** killer &rarr; memory "deadlock" recovery
+<sc>Linux</sc> **out-of-memory** [**OOM**] killer <br> &rarr; memory "deadlock" recovery
 
 ---
 
 ### recovery | **OOM killer**
 
-- Linux **out-of-memory** killer &rarr; memory "deadlock" recovery
-- everyone blocked in <scb>malloc()</scb>... who dies?
+<sc>Linux</sc> **out-of-memory** [**OOM**] killer <br> &rarr; memory "deadlock" recovery
+
+- everyone blocked in <scb>malloc()</scb>
 
 ---
 
 ### recovery | **OOM killer**
 
-- Linux **out-of-memory** killer &rarr; memory "deadlock" recovery
-- everyone blocked in <scb>malloc()</scb>... who dies?
-- biggest process? &rarr; maybe the **most important** one (_e.g._ X server)!
+<sc>Linux</sc> **out-of-memory** [**OOM**] killer <br> &rarr; memory "deadlock" recovery
 
----
-
-### recovery | **OOM killer**
-
-- Linux **out-of-memory** killer &rarr; memory "deadlock" recovery
-- everyone blocked in <scb>malloc()</scb>... who dies?
-- biggest process? &rarr; maybe the **most important** one (_e.g._ X server)!
-- **heuristics** &rarr; no perfect answer
-
----
-
-### recovery | **kernel deadlocks**
-
-deadlock **in the kernel**?
+- everyone blocked in <scb>malloc()</scb>
 
 <br>
 <br>
 
-usually &rarr; **reboot**!
+who dies?
 
 ---
 
-## deadlock | **summary**
+who dies?
+
+- biggest process?
+    - maybe **most important** one! [_e.g._ <sc>X server</sc>]
 
 ---
 
-|||
-| --- | --- |
-| cause | **dynamic** resource allocation <br> [locks are resources too!] |
+who dies?
+
+- biggest process?
+    - maybe **most important** one! [_e.g._ <sc>X server</sc>]
+
+<br>
+
+**heuristics** &rarr; no **perfect** answer
 
 ---
 
-|||
-| --- | --- |
-| cause | **dynamic** resource allocation <br> [locks are resources too!] |
-| four conditions | mutual exclusion, hold and wait, <br> no preemption, circular wait |
+deadlock **in kernel**?
 
 ---
 
-|||
-| --- | --- |
-| cause | **dynamic** resource allocation <br> [locks are resources too!] |
-| four conditions | mutual exclusion, hold and wait, <br> no preemption, circular wait |
-| main defense | a **total lock order** <br> [per data structure, across data structures] |
+deadlock **in kernel**?
+
+<br>
+<br>
+
+usually &rarr; **<span style="background-color: darkred; color: white;">&nbsp; reboot! &nbsp;</span>**
 
 ---
 
-|||
-| --- | --- |
-| cause | **dynamic** resource allocation <br> [locks are resources too!] |
-| four conditions | mutual exclusion, hold and wait, <br> no preemption, circular wait |
-| main defense | a **total lock order** <br> [per data structure, across data structures] |
-| also | memory &rarr; OOM killer |
+### deadlock | **summary**
+
+---
+
+### deadlock | **summary**
+
+| topic | details | notes |
+| --- | --- | --- |
+| cause | **dynamic** resource allocation | locks are resources too! |
+
+---
+
+### deadlock | **summary**
+
+| topic | details | notes |
+| --- | --- | --- |
+| cause | **dynamic** resource allocation | locks are resources too! |
+| four conditions | mutual exclusion <br> hold and wait <br> no preemption <br> circular wait | **all** needed |
+
+---
+
+### deadlock | **summary**
+
+| topic | details | notes |
+| --- | --- | --- |
+| cause | **dynamic** resource allocation | locks are resources too! |
+| four conditions | mutual exclusion <br> hold and wait <br> no preemption <br> circular wait | **all** needed |
+| main defense | **total lock order** | per data structure <br> across data structures |
+
+---
+
+### deadlock | **summary**
+
+| topic | details | notes |
+| --- | --- | --- |
+| cause | **dynamic** resource allocation | locks are resources too! |
+| four conditions | mutual exclusion <br> hold and wait <br> no preemption <br> circular wait | **all** needed |
+| main defense | **total lock order** | per data structure <br> across data structures |
+| also | memory | OOM killer |
 ||
 
 ---
 
-**next topic** &rarr; scheduling
+**next topic** &rarr; **scheduling**
                     </textarea>
                 </section>
             </div>
