@@ -1732,7 +1732,7 @@ run $Q$... wait for **everyone else**... run $R$
 | --- | --- |
 | remainder | $R = B \bmod Q$ |
 | division | $D = \lfloor B/Q \rfloor$ |
-| response time | $RT = (TQ) \cdot D + R$ |
+| response time | $RT^{min} = (TQ) \cdot D + R$ |
 
 ---
 
@@ -1742,7 +1742,7 @@ run $Q$... wait for **everyone else**... run $R$
 | --- | --- |
 | remainder | $R = B \bmod Q$ |
 | division | $D = \lfloor B/Q \rfloor$ |
-| response time | $RT = (TQ) \cdot D + R$ |
+| response time | $RT^{min} = (TQ) \cdot D + R$ |
 | wait time | $W = RT - B$ |
 ||
 
@@ -1750,25 +1750,52 @@ run $Q$... wait for **everyone else**... run $R$
 
 ---
 
-### quantum vs response time | **no direct relationship!**
-
-| quantum | effect | why |
-|---|---|---|
-| $Q$ **small** | **larger** wait time | more rounds <br> [+ switch overheads] |
+choice of quantum ($Q$) &rarr; significant effects on response times ($RT$)
 
 ---
 
-### quantum vs response time | **no direct relationship!**
+### quantum vs response time 
 
 | quantum | effect | why |
 |---|---|---|
-| $Q$ **small** | **larger** wait time | more rounds <br> [+ switch overheads] |
-| $Q$ **large** | FIFO **convoys** | behaves like FCFS |
+| $Q$ **small** | **larger** wait time* | more rounds <br> [+ switch overheads] |
+
+---
+
+### quantum vs response time 
+
+| quantum | effect | why |
+|---|---|---|
+| $Q$ **small** | **larger** wait time* | more rounds <br> [+ switch overheads] |
+| $Q$ **large** | FIFO **convoys** | behaves like **FCFS** |
 ||
 
+
 ---
 
-## priority **scheduling**
+### quantum vs response time 
+
+| quantum | effect | why |
+|---|---|---|
+| $Q$ **small** | **larger** wait time* | more rounds <br> [+ switch overheads] |
+| $Q$ **large** | FIFO **convoys** | behaves like **FCFS** |
+||
+
+[* a _slightly_ larger $Q$ &rarr; **significant reduction** in response times]
+
+---
+
+so far &rarr; all threads treated **equally**
+
+---
+
+so far &rarr; all threads treated **equally**
+
+what if some threads are more **important**?
+
+---
+
+### priority **scheduling**
 
 ---
 
@@ -1795,31 +1822,57 @@ run $Q$... wait for **everyone else**... run $R$
 
 ---
 
-### priority scheduling | **cons**
+### priority scheduling | **non-preemptive**
 
-problem?
+---
+
+### priority scheduling | **non-preemptive**
+
+- avoids pitfalls of FCFS
+
+---
+
+### priority scheduling | **non-preemptive**
+
+- avoids pitfalls of FCFS
+- low-priority thread **can** still delay high-priority one
+
+---
+
+### priority scheduling | **non-preemptive**
+
+- avoids pitfalls of FCFS
+- low-priority thread **can** still delay high-priority one
+    - until it **blocks**/**yields**
+
+---
+
+### priority scheduling | **preemptive**
+
+- low-priority thread **cannot** delay high-priority one
+    - preempted as soon as high-priority thread is **ready**
 
 ---
 
 ### priority scheduling | **cons**
 
-problem?
-
-**starvation**!
+but...what's the **catch**?
 
 ---
 
 ### priority scheduling | **cons**
 
-problem?
+but...what's the **catch**?
 
-**starvation**!
-
-low priority threads &rarr; may **never** run
+## **starvation**!
 
 ---
 
-### priority scheduling | **aging**
+## **starvation**!
+
+low-priority threads &rarr; may **never** run
+
+---
 
 fix &rarr; **aging**
 
@@ -1829,9 +1882,15 @@ fix &rarr; **aging**
 
 adjust priorities **dynamically**
 
+---
+
+### priority scheduling | **aging**
+
+adjust priorities **dynamically**
+
 | thread | priority |
 |---|---|
-| **waiting** a long time | **up** |
+| **waiting** a long time | |
 
 ---
 
@@ -1841,8 +1900,29 @@ adjust priorities **dynamically**
 
 | thread | priority |
 |---|---|
-| **waiting** a long time | **up** |
-| **running** a long time | **down** |
+| **waiting** a long time | **<span style="background-color: green; color: white;">&nbsp; up &nbsp;</span>** |
+
+---
+
+### priority scheduling | **aging**
+
+adjust priorities **dynamically**
+
+| thread | priority |
+|---|---|
+| **waiting** a long time | **<span style="background-color: green; color: white;">&nbsp; up &nbsp;</span>** |
+| **running** a long time | |
+
+---
+
+### priority scheduling | **aging**
+
+adjust priorities **dynamically**
+
+| thread | priority |
+|---|---|
+| **waiting** a long time | **<span style="background-color: green; color: white;">&nbsp; up &nbsp;</span>** |
+| **running** a long time | **<span style="background-color: darkred; color: white;">&nbsp; down &nbsp;</span>** |
 ||
 
 ---
@@ -1874,10 +1954,10 @@ SCHED_DEADLINE min/max priority	: 0/0
 | threads | priority | range |
 |---|---|---|
 | **real-time** | **fixed** priority | <scb>1</scb>-<scb>99</scb> |
-| **normal** | **nice** value | <scb>-20</scb>..<scb>19</scb> |
+| **normal** | **nice*** value | <scb>-20</scb>..<scb>19</scb> |
 ||
 
-[nice values &rarr; next lecture]
+[* nice values &rarr; next lecture]
 
 ---
 
@@ -1886,15 +1966,26 @@ SCHED_DEADLINE min/max priority	: 0/0
 | threads | priority | range |
 |---|---|---|
 | **real-time** | **fixed** priority | <scb>1</scb>-<scb>99</scb> |
-| **normal** | **nice** value | <scb>-20</scb>..<scb>19</scb> |
+| **normal** | **nice*** value | <scb>-20</scb>..<scb>19</scb> |
 
-[nice values &rarr; next lecture]
+[* nice values &rarr; next lecture]
 
 see [sched(7)](https://man7.org/linux/man-pages/man7/sched.7.html), [chrt(1)](https://man7.org/linux/man-pages/man1/chrt.1.html)
 
 ---
 
-## multilevel **queues**
+what if threads have **different** needs?
+
+
+---
+
+what if threads have **different** needs?
+
+say, I/O-bound vs batch processing jobs?
+
+---
+
+### multilevel **queues**
 
 ---
 
@@ -1915,7 +2006,7 @@ see [sched(7)](https://man7.org/linux/man-pages/man7/sched.7.html), [chrt(1)](ht
 
 | queue | policy |
 |---|---|
-| I/O-bound, interactive | RR |
+| I/O-bound, interactive | **RR** |
 
 ---
 
@@ -1923,9 +2014,13 @@ see [sched(7)](https://man7.org/linux/man-pages/man7/sched.7.html), [chrt(1)](ht
 
 | queue | policy |
 |---|---|
-| I/O-bound, interactive | RR |
-| CPU-bound, background, batch | FCFS |
+| I/O-bound, interactive | **RR** |
+| CPU-bound, background, batch | **FCFS** |
 ||
+
+---
+
+but...what about scheduling **between** queues?
 
 ---
 
@@ -1933,7 +2028,7 @@ see [sched(7)](https://man7.org/linux/man-pages/man7/sched.7.html), [chrt(1)](ht
 
 | option | how | catch |
 |---|---|---|
-| **fixed priority** | higher queue always first | starvation possible |
+| **fixed priority** | higher queue always first | **starvation** possible |
 
 ---
 
@@ -1941,9 +2036,14 @@ see [sched(7)](https://man7.org/linux/man-pages/man7/sched.7.html), [chrt(1)](ht
 
 | option | how | catch |
 |---|---|---|
-| **fixed priority** | higher queue always first | starvation possible |
-| **proportional** | _e.g._ background gets <scb>20</scb>% of CPU | less responsive |
+| **fixed priority** | higher queue always first | **starvation** possible |
+| **proportional** | _e.g._ background gets <scb>20</scb>% of CPU | **less** responsive |
 ||
+
+---
+
+### multilevel queues | **Linux**
+
 
 ---
 
@@ -1960,6 +2060,129 @@ scheduling **classes** &rarr; highest first
 busy higher class...
 
 <img src="./img/scheduling/linux_classes_2.png" height="660">
+
+---
+
+kernel tries its scheduling classes **in order**...
+
+---
+
+kernel tries its scheduling classes **in order**...
+
+| order | class | policies |
+|:---:|---|---|
+| <scb>1</scb> | **stop** | internal only <br> [_e.g._ migration threads] |
+
+---
+
+kernel tries its scheduling classes **in order**...
+
+| order | class | policies |
+|:---:|---|---|
+| <scb>1</scb> | **stop** | internal only <br> [_e.g._ migration threads] |
+| <scb>2</scb> | **deadline** | <scb>SCHED_DEADLINE</scb> |
+
+---
+
+kernel tries its scheduling classes **in order**...
+
+| order | class | policies |
+|:---:|---|---|
+| <scb>1</scb> | **stop** | internal only <br> [_e.g._ migration threads] |
+| <scb>2</scb> | **deadline** | <scb>SCHED_DEADLINE</scb> |
+| <scb>3</scb> | **real-time** | <scb>SCHED_FIFO</scb>, <scb>SCHED_RR</scb> |
+
+---
+
+kernel tries its scheduling classes **in order**...
+
+| order | class | policies |
+|:---:|---|---|
+| <scb>1</scb> | **stop** | internal only <br> [_e.g._ migration threads] |
+| <scb>2</scb> | **deadline** | <scb>SCHED_DEADLINE</scb> |
+| <scb>3</scb> | **real-time** | <scb>SCHED_FIFO</scb>, <scb>SCHED_RR</scb> |
+| <scb>4</scb> | **fair** | <scb>SCHED_NORMAL</scb>, <scb>SCHED_BATCH</scb>, <scb>SCHED_IDLE</scb> <br> [CFS &rarr; EEVDF] |
+
+---
+
+kernel tries its scheduling classes **in order**...
+
+| order | class | policies |
+|:---:|---|---|
+| <scb>1</scb> | **stop** | internal only <br> [_e.g._ migration threads] |
+| <scb>2</scb> | **deadline** | <scb>SCHED_DEADLINE</scb> |
+| <scb>3</scb> | **real-time** | <scb>SCHED_FIFO</scb>, <scb>SCHED_RR</scb> |
+| <scb>4</scb> | **fair** | <scb>SCHED_NORMAL</scb>, <scb>SCHED_BATCH</scb>, <scb>SCHED_IDLE</scb> <br> [CFS &rarr; EEVDF] |
+| <scb>5</scb> | **idle** | per-core idle task [swapper] |
+||
+
+---
+
+### <sc>Linux</sc> | <scb>__pick_next_task()</scb>
+
+```C
+for_each_class(class) {                 // stop → dl → rt → fair → idle
+    p = class->pick_next_task(rq);
+    if (p)
+        return p;                       // first class with a runnable thread wins
+}
+```
+
+[simplified from [<scb>kernel/sched/core.c</scb>](https://elixir.bootlin.com/linux/latest/source/kernel/sched/core.c)]
+
+---
+
+### <sc>Linux</sc> | <scb>__pick_next_task()</scb>
+
+```C [1|2|3-4|5]
+for_each_class(class) {                 // stop → dl → rt → fair → idle
+    p = class->pick_next_task(rq);
+    if (p)
+        return p;                       // first class with a runnable thread wins
+}
+```
+
+[simplified from [<scb>kernel/sched/core.c</scb>](https://elixir.bootlin.com/linux/latest/source/kernel/sched/core.c)]
+
+---
+
+### <sc>Linux</sc> | <scb>__pick_next_task()</scb>
+
+```C
+for_each_class(class) {                 // stop → dl → rt → fair → idle
+    p = class->pick_next_task(rq);
+    if (p)
+        return p;                       // first class with a runnable thread wins
+}
+```
+
+[simplified from [<scb>kernel/sched/core.c</scb>](https://elixir.bootlin.com/linux/latest/source/kernel/sched/core.c)]
+
+---
+
+### multilevel queues | **Linux**
+
+so, which wins? <scb>SCHED_DEADLINE</scb> or <scb>SCHED_FIFO</scb>?
+
+---
+
+### multilevel queues | **Linux**
+
+so, which wins? <scb>SCHED_DEADLINE</scb> or <scb>SCHED_FIFO</scb>?
+
+<scb>SCHED_DEADLINE</scb> &rarr; beats even priority <scb>99</scb> <scb>SCHED_FIFO</scb>!
+
+---
+
+### multilevel queues | **Linux**
+
+so, which wins? <scb>SCHED_DEADLINE</scb> or <scb>SCHED_FIFO</scb>?
+
+<scb>SCHED_DEADLINE</scb> &rarr; beats even priority <scb>99</scb> <scb>SCHED_FIFO</scb>!
+
+<br>
+
+[but limited to its declared **runtime** budget &rarr; can't starve others **forever**]
 
 ---
 
@@ -1999,49 +2222,63 @@ real-time capped &rarr; **<scb>95</scb>%** of each second
 
 ---
 
-## multilevel **feedback** queues
+but...how do we know which queue a thread **belongs** to?
+
+---
+
+### multilevel **feedback** queues
 
 ---
 
 ### multilevel feedback queues
 
-- thread &harr; queue **mapping**?
+thread &harr; queue **mapping**?
 
 ---
 
 ### multilevel feedback queues
 
-- thread &harr; queue **mapping**?
-- want interactive, I/O-bound threads <br> &rarr; **higher** priority queues
+thread &harr; queue **mapping**?
+
+|||
+|----|----|
+| interactive, I/O-bound threads | **higher** priority queues |
 
 ---
 
 ### multilevel feedback queues
 
-- thread &harr; queue **mapping**?
-- want interactive, I/O-bound threads <br> &rarr; **higher** priority queues
-- threads **move** between queues <br> &rarr; based on behaviour
+thread &harr; queue **mapping**?
+
+|||
+|----|----|
+| interactive, I/O-bound threads | **higher** priority queues |
+| threads **move** between queues | based on **behaviour** |
 
 ---
 
 ### multilevel feedback queues
 
-- thread &harr; queue **mapping**?
-- want interactive, I/O-bound threads <br> &rarr; **higher** priority queues
-- threads **move** between queues <br> &rarr; based on behaviour
-- **aging** &rarr; avoids starvation
+thread &harr; queue **mapping**?
+
+|||
+|----|----|
+| interactive, I/O-bound threads | **higher** priority queues |
+| threads **move** between queues | based on **behaviour** |
+| **aging** | avoids **starvation** |
+||
 
 ---
 
-### multilevel feedback queues | **parameters**
+what are the **parameters** we need to think about?
+
+---
 
 | parameter | description |
 | --- | --- |
 | **queues** | how many? |
 
 ---
-
-### multilevel feedback queues | **parameters**
 
 | parameter | description |
 | --- | --- |
@@ -2049,8 +2286,6 @@ real-time capped &rarr; **<scb>95</scb>%** of each second
 | **policy** | for each queue |
 
 ---
-
-### multilevel feedback queues | **parameters**
 
 | parameter | description |
 | --- | --- |
@@ -2059,8 +2294,6 @@ real-time capped &rarr; **<scb>95</scb>%** of each second
 | **promote** | when to move thread **up** |
 
 ---
-
-### multilevel feedback queues | **parameters**
 
 | parameter | description |
 | --- | --- |
@@ -2070,8 +2303,6 @@ real-time capped &rarr; **<scb>95</scb>%** of each second
 | **demote** | when to move thread **down** |
 
 ---
-
-### multilevel feedback queues | **parameters**
 
 | parameter | description |
 | --- | --- |
@@ -2084,11 +2315,11 @@ real-time capped &rarr; **<scb>95</scb>%** of each second
 
 ---
 
-### example | multilevel feedback queues
+### example | **three** queues
 
 ---
 
-### example | multilevel feedback queues
+### example | **three** queues
 
 three queues
 
@@ -2096,7 +2327,7 @@ three queues
 
 ---
 
-### example | multilevel feedback queues
+### example | **three** queues
 
 use **whole** quantum &rarr; **demote**
 
@@ -2104,7 +2335,7 @@ use **whole** quantum &rarr; **demote**
 
 ---
 
-### example | multilevel feedback queues
+### example | **three** queues
 
 block on I/O &rarr; **promote**
 
@@ -2112,36 +2343,54 @@ block on I/O &rarr; **promote**
 
 ---
 
-### multilevel feedback queues | **result**
+### example | **three** queues | **results**
 
 | threads | quantum | priority |
 |---|---|---|
-| **CPU-bound** | long | low |
+| **CPU-bound** | **long** | |
 
 ---
 
-### multilevel feedback queues | **result**
+### example | **three** queues | **results**
 
 | threads | quantum | priority |
 |---|---|---|
-| **CPU-bound** | long | low |
-| **I/O-bound** | short | high |
+| **CPU-bound** | **long** | **<span style="background-color: darkred; color: white;">&nbsp; low &nbsp;</span>** |
+
+---
+
+### example | **three** queues | **results**
+
+| threads | quantum | priority |
+|---|---|---|
+| **CPU-bound** | **long** | **<span style="background-color: darkred; color: white;">&nbsp; low &nbsp;</span>** |
+| **I/O-bound** | **short** | |
+
+---
+
+### example | **three** queues | **results**
+
+| threads | quantum | priority |
+|---|---|---|
+| **CPU-bound** | **long** | **<span style="background-color: darkred; color: white;">&nbsp; low &nbsp;</span>** |
+| **I/O-bound** | **short** | **<span style="background-color: green; color: white;">&nbsp; high &nbsp;</span>** |
 ||
 
 ---
 
-### multilevel feedback queues | **result**
+### example | **three** queues
 
 | threads | quantum | priority |
 |---|---|---|
-| **CPU-bound** | long | low |
-| **I/O-bound** | short | high |
+| **CPU-bound** | **long** | **<span style="background-color: darkred; color: white;">&nbsp; low &nbsp;</span>** |
+| **I/O-bound** | **short** | **<span style="background-color: green; color: white;">&nbsp; high &nbsp;</span>** |
+||
 
 <br>
 <br>
 
-<center><div class="center" data-id="box" style="height: 75px; width: 550px; background: orange;">
-behaviour &rarr; <b>sorts threads automatically!</b>
+<center><div class="center" data-id="box" style="height: 75px; width: 1140px; background: orange;">
+behaviour sorts threads <b>automatically!</b>
 </div></center>
 
 ---
@@ -2188,13 +2437,17 @@ see [OSTEP, MLFQ](https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-sched-mlfq.pdf)
 ### scheduling | **other policies**
 
 - **shortest job first** [<sc>SJF</sc>]
-    - predicts burst lengths
+- predicts burst lengths
 
 [textbook &sect;5.3]
 
 ---
 
-## multicore **scheduling**
+so far &rarr; **one** core...what about **many** cores?
+
+---
+
+### multicore **scheduling**
 
 ---
 
@@ -2207,15 +2460,20 @@ see [OSTEP, MLFQ](https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-sched-mlfq.pdf)
 ### multicore scheduling
 
 - scheduler runs on **each** core
-    - "which thread should **I** run on **my** core?"
+    - "_which thread should **I** run on **my** core?_"
 
 ---
 
 ### multicore scheduling
 
 - scheduler runs on **each** core
-    - "which thread should **I** run on **my** core?"
-- implies &rarr; "which **core** should thread run on?"
+  - "_which thread should **I** run on **my** core?_"
+- implies the question
+  - "_which **core** should thread run on?_"
+
+---
+
+how do we **implement** multicore scheduling?
 
 ---
 
@@ -2253,7 +2511,7 @@ one runqueue **per core**
 
 ---
 
-tradeoffs?
+partitioned or global &rarr; **tradeoffs**?
 
 ---
 
@@ -2294,7 +2552,7 @@ tradeoffs?
 
 - **trivial** synchronization
     - per-core runqueues &rarr; **no** cross-core locking
-- **higher** effective utilization
+- **cache affinity** <br> &rarr; thread stays on **one** core [warm caches]
 
 ---
 
@@ -2331,6 +2589,41 @@ tradeoffs?
 
 ---
 
+### multicore | **partitioned vs global**
+
+| approach | utilization | synchronization |
+|---|---|---|
+| **partitioned** | | |
+
+---
+
+### multicore | **partitioned vs global**
+
+| approach | utilization | synchronization |
+|---|---|---|
+| **partitioned** | **<span style="background-color: darkred; color: white;">&nbsp; lower &nbsp;</span>** <br> [imbalance] | **<span style="background-color: green; color: white;">&nbsp; trivial &nbsp;</span>** <br> [per-core] |
+
+---
+
+### multicore | **partitioned vs global**
+
+| approach | utilization | synchronization |
+|---|---|---|
+| **partitioned** | **<span style="background-color: darkred; color: white;">&nbsp; lower &nbsp;</span>** <br> [imbalance] | **<span style="background-color: green; color: white;">&nbsp; trivial &nbsp;</span>** <br> [per-core] |
+| **global** | | |
+
+---
+
+### multicore | **partitioned vs global**
+
+| approach | utilization | synchronization |
+|---|---|---|
+| **partitioned** | **<span style="background-color: darkred; color: white;">&nbsp; lower &nbsp;</span>** <br> [imbalance] | **<span style="background-color: green; color: white;">&nbsp; trivial &nbsp;</span>** <br> [per-core] |
+| **global** | **<span style="background-color: green; color: white;">&nbsp; high &nbsp;</span>** <br> [any core, any thread] | **<span style="background-color: darkred; color: white;">&nbsp; expensive &nbsp;</span>** <br> [one lock] |
+||
+
+---
+
 subtle issue &rarr; thread **migration**...
 
 ---
@@ -2361,7 +2654,11 @@ scheduled on **another** core &rarr; data must **move**
 
 cost &rarr; **refilling** cache
 
-[microseconds to **100s of** <scb>&micro;s</scb> &rarr; depends on working set]
+[**100s of** <scb>&micro;s</scb> to <scb>ms</scb> &rarr; depends on working set]
+
+---
+
+so...what do real systems **do**?
 
 ---
 
@@ -2464,21 +2761,17 @@ what about <scb>xv6</scb>?
 
 ---
 
-<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
-<div>
+### <scb>xv6</scb> | **multicore**
 
-what about <scb>xv6</scb>?
+- **one** <scb>ptable.lock</scb> for all cores
 
-</div>
+---
 
-<div>
+### <scb>xv6</scb> | **multicore**
 
 - **one** <scb>ptable.lock</scb> for all cores
 - **global** scheduling!
 
-</div>
-</div>
-
 ---
 
 ### scheduling | **summary**
@@ -2494,7 +2787,7 @@ what about <scb>xv6</scb>?
 | topic | key points |
 | --- | --- |
 | **goals** | utilization, waiting, response time, fairness |
-| **policies** | FCFS, RR, priority, multilevel [feedback] queues |
+| **policies** | **FCFS**, **RR**, priority, multilevel [feedback] queues |
 
 ---
 
@@ -2503,7 +2796,7 @@ what about <scb>xv6</scb>?
 | topic | key points |
 | --- | --- |
 | **goals** | utilization, waiting, response time, fairness |
-| **policies** | FCFS, RR, priority, multilevel [feedback] queues |
+| **policies** | **FCFS**, **RR**, priority, multilevel [feedback] queues |
 | **every policy** | **trades off** some goals for others |
 
 ---
@@ -2513,9 +2806,9 @@ what about <scb>xv6</scb>?
 | topic | key points |
 | --- | --- |
 | **goals** | utilization, waiting, response time, fairness |
-| **policies** | FCFS, RR, priority, multilevel [feedback] queues |
+| **policies** | **FCFS**, **RR**, priority, multilevel [feedback] queues |
 | **every policy** | **trades off** some goals for others |
-| **multicore** | partitioned vs global <br> same tradeoffs! |
+| **multicore** | **partitioned** vs **global** <br> same tradeoffs! |
 ||
 
 ---

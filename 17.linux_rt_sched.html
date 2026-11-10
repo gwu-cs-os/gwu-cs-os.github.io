@@ -189,7 +189,7 @@ today &rarr; two **dueling** schedulers
 
 ### CFS | **idea**
 
-<center><div class="center" data-id="box" style="height: 75px; width: 900px; background: orange;">
+<center><div class="center" data-id="box" style="height: 75px; width: 1200px; background: orange;">
 threads get CPU time <b>proportional to their weight</b>
 </div></center>
 
@@ -197,7 +197,7 @@ threads get CPU time <b>proportional to their weight</b>
 
 ### CFS | **idea**
 
-<center><div class="center" data-id="box" style="height: 75px; width: 900px; background: orange;">
+<center><div class="center" data-id="box" style="height: 75px; width: 1200px; background: orange;">
 threads get CPU time <b>proportional to their weight</b>
 </div></center>
 
@@ -226,6 +226,17 @@ two threads, same weight &rarr; same share of CPU
 - $w_i$ &rarr; **weight** of thread $\tau_i$
 
 $$share(\tau_i) = \frac{w_i}{\sum_j w_j}$$
+
+---
+
+### CFS | **share**
+
+- <scb>$N$</scb> &rarr; number of **runnable** threads
+- $w_i$ &rarr; **weight** of thread $\tau_i$
+
+$$share(\tau_i) = \frac{w_i}{\sum_j w_j}$$
+
+higher weight &rarr; **bigger** share of CPU
 
 ---
 
@@ -287,6 +298,8 @@ weights come from **nice** values <scb>-20</scb>..<scb>19</scb>
 | <scb>0</scb> | <scb>1024</scb> | default |
 | <scb>+1</scb> step | &divide; ~<scb>1.25</scb> | each step &asymp; <scb>1.25</scb>x apart |
 | <scb>3</scb> | <scb>526</scb> | roughly **half** of nice <scb>0</scb> |
+| <scb>-20</scb> | <scb>88761</scb> | **highest** weight |
+| <scb>19</scb> | <scb>15</scb> | **lowest** weight |
 ||
 
 ---
@@ -573,7 +586,7 @@ weights <scb>1</scb>, <scb>2</scb>, <scb>3</scb> &rarr; $\frac{20}{6} < 4$ &rarr
 
 <img src="./img/linux_rt_sched/cfs_slices_2.png" height="470">
 
-minimum quantum **<span style="background-color: darkred; color: white;">&nbsp wins &nbsp</span>** &rarr; round takes <scb>24</scb> ms, not <scb>20</scb>!
+minimum quantum **wins** &rarr; round takes <scb>24</scb> ms, not <scb>20</scb>!
 
 ---
 
@@ -795,7 +808,7 @@ $\tau_{2}$ lowest [<scb>8/3</scb>]
 <br>
 <br>
 
-<center><div class="center" data-id="box" style="height: 75px; width: 500px; background: orange;">
+<center><div class="center" data-id="box" style="height: 75px; width: 380px; background: orange;">
 <b>weighted fair!</b>
 </div></center>
 
@@ -818,7 +831,9 @@ $\tau_{2}$ lowest [<scb>8/3</scb>]
 
 <div>
 
-- **red-black** tree <br> &rarr; balanced binary tree
+|||
+|---|---|
+| **red-black** tree | balanced binary tree |
 
 </div>
 </div>
@@ -836,8 +851,10 @@ $\tau_{2}$ lowest [<scb>8/3</scb>]
 
 <div>
 
-- **red-black** tree <br> &rarr; balanced binary tree
-- sorted by **weighted** exec time
+|||
+|---|---|
+| **red-black** tree | balanced binary tree |
+| sorted by | **weighted** exec time |
 
 </div>
 </div>
@@ -855,9 +872,12 @@ $\tau_{2}$ lowest [<scb>8/3</scb>]
 
 <div>
 
-- **red-black** tree <br> &rarr; balanced binary tree
-- sorted by **weighted** exec time
-- **leftmost** node &rarr; runs next
+|||
+|---|---|
+| **red-black** tree | balanced binary tree |
+| sorted by | **weighted** exec time |
+| **leftmost** node | runs **next** |
+||
 
 </div>
 </div>
@@ -992,21 +1012,13 @@ woken thread's vruntime:
 
 ### CFS | **waking up**
 
-<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
-<div>
-
 woken thread's vruntime:
-- just below **minimum**
-- **not** <scb>0</scb>
+- set just below **minimum** in tree
+- **not** reset to <scb>0</scb>
 
-</div>
-
-<div>
+<br>
 
 long sleepers &rarr; **can't hog** CPU!
-
-</div>
-</div>
 
 ---
 
@@ -1038,6 +1050,40 @@ long sleepers &rarr; **can't hog** CPU!
 <br>
 
 [see [EEVDF scheduler](https://docs.kernel.org/scheduler/sched-eevdf.html)]
+
+---
+
+so, why use CFS at all?
+
+---
+
+### CFS | **pros**
+
+- **no** assumptions about workload
+
+---
+
+### CFS | **pros**
+
+- **no** assumptions about workload
+- **fair** &rarr; share proportional to weight
+
+---
+
+### CFS | **pros**
+
+- **no** assumptions about workload
+- **fair** &rarr; share proportional to weight
+- **responsive** &rarr; woken threads run soon
+
+---
+
+### CFS | **pros**
+
+- **no** assumptions about workload
+- **fair** &rarr; share proportional to weight
+- **responsive** &rarr; woken threads run soon
+- cheap decisions &rarr; $O(\log N)$ red-black tree
 
 ---
 
@@ -1078,6 +1124,10 @@ guaranteed to run <scb>$e$</scb> time units within window <scb>$w$</scb>?
 ---
 
 some systems **<span style="background-color: darkred; color: white;">&nbsp need &nbsp</span>** that guarantee!
+
+---
+
+so, how do we **guarantee** timing?
 
 ---
 
@@ -1136,38 +1186,18 @@ how is this **not** "computation as normal"?
 
 ### real-time systems | **why different?**
 
-<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
-<div>
-
 how is this **not** "computation as normal"?
 
-</div>
-
-<div>
-
 - results must arrive **in time**
-
-</div>
-</div>
 
 ---
 
 ### real-time systems | **why different?**
 
-<div class="multicolumn" style="display: grid; grid-template-columns: 40% 60%; gap: 20px; align-items: center;">
-<div>
-
 how is this **not** "computation as normal"?
-
-</div>
-
-<div>
 
 - results must arrive **in time**
 - deadline comes from **physics**!
-
-</div>
-</div>
 
 ---
 
@@ -1392,8 +1422,8 @@ ECU's **own** deadline &rarr; **shorter**!
 
 ---
 
-<center><div class="center" data-id="box" style="height: 75px; width: 800px; background: orange;">
-all tasks &rarr; <b>responsiveness &le; deadline</b>
+<center><div class="center" data-id="box" style="height: 75px; width: 760px; background: orange;">
+<b>every task: response time &le; deadline</b>
 </div></center>
 
 ---
@@ -1638,23 +1668,13 @@ how do we **assign** a priority $\sigma_i$ to each task?
 
 ### example | **fixed priority**
 
-| task | $e_i$ | $p_i$ | priority |
-|---|---|---|---|
-| $\tau_{0}$ | <scb>2</scb> | <scb>5</scb> | **low** |
+one core, **preemptive** fixed priority
 
 ---
 
 ### example | **fixed priority**
 
-| task | $e_i$ | $p_i$ | priority |
-|---|---|---|---|
-| $\tau_{0}$ | <scb>2</scb> | <scb>5</scb> | **low** |
-| $\tau_{1}$ | <scb>4</scb> | <scb>10</scb> | **high** |
-||
-
----
-
-### example | **fixed priority**
+one core, **preemptive** fixed priority
 
 | task | $e_i$ | $p_i$ | priority |
 |---|---|---|---|
@@ -1716,6 +1736,7 @@ ideas?
 |---|---|---|
 | **shorter** $p_i$ | **faster** | **higher** |
 | **longer** $p_i$ | infrequent | lower |
+| **equal** $p_i$ | same | either [break ties **consistently**] |
 ||
 
 ---
@@ -1917,14 +1938,6 @@ how would **you** calculate interference?
 | task | $e_i$ | $p_i$ | priority |
 |---|---|---|---|
 | $\tau_{0}$ | <scb>2</scb> | <scb>5</scb> | low |
-
----
-
-### example | interference **scenario I**
-
-| task | $e_i$ | $p_i$ | priority |
-|---|---|---|---|
-| $\tau_{0}$ | <scb>2</scb> | <scb>5</scb> | low |
 | $\tau_{1}$ | <scb>4</scb> | <scb>10</scb> | **high** |
 ||
 
@@ -1935,34 +1948,6 @@ how would **you** calculate interference?
 interference on $\tau_{0}$?
 
 <img src="./img/linux_rt_sched/interf_1.png" height="580">
-
----
-
-### example | interference **scenario II**
-
-| task | $e_i$ | $p_i$ | priority |
-|---|---|---|---|
-| [**<font color="teal">teal</font>**] $\tau_{0}$ | <scb>1</scb> | <scb>3</scb> | **high** |
-
----
-
-### example | interference **scenario II**
-
-| task | $e_i$ | $p_i$ | priority |
-|---|---|---|---|
-| [**<font color="teal">teal</font>**] $\tau_{0}$ | <scb>1</scb> | <scb>3</scb> | **high** |
-| [**<font color="blue">blue</font>**] $\tau_{1}$ | <scb>3</scb> | <scb>6</scb> | middle |
-
----
-
-### example | interference **scenario II**
-
-| task | $e_i$ | $p_i$ | priority |
-|---|---|---|---|
-| [**<font color="teal">teal</font>**] $\tau_{0}$ | <scb>1</scb> | <scb>3</scb> | **high** |
-| [**<font color="blue">blue</font>**] $\tau_{1}$ | <scb>3</scb> | <scb>6</scb> | middle |
-| [**<font color="purple">purple</font>**] $\tau_{2}$ | <scb>1</scb> | <scb>9</scb> | low |
-||
 
 ---
 
@@ -2182,7 +2167,7 @@ $RTA_2(6) = 1 + \lceil 6/6 \rceil \cdot 3 + \lceil 6/3 \rceil \cdot 1 = \mathbf{
 
 <br>
 
-<scb>6</scb> &le; <scb>9</scb> &rarr; deadline **<span style="background-color: darkred; color: white;">&nbsp met &nbsp</span>**!
+<scb>6</scb> &le; <scb>9</scb> &rarr; deadline **<span style="background-color: green; color: white;">&nbsp; met! &nbsp;</span>**
 
 ---
 
@@ -2239,6 +2224,21 @@ now make $\tau_{2}$ slightly **longer**:
 
 sanity check &rarr; **utilization**
 
+---
+
+### example | **RTA II**
+
+sanity check &rarr; **utilization**
+
+- $U$ &rarr; fraction of CPU time tasks **need**
+- $U = \sum_i \frac{e_i}{p_i}$
+
+---
+
+### example | **RTA II**
+
+sanity check &rarr; **utilization**
+
 $$U = \frac{1}{3} + \frac{3}{6} + \frac{2}{9} \approx 1.06 > 1$$
 
 ---
@@ -2249,7 +2249,7 @@ sanity check &rarr; **utilization**
 
 $$U = \frac{1}{3} + \frac{3}{6} + \frac{2}{9} \approx 1.06 > 1$$
 
-[hopeless anyway!]
+tasks need **more** CPU time than exists &rarr; hopeless anyway!
 
 ---
 
@@ -2419,7 +2419,7 @@ e2 = 2:
 
 ---
 
-<center><div class="center" data-id="box" style="height: 75px; width: 850px; background: orange;">
+<center><div class="center" data-id="box" style="height: 75px; width: 1140px; background: orange;">
 we can <b>prove</b> system meets its physical deadlines!
 </div></center>
 
@@ -2497,7 +2497,11 @@ high-priority task &rarr; suffers **low-priority** interference
 ### RTA | **practical concerns**
 
 2. **context switches** aren't free
-    - every task suffers **dispatch latency**
+    - every task suffers **dispatch latency***
+
+<br>
+
+[* time to stop one task and start the next]
 
 ---
 
@@ -2585,6 +2589,17 @@ Mars Curiosity rover &rarr; ~<scb>240</scb> tasks!
 
 ---
 
+so, why not use real-time scheduling **everywhere**?
+
+---
+
+so, why not use real-time scheduling **everywhere**?
+
+- needs periods + WCETs **up front**
+- general workloads &rarr; **don't** have them
+
+---
+
 ### two schedulers
 
 | aspect | real-time | Linux [CFS, EEVDF] |
@@ -2619,7 +2634,19 @@ Mars Curiosity rover &rarr; ~<scb>240</scb> tasks!
 | assumptions | **strong** [periods, WCETs] | almost **none** |
 | parameters | from task model | **heuristics** [<scb>20</scb> ms, <scb>4</scb> ms] |
 | result | **guarantees** | good **average** behaviour |
-| general purpose? | **no** | **yes** |
+| general purpose? | | |
+
+
+---
+
+### two schedulers
+
+| aspect | real-time | Linux [CFS, EEVDF] |
+|---|---|---|
+| assumptions | **strong** [periods, WCETs] | almost **none** |
+| parameters | from task model | **heuristics** [<scb>20</scb> ms, <scb>4</scb> ms] |
+| result | **guarantees** | good **average** behaviour |
+| general purpose? | **<span style="background-color: darkred; color: white;">&nbsp; no &nbsp;</span>** | **<span style="background-color: green; color: white;">&nbsp; yes &nbsp;</span>** |
 ||
 
 ---
